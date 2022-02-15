@@ -47,32 +47,34 @@ maxn <- select_fish_families_pelagic(maxn, fish_families)
 
 
 
-### keep only opcodes that are available in meta in data (fl and maxn) 
+### keep only opcodes that are available in meta in fl and maxn
 
 # fl
-fl <- keep_opcode_in_meta_pelagic(meta, fl)
+fl <- keep_opcode_in_meta(meta, fl)
 
 # maxn
-maxn <- keep_opcode_in_meta_pelagic(meta, maxn)
+maxn <- keep_opcode_in_meta(meta, maxn)
 
 
 
-### remove from a data (fl or maxn) the opcode not available in the other data (maxn or fl), ie the single opcodes
+### remove from fl the opcodes not available in maxn, ie the single opcodes
 
 #fl
-fl <- remove_single_opcodes_pelagic(fl, maxn)
+fl <- remove_single_opcodes(fl, maxn)
 
-#maxn
-maxn <- remove_single_opcodes_pelagic(maxn, fl)
-
-#checks
+#number of opcodes
 length(unique(fl$NewOpCode))
-length(unique(maxn$NewOpCode)) 
+length(unique(maxn$NewOpCode))
 
 
 
 ### assign empty opcodes in meta
 meta <- assign_empty_opcodes_meta_pelagic(meta, maxn)
+
+
+
+### write meta opcodes for pelagic bruvs
+write_meta_opcodes_pelagic(meta)
 
 
 
@@ -90,88 +92,46 @@ fl <- add_individual_fl_data_pelagic(fl, maxn)
 
 
 
- ########################################################################################################################################
+########################################################################################################################################
 ########### benthic bruvs
 
-#read
-expeds <- readxl::read_excel(here::here("data", "benthic", "All expeditions 2021_09_16 FIN.xlsx"), sheet = 1)
+### read benthic bruvs data
 
-fl <- readxl::read_excel(here::here("data", "benthic", "BenthicFL.xlsx"), sheet = 1)
-
-maxn <- readxl::read_excel(here::here("data", "benthic", "BenthicMaxN.xlsx"), sheet = 1)
-
-meta <- readxl::read_excel(here::here("data", "benthic", "BenthicMeta.xlsx"), sheet = 1)
+expeds <- read_exped()
+fl <- read_fl_benthic()
+maxn <- read_maxn_benthic()
+meta <- read_meta_benthic()
 
 
-#select expeds based on permission = yes
-expeds %>% 
-  dplyr::rename("NewExped" = "New Exped") -> expeds
 
-expeds_permitted <- expeds$NewExped[expeds$Permission == "Yes"]
-
+### clean data
 
 #clean meta
-meta %>% 
-  #select columns
-  dplyr::select("NewOpcode",	"New Exped", "Date", "Year", "Month", "Lat", "Long", "Time In",	"USE?",	"Location", "Site", 
-                "Biotic", "Substrate") %>% 
-  #rename columns
-  dplyr::rename("exped" ="New Exped",
-                "use" ="USE?",
-                "time_in" = "Time In") %>% 
-  #remove one expedition not available in maxn or fl
-  dplyr::filter(exped != "Cape Howe_2006") %>% 
-  #remove nas
-  tidyr::drop_na() %>% 
-  #remove invalid stations
-  dplyr::filter(use == "Yes") %>% 
-  #select expeditions
-  dplyr::filter(exped %in% expeds_permitted) -> meta
-
+meta <- clean_meta_benthic(meta)
 
 #clean fl
-fl %>% 
-  #select columns
-  dplyr::select("Sample ID",  "Expedition", "Family", "Genus", "Binomial", "Length (mm)") %>% 
-  #rename columns
-  dplyr::rename("NewOpCode" = "Sample ID",
-                "Lengthmm" = "Length (mm)") %>% 
-  #calculate length in cm
-  dplyr::mutate(Lengthcm = Lengthmm / 1000) %>% 
-  dplyr::select(-"Lengthmm") %>% 
-  #select expeditions
-  dplyr::filter(Expedition %in% expeds_permitted) %>% 
-  #replace juvenile and unknown in species and genus by NA
-  dplyr::mutate(Binomial = dplyr::na_if(Binomial, "Juvenile sp")) %>% 
-  dplyr::mutate(Genus = dplyr::na_if(Genus, "Juvenile")) %>% 
-  dplyr::mutate(Binomial = dplyr::na_if(Binomial, "Unknown sp")) %>% 
-  dplyr::mutate(Binomial = dplyr::na_if(Binomial, "Unknown 1")) %>% 
-  dplyr::mutate(Binomial = dplyr::na_if(Binomial, "Unknown Gadidae")) %>% 
-  dplyr::mutate(Genus = dplyr::na_if(Genus, "Unknown")) %>% 
-  dplyr::mutate(Genus = dplyr::na_if(Genus, "sp")) -> fl
-
+fl <- clean_fl_benthic(fl)
 
 #clean maxn
-maxn %>% 
-  #select columns
-  dplyr::select(c("SampleID", "Exped", "Family", "Genus", "Binomial", "MaxN", "FL (cm)", "nFL", "source")) %>% 
-  #rename columns
-  dplyr::rename("NewOpCode" = "SampleID",
-                "FLcm" = "FL (cm)") %>% 
-  #select expeditions
-  dplyr::filter(Exped %in% expeds_permitted) %>% 
-  #replace juvenile and unknown in species and genus by NA
-  dplyr::mutate(Binomial = dplyr::na_if(Binomial, "Juvenile sp")) %>% 
-  dplyr::mutate(Genus = dplyr::na_if(Genus, "Juvenile")) %>% 
-  dplyr::mutate(Binomial = dplyr::na_if(Binomial, "Unknown sp")) %>% 
-  dplyr::mutate(Binomial = dplyr::na_if(Binomial, "Unknown 1")) %>% 
-  dplyr::mutate(Binomial = dplyr::na_if(Binomial, "Unknown Gadidae")) %>% 
-  dplyr::mutate(Genus = dplyr::na_if(Genus, "Unknown")) %>% 
-  dplyr::mutate(Genus = dplyr::na_if(Genus, "sp")) %>% 
-  #ignore NAs in maxN
-  tidyr::drop_na(MaxN) %>% 
-  #remove duplicates
-  dplyr::distinct() ->  maxn
+maxn <- clean_maxn_benthic(maxn)
+
+
+
+### remove expeditions that are not permitted to be used in this study
+
+#select expeds based on permission
+expeds_notpermitted <- expeds$`New Exped`[expeds$Permission == "No"]
+
+
+#maxn
+maxn <- removed_notpermitted_expeditions_benthic(maxn, expeds_notpermitted)
+
+#fl
+fl <- removed_notpermitted_expeditions_benthic(fl, expeds_notpermitted)
+
+#meta
+meta <- removed_notpermitted_expeditions_benthic(meta, expeds_notpermitted)
+  
 
 
 
@@ -206,45 +166,58 @@ fish_families <- c("Glaucosomatidae", "Labridae", "Lethrinidae", "Pomacanthidae"
                    "FISTULARIIDAE", "TORPEDINIDAE",  "Gadidae", "Lotidae", "Cottidae",   "Trachinidae",  "Anarhichadidae")                                  
   
 
-fl %>% 
-  #select families
-  dplyr::filter(Family %in% families) -> dat_families
+#maxn
+maxn = select_fish_families_benthic(maxn, fish_families)
 
 
-#retrieve individuals with unknown family but available species name
-fl %>% 
-  dplyr::filter(Family %in% c("Unknown", "Juvenile")) %>% 
-  dplyr::filter(is.na(Binomial) == FALSE)  -> dat_unknown
-
-# bind
-new <- rbind(dat_unknown, dat_families)
-
-
-  
-  
-#check that same expeds in fl and maxn
-length(unique(fl$Expedition))
-length(unique(maxn$Exped)) #10 exped in maxn but not fl
-
-setdiff(maxn$Exped, fl$Expedition)
-
-setdiff(meta$exped, maxn$Exped)
-
-setdiff(meta$exped, fl$Expedition)
+#fl
+fl = select_fish_families_benthic(fl, fish_families)
 
 
 
 
+### keep only opcodes that are available in meta in fl and maxn
+
+# fl
+fl <- keep_opcode_in_meta(meta, fl)
+
+# maxn
+maxn <- keep_opcode_in_meta(meta, maxn)
 
 
-#look for duplicates opcodes and add a suffix - report to fl and maxn
+
+### remove from fl the opcodes not available in maxn, ie the single opcodes
+
+#fl
+fl <- remove_single_opcodes(fl, maxn)
+
+#number of opcodes
+length(unique(fl$NewOpCode))
+length(unique(maxn$NewOpCode))
+
+
+
+### assign empty opcodes in meta
+meta <- assign_empty_opcodes_meta_benthic(meta, maxn)
+
+
+
+### write meta opcodes for benthic bruvs
+write_meta_opcodes_benthic(meta)
+
+
+### Add mean fork length data to maxn data based on a hierarchy for benthic bruvs
+maxn <- add_mean_fl_to_maxn_data_benthic(fl, maxn)
 
 
 
 
 
+### Add fork length data for individuals counted in maxn but with no available fork length
+### for these individuals we assign the mean fork length calculated in maxn data  
+### for benthic bruvs
 
-
+fl <- add_individual_fl_data_benthic(fl, maxn)
 
 
 
