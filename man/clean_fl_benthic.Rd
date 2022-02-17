@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_clean_data.R
 \name{clean_fl_benthic}
 \alias{clean_fl_benthic}
-\title{Clean fl data for benthifc bruvs}
+\title{Clean fl data for benthic bruvs}
 \usage{
 clean_fl_benthic(dat)
 }
@@ -13,5 +13,5 @@ clean_fl_benthic(dat)
 
 }
 \description{
-Clean fl data for benthifc bruvs
+Clean fl data for benthic bruvs
 }

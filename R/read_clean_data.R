@@ -591,6 +591,28 @@ write_meta_opcodes_pelagic <- function (dat) {
 
 
 
+#' Write meta strings for pelagic bruvs
+#'
+#' @param dat 
+#'
+#' @return
+#' @export
+#'
+
+write_meta_strings_pelagic <- function (dat) {
+  
+  #get strings
+  dat %>% 
+    dplyr::select("string", "exped", "Location", "Sublocation", "use", "grounded", "Date", "Year", "Month", "lon_in", "lat_in", "time_in", "empty") %>% 
+    dplyr::group_by(string) %>% 
+    #keep information (lon lat time) from first row
+    dplyr::slice(1) -> dat
+    
+  write.csv(dat, here::here("outputs", "pelagic", "pelagic_strings.csv"), row.names = FALSE)
+  
+}
+
+
 
 #' Read meta data for benthic bruvs
 #'
@@ -671,7 +693,9 @@ clean_meta_benthic <- function(dat){
     dplyr::rename("Exped" ="New Exped",
                   "use" ="USE?",
                   "time_in" = "Time In",
-                  "NewOpCode" = "NewOpcode") %>% 
+                  "NewOpCode" = "NewOpcode",
+                  "lat_in" = "Lat", 
+                  "lon_in" = "Long") %>% 
     #reformat time in 
     dplyr::mutate(time_in = strftime(time_in, format="%H:%M:%S")) %>% 
     #get year and month
@@ -682,6 +706,13 @@ clean_meta_benthic <- function(dat){
     dplyr::mutate(Year = stringr::str_replace(Year, "84316", "2016")) %>%
     #remove one expedition not available in maxn or fl
     dplyr::filter(Exped != "Cape Howe_2006") %>% 
+    #remove na lat/lon
+    tidyr::drop_na(lat_in) %>% 
+    tidyr::drop_na(lon_in) %>% 
+    #remove na date
+    tidyr::drop_na(Date) %>% 
+    #remove invalid coordinates
+    dplyr::filter(!NewOpCode %in% c("BRUV1_26102015", "SBB09_173")) %>% 
     #remove invalid stations
     dplyr::filter(is.na(use) | use != "No") -> new
   
@@ -693,7 +724,7 @@ clean_meta_benthic <- function(dat){
 
 
 
-#' Clean fl data for benthifc bruvs
+#' Clean fl data for benthic bruvs
 #'
 #' @param dat 
 #'
