@@ -104,6 +104,12 @@ maxn <- add_mean_fl_to_maxn_data_pelagic(fl, maxn)
 fl <- add_individual_fl_data_pelagic(fl, maxn)
 
 
+
+### Estimate weight from observed length for a taxa using rfishbase
+fl <- estimate_weight_from_length(fl)
+
+
+
 ### rename objects before saving
 maxn_pelagic = maxn
 fl_pelagic = fl
@@ -243,6 +249,11 @@ maxn <- add_mean_fl_to_maxn_data_benthic(fl, maxn)
 ### for benthic bruvs
 
 fl <- add_individual_fl_data_benthic(fl, maxn)
+
+
+
+### Estimate weight from observed length for a taxa using rfishbase
+fln <- estimate_weight_from_length(fl)
 
 
 

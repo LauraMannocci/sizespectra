@@ -15,7 +15,13 @@ Imports:
     dplyr,
     here,
     magrittr,
+    maps,
+    plyr,
     rcompendium,
     readxl,
+    rfishbase,
     rrtools,
+    sp,
+    stringi,
+    stringr,
     tidyr

@@ -55,11 +55,9 @@ clean_maxn_pelagic <- function(dat){
   
   dat %>% 
     #select columns 
-    dplyr::select("New OpCode", "String", "Exped", "Location", "Family", "Binomial", "MaxN", "Biomass",  
-                  "Wt",	"a",	"b",	"LWR Source") %>% 
+    dplyr::select("New OpCode", "String", "Exped", "Location", "Family", "Binomial", "MaxN") %>% 
     #rename
-    dplyr::rename("NewOpCode" = "New OpCode",
-                  "LWRSource" = "LWR Source") %>% 
+    dplyr::rename("NewOpCode" = "New OpCode") %>% 
     #replace one expedition name
     dplyr::mutate(Exped = stringr::str_replace(Exped, "Wandoo 2017 autumn", "Wandoo autumn 2017")) %>%
     #extract last four letters of expedition to get year
@@ -79,8 +77,7 @@ clean_maxn_pelagic <- function(dat){
     dplyr::mutate(Binomial = dplyr::na_if(Binomial, "Unknown sp3")) %>% 
     dplyr::mutate(Genus = dplyr::na_if(Genus, "Unknown")) %>% 
     #select columns (to reorder)
-    dplyr::select("NewOpCode", "String", "Exped", "Year", "Location", "Family", "Genus", "Binomial", "MaxN", "Biomass",  
-                  "Wt",	"a",	"b",	"LWRSource") %>% 
+    dplyr::select("NewOpCode", "String", "Exped", "Year", "Location", "Family", "Genus", "Binomial", "MaxN") %>% 
     #ignore NAs in maxN
     tidyr::drop_na(MaxN) %>% 
     #remove duplicates
@@ -115,6 +112,15 @@ clean_fl_pelagic <- function(dat){
     dplyr::mutate(Year = stringr::str_sub(Exped, start=-4)) %>% 
     #correct one species name
     dplyr::mutate(Binomial = stringr::str_replace(Binomial, "Remora Remora", "Remora remora")) %>% 
+    #correct sp1/sp2
+    dplyr::mutate(Binomial = stringr::str_replace(Binomial, "sp1", "sp")) %>%
+    dplyr::mutate(Binomial = stringr::str_replace(Binomial, "sp2", "sp")) %>%
+    #correct unknown families
+    dplyr::mutate(Family = ifelse(Binomial == "Cantherhines fronticinctus", "Monacanthidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Decapterus sp", "Carangidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Carangidae sp", "Carangidae", Family)) %>% 	
+    dplyr::mutate(Family = ifelse(Binomial == "Pristiapogon exostigma", "Apogonidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Psenes sp", "Nomeidae", Family)) %>% 
     #replace juvenile and unknown in species and genus by NA
     dplyr::mutate(Binomial = dplyr::na_if(Binomial, "Juvenile sp")) %>% 
     dplyr::mutate(Binomial = dplyr::na_if(Binomial, "juvenile sp")) %>% 
@@ -394,8 +400,7 @@ add_mean_fl_to_maxn_data_pelagic <- function (dat_fl, dat_maxn) {
                                                                                mean_family_all_exped,
                                                                                mean_assemblage))))))))  %>%    
     #select columns
-    dplyr::select("NewOpCode", "String", "Exped", "Year", "Location", "Family", "Genus", "Binomial", "MaxN",
-                  "Biomass", "Wt", "a", "b", "LWRSource", "mean_fl") -> dat_maxn_species
+    dplyr::select("NewOpCode", "String", "Exped", "Year", "Location", "Family", "Genus", "Binomial", "MaxN", "mean_fl") -> dat_maxn_species
   
   
   ###### case when species does not exist
@@ -459,8 +464,7 @@ add_mean_fl_to_maxn_data_pelagic <- function (dat_fl, dat_maxn) {
                                                                  mean_fam_all_exped,
                                                                  mean_assemblage)))))) %>% 
     #select columns
-    dplyr::select("NewOpCode", "String", "Exped", "Year", "Location", "Family", "Genus", "Binomial", "MaxN",
-                  "Biomass", "Wt", "a", "b", "LWRSource", "mean_fl") -> dat_maxn_no_species
+    dplyr::select("NewOpCode", "String", "Exped", "Year", "Location", "Family", "Genus", "Binomial", "MaxN", "mean_fl") -> dat_maxn_no_species
     
   ###bind nmax data with and without species
   rbind(dat_maxn_species, dat_maxn_no_species) -> dat_maxn
@@ -1237,4 +1241,170 @@ write_meta_opcodes_benthic <- function (dat) {
   
 }
   
+
+
+
+
+#
+#' Estimate weight from observed length for a taxa using rfishbase
+#'
+#' @param data 
+#'
+#' @return
+#' @export
+#'
+
+estimate_weight_from_length = function(data) {
+  
+  if(!all(c("Binomial", "Lengthcm") %in% names(data))) {
+    print("Data must contain species name (Binomial) and observed length (Lengthcm)")
+    break
+  }
+  
+  #all lengths are assumed to be fork length with unit in cm
+  if(!("length_type" %in% names(data))) {data$length_type = "FL"}
+  if(!("length_units" %in% names(data))) {data$length_units = "cm"}
+  
+  # First we need to convert observed fork length (FL) to total length (TL) in centimeters if not already in those units
+  
+  length_length_data = NA
+  
+  if(any(data$length_type == "FL")) {
+    
+    # Get the length to length conversions from Fishbase
+    
+    tryCatch(length_length_data <- data.frame(rfishbase::length_length(unique(data$Binomial), fields = c("Species", "Length1","Length2","a","b"))),
+             error=function(e){})
+    
+    names(length_length_data)[1] = "Binomial"
+    
+    length_length_data = length_length_data[length_length_data$a == 0 & !is.na(length_length_data$Binomial),]
+    
+    length_length_data = length_length_data[length_length_data$Length1 %in% c("TL", "FL") & length_length_data$Length2 %in% c("TL", "FL"),]
+    
+    
+    if(nrow(length_length_data) == 1 & is.na(length_length_data$a[1]))  {data$TL_FLmean_ratio = 1} else {
+      
+      # print(length_length_data)
+      
+      if(is.data.frame(length_length_data) & nrow(length_length_data > 0)) {
+        
+        length_length_data$TL_FLratio = NA
+        
+        # Find the TL:FL ratios (either direction)
+        
+        length_length_data[length_length_data$Length1 == ("TL") & length_length_data$Length2 == ("FL"),]$TL_FLratio = length_length_data[length_length_data$Length1 == ("TL") & length_length_data$Length2 == ("FL"),]$b
+        length_length_data[length_length_data$Length1 == ("FL") & length_length_data$Length2 == ("TL"),]$TL_FLratio = 1/(length_length_data[length_length_data$Length1 == ("FL") & length_length_data$Length2 == ("TL"),]$b)
+        
+        #print(length_length_data)
+        
+        # Calculate the mean TL:FL ratio
+        
+        TL_FLmean_ratio = length_length_data %>% 
+          dplyr::group_by(Binomial) %>% 
+          dplyr::summarise(TL_FLmean_ratio = mean(TL_FLratio, na.rm = TRUE))
+        
+        
+      }
+      
+    }
+    
+    
+    data = merge(data, TL_FLmean_ratio, by = "Binomial", all.x = TRUE)
+    
+    data$TL_FLmean_ratio[is.na(data$TL_FLmean_ratio)] = 1
+    
+    
+    
+  } else {data$TL_FLmean_ratio = 1}
+  
+  # Apply this to the observed fork length
+  
+  data$conv_length = data$Lengthcm * data$TL_FLmean_ratio
+  
+  # Convert length from meters to centimeters if needed
+  
+  data$conv_length[data$length_units == "m"] =  data$conv_length[data$length_units == "m"] * 100
+  
+  # print(paste("TL(cm) =", conv_length))
+  
+  # Get the a and b estimates for the length to weight equation W = a * L^b
+  
+  tryCatch(a_b <- rfishbase::estimate(unique(data$Binomial), fields = c("Species", "a", "b")),
+           error=function(e) {})
+  
+  names(a_b)[1] = "Binomial"
+  
+  # print(paste("a =", a_b$a))
+  # print(paste("b =", a_b$b))
+  
+  # fill values for missing species using values from genus and family
+  
+  # calculate mean values per genus
+  a_b %>% 
+    dplyr::mutate(Genus = stringr::word(Binomial, 1)) %>% 
+    dplyr::group_by(Genus) %>% 
+    dplyr::summarise(mean_a_genus = mean(a, na.rm = T),
+                     mean_b_genus = mean(b, na.rm = T)) -> mean_data_genus
+  
+  # calculate mean values per family
+  
+  data %>% 
+    dplyr::select("Family", "Binomial") %>% 
+    dplyr::distinct() -> data_family
+  
+  a_b %>% 
+    dplyr::left_join(data_family, by = "Binomial") %>% 
+    dplyr::group_by(Family) %>% 
+    dplyr::summarise(mean_a_family = mean(a, na.rm = T),
+                     mean_b_family = mean(b, na.rm = T)) -> mean_data_family
+  
+  # calculate mean values for assemblage
+  a_b %>% 
+    dplyr::summarise(mean_a = mean(a, na.rm = T), 
+                     mean_b = mean(b, na.rm = T)) -> mean_data_assemblage
+  
+  # hierarchically fill missing values
+  a_b %>% 
+    # join mean genus
+    dplyr::mutate(Genus = stringr::word(Binomial, 1)) %>% 
+    dplyr::left_join(mean_data_genus, by = c("Genus")) %>% 
+    # join mean family 
+    dplyr::left_join(data_family, by = "Binomial") %>% 
+    dplyr::left_join(mean_data_family, by = c("Family"))  %>%       
+    # add mean assemblage 
+    dplyr::mutate(mean_assemblage_a = mean_data_assemblage$mean_a) %>%
+    dplyr::mutate(mean_assemblage_b = mean_data_assemblage$mean_b) %>%
+    # fill mean length column hierachically for that species 
+    dplyr::mutate("a" = ifelse(!is.na(a), 
+                               a, 
+                               ifelse(!is.na(mean_a_genus),
+                                      mean_a_genus,
+                                      ifelse(!is.na(mean_a_family),
+                                             mean_a_family,
+                                             mean_assemblage_a)))) %>% 
+    dplyr::mutate("b" = ifelse(!is.na(b), 
+                               b, 
+                               ifelse(!is.na(mean_b_genus),
+                                      mean_b_genus,
+                                      ifelse(!is.na(mean_b_family),
+                                             mean_b_family,
+                                             mean_assemblage_b)))) %>% 
+    dplyr::select("Binomial",  "a", "b") -> a_b
+  
+    data = merge(data, a_b, by = "Binomial", all.x = TRUE)
+  
+  # Calculate the weight based on the (converted) length and divide by 1000 to return it in kilograms
+  
+  data$weight_kg = (data$a * data$conv_length^data$b)/1000
+  
+  
+  return(data)
+  
+}
+
+
+
+
+
   

@@ -13,7 +13,9 @@ dir.create("outputs")
 
 dir.create("data")
 
-#declare package dependancies
+
+#to automatically add/remove dependencies
+rcompendium::add_dependencies(here::here())
 
 
 
@@ -24,8 +26,6 @@ devtools::document()
 #load all functions
 devtools::load_all()
 
-#to automatically add/remove dependencies
-rcompendium::add_dependencies(here::here())
 
 #command to stage files for git commit
 git add -A
