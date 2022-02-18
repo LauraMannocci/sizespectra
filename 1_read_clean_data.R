@@ -253,7 +253,7 @@ fl <- add_individual_fl_data_benthic(fl, maxn)
 
 
 ### Estimate weight from observed length for a taxa using rfishbase
-fln <- estimate_weight_from_length(fl)
+fl <- estimate_weight_from_length(fl)
 
 
 
