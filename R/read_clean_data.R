@@ -718,11 +718,31 @@ clean_meta_benthic <- function(dat){
     #remove invalid coordinates
     dplyr::filter(!NewOpCode %in% c("BRUV1_26102015", "SBB09_173")) %>% 
     #remove invalid stations
-    dplyr::filter(is.na(use) | use != "No") -> new
-  
+    dplyr::filter(is.na(use) | use != "No") %>% 
+    #handle one erroneous exped 
+    dplyr::mutate(Exped = dplyr::case_when(NewOpCode == "BRUV2_07112016" ~ "Sudan_2016",
+                                           NewOpCode != "BRUV2_07112016" ~ Exped)) %>% 
+    # remove duplicates
+    dplyr::distinct() %>% 
+    #rename duplicate opcodes related to HitraFroya
+    dplyr::mutate(NewOpCode = dplyr::case_when(NewOpCode == "BRUV3_23102016" & time_in == "09:24:21" ~ "BRUV3_23102016_bis",
+                                               NewOpCode == "2N09" & Exped == "HitraFrøya2020" ~ "2N09_bis", 
+                                               NewOpCode == "2N14" &  Exped == "HitraFrøya2020" ~  "2N14_bis",
+                                              NewOpCode == "2A12" &  Exped == "HitraFrøya2020" ~  "2A12_bis",
+                                              NewOpCode == "2A13" &  Exped == "HitraFrøya2020" ~  "2A13_bis",
+                                              NewOpCode == "2C01" &  Exped == "HitraFrøya2020" ~  "2C01_bis",
+                                              NewOpCode == "2C10" &  Exped == "HitraFrøya2020" ~  "2C10_bis",
+                                              NewOpCode == "2K08" &  Exped == "HitraFrøya2020" ~  "2K08_bis",
+                                              NewOpCode == "2K07" &  Exped == "HitraFrøya2020" ~  "2K07_bis",
+                                              NewOpCode == "2M08" &  Exped == "HitraFrøya2020" ~  "2M08_bis",
+                                              NewOpCode == "2M11" &  Exped == "HitraFrøya2020" ~  "2M11_bis",
+                                              NewOpCode == "2B05" &  Exped == "HitraFrøya2020" ~  "2B05_bis",
+                                              TRUE ~ NewOpCode)) -> new
   return(new)
   
 }
+
+
 
 
 
@@ -800,7 +820,24 @@ clean_fl_benthic <- function(dat){
                                                !Exped %in% c("New Caledonia_2012", "New Caledonia_2013", "New Caledonia_2014",  "French Polynesia_2013") ~ NewOpCode)) %>% 
     #change station names for Dampier (Pluto)_2008 expedition
     plyr::mutate(NewOpCode = dplyr::case_when(Exped == "Dampier (Pluto)_2008" ~ paste0("PLU08_", stringr::str_sub(NewOpCode, start = -3)),
-                                              Exped != "Dampier (Pluto)_2008" ~ NewOpCode))  -> new
+                                              Exped != "Dampier (Pluto)_2008" ~ NewOpCode))  %>% 
+    #rename duplicate opcodes related to HitraFroya
+    dplyr::mutate(NewOpCode = dplyr::case_when(NewOpCode == "2N09" & Exped == "HitraFrøya2020" ~ "2N09_bis", 
+                                               NewOpCode == "2N14" &  Exped == "HitraFrøya2020" ~  "2N14_bis",
+                                               NewOpCode == "2A12" &  Exped == "HitraFrøya2020" ~  "2A12_bis",
+                                               NewOpCode == "2A13" &  Exped == "HitraFrøya2020" ~  "2A13_bis",
+                                               NewOpCode == "2C01" &  Exped == "HitraFrøya2020" ~  "2C01_bis",
+                                               NewOpCode == "2C10" &  Exped == "HitraFrøya2020" ~  "2C10_bis",
+                                               NewOpCode == "2K08" &  Exped == "HitraFrøya2020" ~  "2K08_bis",
+                                               NewOpCode == "2K07" &  Exped == "HitraFrøya2020" ~  "2K07_bis",
+                                               NewOpCode == "2M08" &  Exped == "HitraFrøya2020" ~  "2M08_bis",
+                                               NewOpCode == "2M11" &  Exped == "HitraFrøya2020" ~  "2M11_bis",
+                                               NewOpCode == "2B05" &  Exped == "HitraFrøya2020" ~  "2B05_bis",
+                                               TRUE ~ NewOpCode)) %>% 
+    #rename duplicate opcodes related to opcode BRUV3_23102016 : assign half species to each duplicate
+    dplyr::mutate(NewOpCode = dplyr::case_when(NewOpCode == "BRUV3_23102016" & Binomial %in% c("Acanthurus nigrofuscus", "Balistapus undulatus", "Caesio striata", "Halichoeres scapularis", 
+                                                                                               "Thalassoma lunare", "Parupeneus forsskali", "Chromis dimidiata", "Cephalopholis hemistiktos") ~ "BRUV3_23102016_bis",
+                                               TRUE ~ NewOpCode)) -> new
   
   return(new)
   
@@ -869,10 +906,30 @@ clean_maxn_benthic <- function(dat){
     #convert stations to upper case for New Caledonia and French Polynesia expeditions
     dplyr::mutate(NewOpCode = dplyr::case_when(Exped %in% c("New Caledonia_2012", "New Caledonia_2013", "New Caledonia_2014",  "French Polynesia_2013") ~ stringr::str_to_upper(NewOpCode),
                                                !Exped %in% c("New Caledonia_2012", "New Caledonia_2013", "New Caledonia_2014",  "French Polynesia_2013") ~ NewOpCode)) %>% 
+    #handle one erroneous exped
+    dplyr::mutate(Exped = dplyr::case_when(NewOpCode == "BRUV2_07112016" ~ "Sudan_2016",
+                                           NewOpCode != "BRUV2_07112016" ~ Exped)) %>% 
     #ignore NAs in maxN
     tidyr::drop_na(MaxN) %>% 
     #remove duplicates
-    dplyr::distinct() ->  new
+    dplyr::distinct() %>% 
+    #rename duplicate opcodes related to HitraFroya
+    dplyr::mutate(NewOpCode = dplyr::case_when(NewOpCode == "2N09" & Exped == "HitraFrøya2020" ~ "2N09_bis", 
+                                               NewOpCode == "2N14" &  Exped == "HitraFrøya2020" ~  "2N14_bis",
+                                               NewOpCode == "2A12" &  Exped == "HitraFrøya2020" ~  "2A12_bis",
+                                               NewOpCode == "2A13" &  Exped == "HitraFrøya2020" ~  "2A13_bis",
+                                               NewOpCode == "2C01" &  Exped == "HitraFrøya2020" ~  "2C01_bis",
+                                               NewOpCode == "2C10" &  Exped == "HitraFrøya2020" ~  "2C10_bis",
+                                               NewOpCode == "2K08" &  Exped == "HitraFrøya2020" ~  "2K08_bis",
+                                               NewOpCode == "2K07" &  Exped == "HitraFrøya2020" ~  "2K07_bis",
+                                               NewOpCode == "2M08" &  Exped == "HitraFrøya2020" ~  "2M08_bis",
+                                               NewOpCode == "2M11" &  Exped == "HitraFrøya2020" ~  "2M11_bis",
+                                               NewOpCode == "2B05" &  Exped == "HitraFrøya2020" ~  "2B05_bis",
+                                               TRUE ~ NewOpCode)) %>% 
+    #rename duplicate opcodes related to opcode BRUV3_23102016 : assign half species to each duplicate
+    dplyr::mutate(NewOpCode = dplyr::case_when(NewOpCode == "BRUV3_23102016" & Binomial %in% c("Acanthurus nigrofuscus", "Balistapus undulatus", "Caesio striata", "Halichoeres scapularis", 
+                                                                                               "Thalassoma lunare", "Parupeneus forsskali", "Chromis dimidiata", "Cephalopholis hemistiktos") ~ "BRUV3_23102016_bis",
+                                               TRUE ~ NewOpCode)) -> new
   
   return(new)
   
