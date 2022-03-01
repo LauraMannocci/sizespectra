@@ -12,6 +12,10 @@ read_meta_pelagic <- function(){
 
 }
 
+
+
+
+
 #' Read maxn data for pelagic bruvs
 #'
 #' @param  
@@ -27,6 +31,26 @@ read_maxn_pelagic <- function(){
   
 }
 
+
+#' Get missing maxn data for pelagic bruvs (2 expeditions)
+#'
+#' @param  
+#'
+#' @return
+#' @export
+
+get_missing_maxn_pelagic <- function(){
+  
+  data <- readxl::read_excel(here::here("data", "pelagic", "TBL gal gct.xlsx"), 
+                             sheet = "MaxN")
+  data %>% 
+    dplyr::filter(Exped %in% c("Galapagos 2019", "Gracetown 2020")) -> new
+  
+  return(new)
+  
+}
+
+
 #' Read fl data for pelagic bruvs
 #'
 #' @param  
@@ -39,6 +63,26 @@ read_fl_pelagic <- function(){
   
   readxl::read_excel(here::here("data", "pelagic", "Pelagic compilation archive 2020_05_26.xlsx"), 
                    sheet = 3)
+  
+}
+
+
+#' Get missing fl data for pelagic bruvs (2 expeditions)
+#'
+#' @param  
+#'
+#' @return
+#' @export
+
+get_missing_fl_pelagic <- function(){
+  
+  data <- readxl::read_excel(here::here("data", "pelagic", "TBL gal gct.xlsx"), 
+                             sheet = "FL")
+  
+  data %>% 
+    dplyr::filter(Exped %in% c("Galapagos 2019", "Gracetown 2020")) -> new
+  
+  return(new)
   
 }
 
@@ -142,6 +186,24 @@ clean_fl_pelagic <- function(dat){
 
 
 
+#' Bind pelagic (maxn or fl) data
+#'
+#' @param dat1 
+#' @param dat2 
+#'
+#' @return
+#' @export
+#'
+
+bind_pelagic <- function(dat1, dat2){
+  
+  rbind(dat1, dat2) -> new
+  
+  return(new)
+  
+}
+  
+  
 
 
 #' Clean meta data for pelagic bruvs
@@ -172,8 +234,10 @@ clean_meta_pelagic <- function(dat){
     #reformat time in 
     dplyr::mutate(time_in = strftime(time_in, format="%H:%M:%S")) %>% 
     #remove invalid stations
-    dplyr::filter(use == "Yes") %>% 
-    dplyr::filter(grounded == "no") -> new
+    dplyr::filter(is.na(use) | use != "No") %>% 
+    dplyr::filter(is.na(grounded) | grounded == "no") %>% 
+    #drop nas
+    tidyr::drop_na(NewOpCode) -> new
   
   return(new)
   

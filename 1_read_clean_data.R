@@ -17,20 +17,40 @@ library(magrittr)
 ### read pelagic bruvs data
 
 meta <- read_meta_pelagic()
-maxn <- read_maxn_pelagic()
-fl <- read_fl_pelagic()
+maxn1 <- read_maxn_pelagic()
+fl1 <- read_fl_pelagic()
+
+
+
+### get missing pelagic bruvs data for maxn and fl (2 expeditions)
+
+maxn2 <- get_missing_maxn_pelagic()
+fl2 <- get_missing_fl_pelagic()
+
+
+
 
 
 ### clean data
 
 # clean maxn
-maxn <- clean_maxn_pelagic(maxn)
+maxn1 <- clean_maxn_pelagic(maxn1)
+maxn2 <- clean_maxn_pelagic(maxn2)
 
 # clean fl
-fl <- clean_fl_pelagic(fl)
+fl1 <- clean_fl_pelagic(fl1)
+fl2 <- clean_fl_pelagic(fl2)
 
 # clean meta
 meta <- clean_meta_pelagic(meta)
+
+
+
+### bind maxn and fl pelagic data
+
+maxn <- bind_pelagic(maxn1, maxn2)
+fl <- bind_pelagic(fl1, fl2)
+
 
 
 
