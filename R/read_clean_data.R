@@ -898,6 +898,9 @@ clean_fl_benthic <- function(dat){
                                                NewOpCode == "2M11" &  Exped == "HitraFrøya2020" ~  "2M11_bis",
                                                NewOpCode == "2B05" &  Exped == "HitraFrøya2020" ~  "2B05_bis",
                                                TRUE ~ NewOpCode)) %>% 
+    #remove two erroneous species record
+    dplyr::filter(!(Binomial == "Pastinachus sephen" & 	NewOpCode == "PLU08_127")) %>% 
+    dplyr::filter(!(Binomial == "Aethaloperca rogaa" & 	NewOpCode == "BRUV6_28102016")) %>% 
     #rename duplicate opcodes related to opcode BRUV3_23102016 : assign half species to each duplicate
     dplyr::mutate(NewOpCode = dplyr::case_when(NewOpCode == "BRUV3_23102016" & Binomial %in% c("Acanthurus nigrofuscus", "Balistapus undulatus", "Caesio striata", "Halichoeres scapularis", 
                                                                                                "Thalassoma lunare", "Parupeneus forsskali", "Chromis dimidiata", "Cephalopholis hemistiktos") ~ "BRUV3_23102016_bis",

@@ -62,7 +62,7 @@ fish_families <- c("Nomeidae", "Istiophoridae", "Fistulariidae", "Coryphaenidae"
                    "Blenniidae", "Mullidae", "Priacanthidae", "Sphyraenidae", "Apogonidae", "Tetraodontidae", 
                    "Pomacentridae", "Lutjanidae", "Labridae", "Syngnathidae", "Sparidae", "Kyphosidae", "Rachycentridae", 
                    "Belonidae", "Acanthuridae", "Caesionidae", "Aulostomidae", "Platax", "Engraulidae", "Chanidae", 
-                   "Nematistiidae", "Lobotidae", "Macroramphosidae", "Ephippidae")
+                   "Nematistiidae", "Lobotidae", "Macroramphosidae", "Ephippidae", "Rhincodontidae")
 
 # fl
 fl <- select_fish_families_pelagic(fl, fish_families) 
