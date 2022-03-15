@@ -11,17 +11,43 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Imports: 
+    colorRamps,
+    cowplot,
+    curl,
     devtools,
+    downloader,
     dplyr,
+    ggmap,
+    ggplot2,
+    ggridges,
+    grid,
+    gridExtra,
     here,
+    httr,
     magrittr,
     maps,
+    MASS,
+    plotrix,
     plyr,
+    png,
+    R.utils,
     rcompendium,
     readxl,
     rfishbase,
+    rgdal,
+    rgeos,
+    rlang,
     rrtools,
+    scales,
+    sizeSpectra,
     sp,
     stringi,
     stringr,
-    tidyr
+    tidyr,
+    utils,
+    sizeSpectra,
+    ggridges
+Remotes: 
+    nschiett/fishualize,
+    andrew-edwards/sizeSpectra
+    
