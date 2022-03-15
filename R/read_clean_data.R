@@ -428,7 +428,7 @@ add_mean_fl_to_maxn_data_pelagic <- function (dat_fl, dat_maxn) {
   mean_assemblage = mean(dat_fl$Lengthcm, na.rm=T)
   
   
-  #add mean fl to maxnbased on hierarchy
+  #add mean fl to maxn based on hierarchy
   
   dat_maxn_species %>% 
     # join mean_opcode 
@@ -570,12 +570,12 @@ add_individual_fl_data_pelagic <- function (dat_fl, dat_maxn) {
                    "Lengthcm" = "initial", 
                    "computed" = "initial")
   
-  #loop on opcode
-  for (op in (unique(dat_fl$NewOpCode))){
+  #loop on opcodes
+  for (op in (unique(dat_maxn$NewOpCode))){
     cat("-----------------opcode", op, "\n")
     
     #for given opcode loop on species 
-    for (sp in unique(dat_fl$Binomial[dat_fl$NewOpCode == op])){
+    for (sp in unique(dat_maxn$Binomial[dat_maxn$NewOpCode == op])){
       cat("-----------------species", sp, "\n") 
       
       #get fl data corresponding to given opcode and species
@@ -601,20 +601,42 @@ add_individual_fl_data_pelagic <- function (dat_fl, dat_maxn) {
       d = valmaxn - nfl
       cat("difference between maxn and nb of length measures is", d, "\n")
       
-      #create rows by corresponding to individuals with missing length and set their length to mean length calculated in maxn (mean_fl)
+      #create rows corresponding to individuals with missing length and set their length to mean length calculated in maxn (mean_fl)
       if (d > 0) {
-        #create row without length
-        r = unique(datfl[, c("NewOpCode", "String", "Exped", "Year", "Location", "Family", "Genus", "Binomial")]) 
-        #add length column to that row
-        r$Lengthcm <- unique(datmaxn$mean_fl)
-        #add computed column to that row
-        r$computed <- "yes"
-        #bind the rows d times
-        r <- do.call("rbind", replicate(d, r, simplify = FALSE))
-        #add these rows to previous rows
-        r0 <- rbind(r0, r)
+        #case when the opcode exists in fl
+        if (nfl != 0){
+          #create row without length
+          r = unique(datfl[, c("NewOpCode", "String", "Exped", "Year", "Location", "Family", "Genus", "Binomial")]) 
+          #add length column to that row
+          r$Lengthcm <- unique(datmaxn$mean_fl)
+          #add computed column to that row
+          r$computed <- "yes"
+          #bind the rows d times
+          r <- do.call("rbind", replicate(d, r, simplify = FALSE))
+          #add these rows to previous rows
+          r0 <- rbind(r0, r)
+        }
+        #case when opcode does not exist in fl
+        if (nfl == 0){
+          #create row without length
+          r <- data.frame("NewOpCode" = op,
+                           "String" = dat_maxn$String[dat_maxn$NewOpCode == op],
+                           "Exped" = dat_maxn$Exped[dat_maxn$NewOpCode == op],
+                           "Year" = dat_maxn$Year[dat_maxn$NewOpCode == op],
+                           "Location" = dat_maxn$Location[dat_maxn$NewOpCode == op],
+                           "Family" = dat_maxn$Family[dat_maxn$NewOpCode == op],
+                           "Genus" = dat_maxn$Genus[dat_maxn$NewOpCode == op],
+                           "Binomial" = dat_maxn$Binomial[dat_maxn$NewOpCode == op])
+          #add length column to that row
+          r$Lengthcm <- unique(datmaxn$mean_fl)
+          #add computed column to that row
+          r$computed <- "yes"
+          #bind the rows d times
+          r <- do.call("rbind", replicate(d, r, simplify = FALSE))
+          #add these rows to previous rows
+          r0 <- rbind(r0, r)
+        }
       }
-      
     }
   }
   
@@ -1278,12 +1300,12 @@ add_individual_fl_data_benthic <- function (dat_fl, dat_maxn) {
                    "Lengthcm" = "initial", 
                    "computed" = "initial")
   
-  #loop on opcode
-  for (op in (unique(dat_fl$NewOpCode))){
+  #loop on opcodes
+  for (op in (unique(dat_maxn$NewOpCode))){
     cat("-----------------opcode", op, "\n")
     
     #for given opcode loop on species 
-    for (sp in unique(dat_fl$Binomial[dat_fl$NewOpCode == op])){
+    for (sp in unique(dat_maxn$Binomial[dat_maxn$NewOpCode == op])){
       cat("-----------------species", sp, "\n") 
       
       #get fl data corresponding to given opcode and species
@@ -1309,20 +1331,40 @@ add_individual_fl_data_benthic <- function (dat_fl, dat_maxn) {
       d = valmaxn - nfl
       cat("difference between maxn and nb of length measures is", d, "\n")
       
-      #create rows by corresponding to individuals with missing length and set their length to mean length calculated in maxn (mean_fl)
+      #create rows corresponding to individuals with missing length and set their length to mean length calculated in maxn (mean_fl)
       if (d > 0) {
-        #create row without length
-        r = unique(datfl[, c("NewOpCode", "Exped", "Year", "Family", "Genus", "Binomial")]) 
-        #add length column to that row
-        r$Lengthcm <- unique(datmaxn$mean_fl)
-        #add computed column to that row
-        r$computed <- "yes"
-        #bind the rows d times
-        r <- do.call("rbind", replicate(d, r, simplify = FALSE))
-        #add these rows to previous rows
-        r0 <- rbind(r0, r)
+        #case when the opcode exists in fl
+        if (nfl != 0){
+          #create row without length
+          r = unique(datfl[, c("NewOpCode", "Exped", "Year", "Family", "Genus", "Binomial")]) 
+          #add length column to that row
+          r$Lengthcm <- unique(datmaxn$mean_fl)
+          #add computed column to that row
+          r$computed <- "yes"
+          #bind the rows d times
+          r <- do.call("rbind", replicate(d, r, simplify = FALSE))
+          #add these rows to previous rows
+          r0 <- rbind(r0, r)
+        }
+        #case when opcode does not exist in fl
+        if (nfl == 0){
+          #create row without length
+          r <- data.frame("NewOpCode" = op,
+                          "Exped" = dat_maxn$Exped[dat_maxn$NewOpCode == op],
+                          "Year" = dat_maxn$Year[dat_maxn$NewOpCode == op],
+                          "Family" = dat_maxn$Family[dat_maxn$NewOpCode == op],
+                          "Genus" = dat_maxn$Genus[dat_maxn$NewOpCode == op],
+                          "Binomial" = dat_maxn$Binomial[dat_maxn$NewOpCode == op])
+          #add length column to that row
+          r$Lengthcm <- unique(datmaxn$mean_fl)
+          #add computed column to that row
+          r$computed <- "yes"
+          #bind the rows d times
+          r <- do.call("rbind", replicate(d, r, simplify = FALSE))
+          #add these rows to previous rows
+          r0 <- rbind(r0, r)
+        }
       }
-      
     }
   }
   
@@ -1531,4 +1573,121 @@ estimate_weight_from_length = function(data) {
 
 
 
+
+
+
+#' merge pelagic meta with pelagic FL
+#'
+#' @param dat_meta
+#' @param dat_fl
+#'
+#' @return
+#' @export
+#' @import dplyr
+
+merge_fl_pelagic_meta = function(dat_meta, dat_fl) {
   
+  dat_meta %>%
+    dplyr::mutate(Type = "Midwater") %>%
+    dplyr::mutate(Type = as.factor(Type)) %>% 
+    dplyr::rename("Exped" = "exped")  -> dat_meta_new
+  
+  dat_fl %>%
+    dplyr::select("NewOpCode", "Family", "Binomial", "Lengthcm", "weight_kg") %>%
+    dplyr::full_join(dat_meta_new[, c("NewOpCode", "string","lon_in", "lat_in", "Exped", "Type", "Date")], by ="NewOpCode") -> dat_fl_meta
+  
+  return(dat_fl_meta)
+  
+}
+
+
+
+#' merge benthic meta with benthic FL
+#'
+#' @param dat_meta
+#' @param dat_fl
+#'
+#' @return
+#' @export
+#' @import dplyr
+
+merge_fl_benthic_meta = function(dat_meta, dat_fl) {
+  
+  dat_meta %>%
+    dplyr::mutate(Type = "Seabed") %>%
+    dplyr::mutate(Type = as.factor(Type))  %>% 
+    dplyr::rename("Exped" = "exped")  -> dat_meta_new
+  
+  dat_fl %>%
+    dplyr::select("NewOpCode", "Family", "Binomial", "Lengthcm", "weight_kg") %>%
+    dplyr::full_join(dat_meta_new[, c("NewOpCode","lon_in", "lat_in", "Exped", "Type", "Date")], by ="NewOpCode") -> dat_fl_meta
+  
+  return(dat_fl_meta)
+  
+}
+
+
+#' save merged meta with FL (benthic or pelagic)
+#'
+#' @param dat
+#' @param type
+#'
+#' @return
+#' @export
+#'
+
+write_merged_fl_meta  <-  function(dat, type){
+  
+  write.csv(dat, file = here::here("outputs", type, paste0("merged_fl_",type,"_meta.csv")))
+  
+}
+
+
+
+#' rbind pelagic and benthic meta coordinates
+#' @param dat_pelagic
+#' @param dat_benthic
+#'
+#' @return
+#' @export
+#'
+#
+rbind_meta_coordinates <- function(dat_pelagic, dat_benthic){
+  
+  dat_pelagic %>%
+    dplyr::mutate(Type = "Midwater") %>%
+    dplyr::mutate(Type = as.factor(Type)) -> dat_pelagic
+  
+  dat_benthic %>%
+    dplyr::mutate(Type = "Seabed") %>%
+    dplyr::mutate(Type = as.factor(Type)) -> dat_benthic
+  
+  
+  dat_pelagic_benthic <- rbind(dat_pelagic[c("NewOpCode", "lat_in", "lon_in", "Type")], dat_benthic[c("NewOpCode", "lat_in", "lon_in", "Type")])
+  
+  return(dat_pelagic_benthic)
+  
+}
+
+
+
+
+#' rbind benthic and pelagic lengths with meta
+#'
+#' @param dat_pelagic_fl_meta
+#' @param dat_benthic_fl_meta
+#'
+#' @return
+#' @export
+#'
+
+rbind_fl_meta <- function (dat_pelagic_fl_meta, dat_benthic_fl_meta){
+  
+  dat_pelagic_benthic_fl_meta <- rbind(dat_pelagic_fl_meta[, c("NewOpCode", "Family", "Binomial", "Lengthcm", "weight_kg", "Exped", "Type", "lat_in", "lon_in")], 
+                                       dat_benthic_fl_meta[, c("NewOpCode", "Family", "Binomial", "Lengthcm", "weight_kg", "Exped", "Type", "lat_in", "lon_in")])
+  
+  return(dat_pelagic_benthic_fl_meta)
+  
+}
+
+

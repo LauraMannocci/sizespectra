@@ -141,6 +141,10 @@ meta_pelagic = meta
 save(maxn_pelagic, fl_pelagic, meta_pelagic, file = here::here("1_read_clean_pelagic.RData"))
 
 
+### remove objects
+rm(maxn_pelagic, fl_pelagic, meta_pelagic, fl1, fl2, maxn1, maxn2, fl, maxn, meta)
+
+
 
 ########################################################################################################################################
 ########### benthic bruvs
@@ -289,4 +293,38 @@ save(maxn_benthic, fl_benthic, meta_benthic, file = here::here("1_read_clean_ben
 
 
 
+### remove objects
+rm(maxn_benthic, fl_benthic, meta_benthic, maxn, fl, meta)
 
+
+
+
+
+########################################################################################################################################
+###### process benthic and pelagic data for figure generation and modelling
+
+### merge fork lengths with meta data
+fl_pelagic_meta <- merge_fl_pelagic_meta(meta_pelagic, fl_pelagic)
+fl_benthic_meta <- merge_fl_benthic_meta(meta_benthic, fl_benthic)
+
+
+
+### save .csv files of fork lengths and meta
+write_merged_fl_meta(fl_pelagic_meta, "pelagic")
+write_merged_fl_meta(fl_benthic_meta, "benthic")
+
+
+
+### rbind pelagic and benthic coordinates for mapping
+meta_pelagic_benthic <- rbind_meta_coordinates(meta_pelagic, meta_benthic)
+
+
+
+### rbind pelagic and benthic fork lengths and meta
+fl_pelagic_benthic_meta <- rbind_fl_meta(fl_pelagic_meta, fl_benthic_meta)
+
+
+
+
+### save objects for mapping and plotting
+save(fl_pelagic_benthic_meta, meta_pelagic_benthic, file = here::here("1_read_clean_pelagic_benthic.RData"))
