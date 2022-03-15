@@ -17,7 +17,8 @@ dir.create("data")
 #to automatically add/remove dependencies
 rcompendium::add_dependencies(here::here())
 
-
+##load all dependencies (same as above)
+remotes::install_deps(upgrade = "never") ### install packages in DESCRIPTION
 
 
 #update NAMESPACE and add .Rd file for each function in man folder
@@ -27,6 +28,16 @@ devtools::document()
 devtools::load_all()
 
 
+
 #command to stage files for git commit
 git add -A
 ls -al ~/.ssh
+
+
+#command to stash files followed by pull/ the statsh pop
+
+$git status
+$git stash
+$git pull
+$git stash pop
+

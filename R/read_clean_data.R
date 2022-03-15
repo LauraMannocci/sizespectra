@@ -44,7 +44,7 @@ get_missing_maxn_pelagic <- function(){
   data <- readxl::read_excel(here::here("data", "pelagic", "TBL gal gct.xlsx"), 
                              sheet = "MaxN")
   data %>% 
-    dplyr::filter(Exped %in% c("Galapagos 2019", "Gracetown 2020")) -> new
+    dplyr::filter(Exped %in% c("Galapagos 2019", "Gracetown 2020", "French Polynesia 2013")) -> new
   
   return(new)
   
@@ -1570,7 +1570,69 @@ estimate_weight_from_length = function(data) {
 }
 
 
+#' merge pelagic meta with pelagic FL
+#'
+#' @param dat_meta 
+#' @param dat_fl 
+#'
+#' @return
+#' @export
+#' @import dplyr
 
+merge_fl_pelagic_meta = function(dat_meta, dat_fl) {
+  
+  dat_meta %>% 
+    dplyr::mutate(Type = "Midwater") %>% 
+    dplyr::mutate(Type = as.factor(Type)) -> dat_meta_new 
+  
+  dat_fl %>%
+    dplyr::select("NewOpCode", "Family", "Binomial", "Exped", "Lengthcm", "weight_kg") %>%
+    dplyr::full_join(dat_meta_new[, c("NewOpCode", "string","lon_in", "lat_in", "Type", "Date")], by ="NewOpCode") -> dat_fl_meta
+
+  return(dat_fl_meta)
+  
+}
+
+
+
+#' merge benthic meta with benthic FL
+#'
+#' @param dat_meta 
+#' @param dat_fl 
+#'
+#' @return
+#' @export
+#' @import dplyr
+
+merge_fl_benthic_meta = function(dat_meta, dat_fl) {
+  
+  dat_meta %>% 
+    dplyr::mutate(Type = "Seabed") %>% 
+    dplyr::mutate(Type = as.factor(Type)) -> dat_meta_new 
+  
+  dat_fl %>%
+    dplyr::select("NewOpCode", "Family", "Binomial","Exped", "Lengthcm", "weight_kg") %>%
+    dplyr::full_join(dat_meta_new[, c("NewOpCode","lon_in", "lat_in", "Type", "Date")], by ="NewOpCode") -> dat_fl_meta
+  
+  return(dat_fl_meta)
+  
+}
+
+
+#' save merged meta with FL (benthic or pelagic)
+#'
+#' @param dat 
+#' @param type 
+#'
+#' @return
+#' @export
+#' 
+
+write_merged_fl_meta  <-  function(dat, type){
+  
+  write.csv(dat, file = here::here("outputs", paste0("merged_fl_",type,"_meta.csv")))
+  
+}
 
 
 
@@ -1664,7 +1726,7 @@ rbind_meta_coordinates <- function(dat_pelagic, dat_benthic){
   
   
   dat_pelagic_benthic <- rbind(dat_pelagic[c("NewOpCode", "lat_in", "lon_in", "Type")], dat_benthic[c("NewOpCode", "lat_in", "lon_in", "Type")])
-  
+
   return(dat_pelagic_benthic)
   
 }
@@ -1689,5 +1751,4 @@ rbind_fl_meta <- function (dat_pelagic_fl_meta, dat_benthic_fl_meta){
   return(dat_pelagic_benthic_fl_meta)
   
 }
-
 
