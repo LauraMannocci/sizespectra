@@ -620,13 +620,13 @@ add_individual_fl_data_pelagic <- function (dat_fl, dat_maxn) {
         if (nfl == 0){
           #create row without length
           r <- data.frame("NewOpCode" = op,
-                           "String" = dat_maxn$String[dat_maxn$NewOpCode == op],
-                           "Exped" = dat_maxn$Exped[dat_maxn$NewOpCode == op],
-                           "Year" = dat_maxn$Year[dat_maxn$NewOpCode == op],
-                           "Location" = dat_maxn$Location[dat_maxn$NewOpCode == op],
-                           "Family" = dat_maxn$Family[dat_maxn$NewOpCode == op],
-                           "Genus" = dat_maxn$Genus[dat_maxn$NewOpCode == op],
-                           "Binomial" = dat_maxn$Binomial[dat_maxn$NewOpCode == op])
+                           "String" = unique(dat_maxn$String[dat_maxn$NewOpCode == op]),
+                           "Exped" = unique(dat_maxn$Exped[dat_maxn$NewOpCode == op]),
+                           "Year" = unique(dat_maxn$Year[dat_maxn$NewOpCode == op]),
+                           "Location" = unique(dat_maxn$Location[dat_maxn$NewOpCode == op]),
+                           "Family" = dat_maxn$Family[dat_maxn$NewOpCode == op & dat_maxn$Binomial == sp],
+                           "Genus" = dat_maxn$Genus[dat_maxn$NewOpCode == op & dat_maxn$Binomial == sp],
+                           "Binomial" = dat_maxn$Binomial[dat_maxn$NewOpCode == op & dat_maxn$Binomial == sp])
           #add length column to that row
           r$Lengthcm <- unique(datmaxn$mean_fl)
           #add computed column to that row
@@ -1350,11 +1350,11 @@ add_individual_fl_data_benthic <- function (dat_fl, dat_maxn) {
         if (nfl == 0){
           #create row without length
           r <- data.frame("NewOpCode" = op,
-                          "Exped" = dat_maxn$Exped[dat_maxn$NewOpCode == op],
-                          "Year" = dat_maxn$Year[dat_maxn$NewOpCode == op],
-                          "Family" = dat_maxn$Family[dat_maxn$NewOpCode == op],
-                          "Genus" = dat_maxn$Genus[dat_maxn$NewOpCode == op],
-                          "Binomial" = dat_maxn$Binomial[dat_maxn$NewOpCode == op])
+                          "Exped" = unique(dat_maxn$Exped[dat_maxn$NewOpCode == op]),
+                          "Year" = unique(dat_maxn$Year[dat_maxn$NewOpCode == op]),
+                          "Family" = dat_maxn$Family[dat_maxn$NewOpCode == op & dat_maxn$Binomial == sp],
+                          "Genus" = dat_maxn$Genus[dat_maxn$NewOpCode == op & dat_maxn$Binomial == sp],
+                          "Binomial" = dat_maxn$Binomial[dat_maxn$NewOpCode == op & dat_maxn$Binomial == sp])
           #add length column to that row
           r$Lengthcm <- unique(datmaxn$mean_fl)
           #add computed column to that row
