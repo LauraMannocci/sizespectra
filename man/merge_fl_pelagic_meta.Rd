@@ -7,7 +7,9 @@
 merge_fl_pelagic_meta(dat_meta, dat_fl)
 }
 \arguments{
-\item{dat_fl}{}
+\item{dat_meta}{...}
+
+\item{dat_fl}{...}
 }
 \value{
 

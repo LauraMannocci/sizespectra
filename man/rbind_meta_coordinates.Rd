@@ -7,7 +7,9 @@
 rbind_meta_coordinates(dat_pelagic, dat_benthic)
 }
 \arguments{
-\item{dat_benthic}{}
+\item{dat_pelagic}{...}
+
+\item{dat_benthic}{...}
 }
 \value{
 

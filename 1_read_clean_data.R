@@ -1,8 +1,6 @@
 #load all functions
 devtools::load_all()
-
-#to use pipe operator
-library(magrittr)
+devtools::document()
 
 
 ########################################################################################################################################
@@ -123,6 +121,9 @@ maxn <- add_mean_fl_to_maxn_data_pelagic(fl, maxn)
 
 fl <- add_individual_fl_data_pelagic(fl, maxn)
 
+#ckeck row numbers
+sum(maxn$MaxN) - nrow(fl) # 1175 supplementary row numbers in fl due to error in the data, they represent less than 1% of the overall data, so we ignore them
+
 
 
 ### Estimate weight from observed length for a taxa using rfishbase
@@ -217,7 +218,7 @@ fish_families <- c("Glaucosomatidae", "Labridae", "Lethrinidae", "Pomacanthidae"
                    "CAESIONIDAE",   "GOBIIDAE", "PSEUDOCHROMIDAE", "MURAENIDAE", "HAEMULIDAE",  "EPHIPPIDAE", "MICRODESMIDAE", "SPHYRAENIDAE", "MONACANTHIDAE", 
                    "MALACANTHIDAE", "DIODONTIDAE",   "ECHENEIDIDAE", "SPARIDAE", "OSTRACIIDAE",   "KYPHOSIDAE",    "SYNODONTIDAE",  "BLENNIDAE",  
                    "CHARCHARHINIDAE", "PEMPHERIDAE",  "APLOACTINIDAE", "CONGRIDAE", "PRIACANTHIDAE", "HEMIRAMPHIDAE", "SCORPAENIDAE",  "APOGONIDAE",   
-                   "FISTULARIIDAE", "TORPEDINIDAE",  "Gadidae", "Lotidae", "Cottidae",   "Trachinidae",  "Anarhichadidae","Rhincodontidae")                                  
+                   "FISTULARIIDAE", "TORPEDINIDAE",  "Gadidae", "Lotidae", "Cottidae",   "Trachinidae",  "Anarhichadidae")                                  
 
 
 #maxn
@@ -274,6 +275,10 @@ maxn <- add_mean_fl_to_maxn_data_benthic(fl, maxn)
 
 fl <- add_individual_fl_data_benthic(fl, maxn)
 
+#ckeck row numbers
+sum(maxn$MaxN) - nrow(fl) # 17171 supplementary row numbers in fl due to error in the data, they represent less than 2.5% of the overall data, so we ignore them
+
+
 
 
 ### Estimate weight from observed length for a taxa using rfishbase
@@ -326,34 +331,5 @@ fl_pelagic_benthic_meta <- rbind_fl_meta(fl_pelagic_meta, fl_benthic_meta)
 
 
 
-########################################################################################################################################
-### process benthic and pelagic data for figure generation and modelling 
-
-### merge fork lengths with  meta data
-fl_pelagic_meta <- merge_fl_pelagic_meta(meta_pelagic, fl_pelagic) 
-
-fl_benthic_meta <- merge_fl_benthic_meta(meta_benthic, fl_benthic)
-
-
-
-### save .csv files of fork lengths and meta
-
-write_merged_fl_meta(fl_pelagic_meta, "pelagic")
-
-write_merged_fl_meta(fl_benthic_meta, "benthic")
-
-
-
-### rbind pelagic and benthic coordinates for mapping
-
-meta_pelagic_benthic <- rbind_meta_coordinates(meta_pelagic, meta_benthic)
-
-
-
-### rbind pelagic and benthic fork lengths and meta
-
-fl_pelagic_benthic_meta <- rbind_fl_meta(fl_pelagic_meta, fl_benthic_meta)
-
-
-### save objects for mapping and plotting 
+### save objects for mapping and plotting
 save(fl_pelagic_benthic_meta, meta_pelagic_benthic, file = here::here("1_read_clean_pelagic_benthic.RData"))

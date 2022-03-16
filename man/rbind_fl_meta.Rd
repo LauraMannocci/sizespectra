@@ -7,7 +7,9 @@
 rbind_fl_meta(dat_pelagic_fl_meta, dat_benthic_fl_meta)
 }
 \arguments{
-\item{dat_benthic_fl_meta}{}
+\item{dat_pelagic_fl_meta}{...}
+
+\item{dat_benthic_fl_meta}{...}
 }
 \value{
 

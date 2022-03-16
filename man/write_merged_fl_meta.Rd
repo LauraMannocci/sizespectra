@@ -7,7 +7,9 @@
 write_merged_fl_meta(dat, type)
 }
 \arguments{
-\item{type}{}
+\item{dat}{...}
+
+\item{type}{...}
 }
 \value{
 

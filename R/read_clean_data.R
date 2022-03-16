@@ -1,6 +1,5 @@
 #' Read meta data for pelagic bruvs
 #'
-#' @param  
 #'
 #' @return
 #' @export
@@ -9,7 +8,7 @@ read_meta_pelagic <- function(){
   
   readxl::read_excel(here::here("data", "pelagic", "Pelagic compilation archive 2020_05_26.xlsx"), 
                      sheet = 1)
-
+  
 }
 
 
@@ -18,7 +17,6 @@ read_meta_pelagic <- function(){
 
 #' Read maxn data for pelagic bruvs
 #'
-#' @param  
 #'
 #' @return
 #' @export
@@ -27,14 +25,13 @@ read_meta_pelagic <- function(){
 read_maxn_pelagic <- function(){
   
   readxl::read_excel(here::here("data", "pelagic", "Pelagic compilation archive 2020_05_26.xlsx"), 
-                   sheet = 2)
+                     sheet = 2)
   
 }
 
 
 #' Get missing maxn data for pelagic bruvs (2 expeditions)
 #'
-#' @param  
 #'
 #' @return
 #' @export
@@ -44,7 +41,7 @@ get_missing_maxn_pelagic <- function(){
   data <- readxl::read_excel(here::here("data", "pelagic", "TBL gal gct.xlsx"), 
                              sheet = "MaxN")
   data %>% 
-    dplyr::filter(Exped %in% c("Galapagos 2019", "Gracetown 2020", "French Polynesia 2013")) -> new
+    dplyr::filter(Exped %in% c("Galapagos 2019", "Gracetown 2020")) -> new
   
   return(new)
   
@@ -53,7 +50,6 @@ get_missing_maxn_pelagic <- function(){
 
 #' Read fl data for pelagic bruvs
 #'
-#' @param  
 #'
 #' @return
 #' @export
@@ -62,14 +58,13 @@ get_missing_maxn_pelagic <- function(){
 read_fl_pelagic <- function(){
   
   readxl::read_excel(here::here("data", "pelagic", "Pelagic compilation archive 2020_05_26.xlsx"), 
-                   sheet = 3)
+                     sheet = 3)
   
 }
 
 
 #' Get missing fl data for pelagic bruvs (2 expeditions)
 #'
-#' @param  
 #'
 #' @return
 #' @export
@@ -110,6 +105,13 @@ clean_maxn_pelagic <- function(dat){
     dplyr::mutate(Genus = stringr::word(Binomial, 1)) %>% 
     #correct one species name
     dplyr::mutate(Binomial = stringr::str_replace(Binomial, "Remora Remora", "Remora remora")) %>% 
+    #correct families
+    dplyr::mutate(Family = ifelse(Binomial == "Aspidontus taeniatus", "Blenniidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Atule mate", "Carangidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Caranx sp", "Carangidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Echeneis naucrates", "Echeneidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Parastromateus niger", "Carangidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Plagiotremus tapeinosoma", "Blenniidae", Family)) %>% 
     #replace juvenile and unknown in species and genus by NA
     dplyr::mutate(Binomial = dplyr::na_if(Binomial, "Juvenile sp")) %>% 
     dplyr::mutate(Binomial = dplyr::na_if(Binomial, "juvenile sp")) %>% 
@@ -124,6 +126,8 @@ clean_maxn_pelagic <- function(dat){
     dplyr::select("NewOpCode", "String", "Exped", "Year", "Location", "Family", "Genus", "Binomial", "MaxN") %>% 
     #ignore NAs in maxN
     tidyr::drop_na(MaxN) %>% 
+    #ignore NAs in binomial
+    tidyr::drop_na(Binomial) %>% 
     #remove duplicates
     dplyr::distinct() -> new
   
@@ -165,6 +169,13 @@ clean_fl_pelagic <- function(dat){
     dplyr::mutate(Family = ifelse(Binomial == "Carangidae sp", "Carangidae", Family)) %>% 	
     dplyr::mutate(Family = ifelse(Binomial == "Pristiapogon exostigma", "Apogonidae", Family)) %>% 
     dplyr::mutate(Family = ifelse(Binomial == "Psenes sp", "Nomeidae", Family)) %>% 
+    #correct families
+    dplyr::mutate(Family = ifelse(Binomial == "Aspidontus taeniatus", "Blenniidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Atule mate", "Carangidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Caranx sp", "Carangidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Echeneis naucrates", "Echeneidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Parastromateus niger", "Carangidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Plagiotremus tapeinosoma", "Blenniidae", Family)) %>% 
     #replace juvenile and unknown in species and genus by NA
     dplyr::mutate(Binomial = dplyr::na_if(Binomial, "Juvenile sp")) %>% 
     dplyr::mutate(Binomial = dplyr::na_if(Binomial, "juvenile sp")) %>% 
@@ -202,8 +213,8 @@ bind_pelagic <- function(dat1, dat2){
   return(new)
   
 }
-  
-  
+
+
 
 
 #' Clean meta data for pelagic bruvs
@@ -267,7 +278,7 @@ select_fish_families_pelagic <- function(dat, families){
   
   # bind
   new <- rbind(dat_unknown, dat_families)
-
+  
   return(new)
   
 }
@@ -287,7 +298,7 @@ select_fish_families_pelagic <- function(dat, families){
 #'
 
 keep_opcode_in_meta <- function(meta_dat, dat){
-    
+  
   # get opcodes available in meta
   opcode_meta <- unique(meta_dat$NewOpCode)
   
@@ -303,7 +314,7 @@ keep_opcode_in_meta <- function(meta_dat, dat){
   return(new)
   
 }
-    
+
 
 #' remove from fl the opcodes not available in maxn, ie the single opcodes, for pelagic or benthic bruvs
 #'
@@ -328,8 +339,8 @@ remove_single_opcodes <- function(dat_fl, dat_maxn){
   return(new)
   
 }
-  
-    
+
+
 
 #' Assign empty opcodes in meta for pelagic bruvs
 #'
@@ -341,7 +352,7 @@ remove_single_opcodes <- function(dat_fl, dat_maxn){
 #'
 
 assign_empty_opcodes_meta_pelagic <- function(dat_meta, dat_maxn){
-    
+  
   #get opcodes in meta but not in maxn -> these opcodes have no individual seen
   opcode_in_meta_only <- setdiff(dat_meta$NewOpCode, dat_maxn$NewOpCode)
   
@@ -529,7 +540,7 @@ add_mean_fl_to_maxn_data_pelagic <- function (dat_fl, dat_maxn) {
                                                                  mean_assemblage)))))) %>% 
     #select columns
     dplyr::select("NewOpCode", "String", "Exped", "Year", "Location", "Family", "Genus", "Binomial", "MaxN", "mean_fl") -> dat_maxn_no_species
-    
+  
   ###bind nmax data with and without species
   rbind(dat_maxn_species, dat_maxn_no_species) -> dat_maxn
   
@@ -551,7 +562,7 @@ add_mean_fl_to_maxn_data_pelagic <- function (dat_fl, dat_maxn) {
 #'
 
 add_individual_fl_data_pelagic <- function (dat_fl, dat_maxn) {
-    
+  
   #add rows to fl data for individuals with missing length 
   
   #add computed column to dat_fl
@@ -620,13 +631,13 @@ add_individual_fl_data_pelagic <- function (dat_fl, dat_maxn) {
         if (nfl == 0){
           #create row without length
           r <- data.frame("NewOpCode" = op,
-                           "String" = unique(dat_maxn$String[dat_maxn$NewOpCode == op]),
-                           "Exped" = unique(dat_maxn$Exped[dat_maxn$NewOpCode == op]),
-                           "Year" = unique(dat_maxn$Year[dat_maxn$NewOpCode == op]),
-                           "Location" = unique(dat_maxn$Location[dat_maxn$NewOpCode == op]),
-                           "Family" = dat_maxn$Family[dat_maxn$NewOpCode == op & dat_maxn$Binomial == sp],
-                           "Genus" = dat_maxn$Genus[dat_maxn$NewOpCode == op & dat_maxn$Binomial == sp],
-                           "Binomial" = dat_maxn$Binomial[dat_maxn$NewOpCode == op & dat_maxn$Binomial == sp])
+                          "String" = dat_maxn$String[dat_maxn$NewOpCode == op & dat_maxn$Binomial == sp],
+                          "Exped" = dat_maxn$Exped[dat_maxn$NewOpCode == op & dat_maxn$Binomial == sp],
+                          "Year" = dat_maxn$Year[dat_maxn$NewOpCode == op & dat_maxn$Binomial == sp],
+                          "Location" = dat_maxn$Location[dat_maxn$NewOpCode == op & dat_maxn$Binomial == sp],
+                          "Family" = dat_maxn$Family[dat_maxn$NewOpCode == op & dat_maxn$Binomial == sp],
+                          "Genus" = dat_maxn$Genus[dat_maxn$NewOpCode == op & dat_maxn$Binomial == sp],
+                          "Binomial" = sp)
           #add length column to that row
           r$Lengthcm <- unique(datmaxn$mean_fl)
           #add computed column to that row
@@ -697,7 +708,7 @@ write_meta_strings_pelagic <- function (dat) {
     dplyr::group_by(string) %>% 
     #keep information (lon lat time) from first row
     dplyr::slice(1) -> dat
-    
+  
   write.csv(dat, here::here("outputs", "pelagic", "pelagic_strings.csv"), row.names = FALSE)
   
 }
@@ -706,7 +717,6 @@ write_meta_strings_pelagic <- function (dat) {
 
 #' Read meta data for benthic bruvs
 #'
-#' @param  
 #'
 #' @return
 #' @export
@@ -720,7 +730,6 @@ read_meta_benthic <- function(){
 
 #' Read fl data for benthic bruvs
 #'
-#' @param  
 #'
 #' @return
 #' @export
@@ -736,7 +745,6 @@ read_fl_benthic <- function(){
 
 #' Read fl data for benthic bruvs
 #'
-#' @param  
 #'
 #' @return
 #' @export
@@ -751,7 +759,6 @@ read_maxn_benthic <- function(){
 
 #' Read exped data (all bruvs)
 #'
-#' @param  
 #'
 #' @return
 #' @export
@@ -774,7 +781,7 @@ read_exped <- function(){
 #'
 
 clean_meta_benthic <- function(dat){
-    
+  
   dat %>% 
     #select columns
     dplyr::select("NewOpcode",	"New Exped", "Date", "Year", "Month", "Lat", "Long", "Time In",	"USE?",	"Location", "Site", 
@@ -814,16 +821,16 @@ clean_meta_benthic <- function(dat){
     dplyr::mutate(NewOpCode = dplyr::case_when(NewOpCode == "BRUV3_23102016" & time_in == "09:24:21" ~ "BRUV3_23102016_bis",
                                                NewOpCode == "2N09" & Exped == "HitraFrøya2020" ~ "2N09_bis", 
                                                NewOpCode == "2N14" &  Exped == "HitraFrøya2020" ~  "2N14_bis",
-                                              NewOpCode == "2A12" &  Exped == "HitraFrøya2020" ~  "2A12_bis",
-                                              NewOpCode == "2A13" &  Exped == "HitraFrøya2020" ~  "2A13_bis",
-                                              NewOpCode == "2C01" &  Exped == "HitraFrøya2020" ~  "2C01_bis",
-                                              NewOpCode == "2C10" &  Exped == "HitraFrøya2020" ~  "2C10_bis",
-                                              NewOpCode == "2K08" &  Exped == "HitraFrøya2020" ~  "2K08_bis",
-                                              NewOpCode == "2K07" &  Exped == "HitraFrøya2020" ~  "2K07_bis",
-                                              NewOpCode == "2M08" &  Exped == "HitraFrøya2020" ~  "2M08_bis",
-                                              NewOpCode == "2M11" &  Exped == "HitraFrøya2020" ~  "2M11_bis",
-                                              NewOpCode == "2B05" &  Exped == "HitraFrøya2020" ~  "2B05_bis",
-                                              TRUE ~ NewOpCode)) -> new
+                                               NewOpCode == "2A12" &  Exped == "HitraFrøya2020" ~  "2A12_bis",
+                                               NewOpCode == "2A13" &  Exped == "HitraFrøya2020" ~  "2A13_bis",
+                                               NewOpCode == "2C01" &  Exped == "HitraFrøya2020" ~  "2C01_bis",
+                                               NewOpCode == "2C10" &  Exped == "HitraFrøya2020" ~  "2C10_bis",
+                                               NewOpCode == "2K08" &  Exped == "HitraFrøya2020" ~  "2K08_bis",
+                                               NewOpCode == "2K07" &  Exped == "HitraFrøya2020" ~  "2K07_bis",
+                                               NewOpCode == "2M08" &  Exped == "HitraFrøya2020" ~  "2M08_bis",
+                                               NewOpCode == "2M11" &  Exped == "HitraFrøya2020" ~  "2M11_bis",
+                                               NewOpCode == "2B05" &  Exped == "HitraFrøya2020" ~  "2B05_bis",
+                                               TRUE ~ NewOpCode)) -> new
   return(new)
   
 }
@@ -858,6 +865,7 @@ clean_fl_benthic <- function(dat){
     dplyr::select(-"Lengthmm") %>% 
     #replace juvenile and unknown in species and genus by NA
     dplyr::mutate(Binomial = dplyr::na_if(Binomial, "Juvenile sp")) %>% 
+    dplyr::mutate(Binomial = dplyr::na_if(Binomial, "sp")) %>% 
     dplyr::mutate(Genus = dplyr::na_if(Genus, "Juvenile")) %>% 
     dplyr::mutate(Binomial = dplyr::na_if(Binomial, "Unknown sp")) %>% 
     dplyr::mutate(Binomial = dplyr::na_if(Binomial, "Unknown 1")) %>% 
@@ -885,6 +893,35 @@ clean_fl_benthic <- function(dat){
     dplyr::mutate(Binomial = stringr::str_replace(Binomial, "blenniidae sp", "Blenniidae sp")) %>%
     dplyr::mutate(Binomial = stringr::str_replace(Binomial, "amblygobius semicinctus", "Amblygobius semicinctus")) %>%
     dplyr::mutate(Binomial = stringr::str_replace(Binomial, "amblyeleotris aurora", "Amblyeleotris aurora")) %>%
+    #correct families
+    dplyr::mutate(Family = ifelse(Binomial == "Pentapodus vitta", "Nemipteridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Diploprion bifasciatum", "Serranidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Ptereleotris sp", "Gobiidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Chlorurus sordidus", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Glaucostegus typus", "Glaucostegidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Scarus frenatus", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Scarus sp", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Scarus ferrugineus", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Scarus niger", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Pseudanthias squamipinnis", "Serranidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Hipposcarus harid", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Ptereleotris evides", "Gobiidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Aspidontus dussumieri", "Gobiidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Bolbometopon muricatum", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Cetoscarus bicolor", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Echeneis naucrates", "Echeneidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Plagiotremus tapeinosoma", "Blenniidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Scarus scaber", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Scarus psittacus", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Ecsenius gravieri", "Blenniidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Ecsenius sp", "Blenniidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Scarus falcipinnis", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Triaenodon obesus", "Carcharhinidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Ecsenius midas", "Blenniidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Ecsenius sp", "Blenniidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Scarus ghobban", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Ptereleotris microlepis", "Gobiidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Rhynchobatus djiddensis", "Rhinidae", Family)) %>% 
     #create year column from exped column
     dplyr::mutate(Year = unlist(stringi::stri_extract_all(Exped, regex = "[0-9]{4}"))) %>% 
     #correct expedition names
@@ -953,6 +990,7 @@ clean_maxn_benthic <- function(dat){
     dplyr::mutate(Genus = stringr::word(Binomial, 1)) %>% 
     #replace juvenile and unknown in species and genus by NA
     dplyr::mutate(Binomial = dplyr::na_if(Binomial, "Juvenile sp")) %>% 
+    dplyr::mutate(Binomial = dplyr::na_if(Binomial, "sp")) %>% 
     dplyr::mutate(Genus = dplyr::na_if(Genus, "Juvenile")) %>% 
     dplyr::mutate(Binomial = dplyr::na_if(Binomial, "Unknown sp")) %>% 
     dplyr::mutate(Binomial = dplyr::na_if(Binomial, "Unknown 1")) %>% 
@@ -980,6 +1018,35 @@ clean_maxn_benthic <- function(dat){
     dplyr::mutate(Binomial = stringr::str_replace(Binomial, "blenniidae sp", "Blenniidae sp")) %>%
     dplyr::mutate(Binomial = stringr::str_replace(Binomial, "amblygobius semicinctus", "Amblygobius semicinctus")) %>%
     dplyr::mutate(Binomial = stringr::str_replace(Binomial, "amblyeleotris aurora", "Amblyeleotris aurora")) %>%
+    #correct families
+    dplyr::mutate(Family = ifelse(Binomial == "Pentapodus vitta", "Nemipteridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Diploprion bifasciatum", "Serranidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Ptereleotris sp", "Gobiidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Chlorurus sordidus", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Glaucostegus typus", "Glaucostegidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Scarus frenatus", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Scarus sp", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Scarus ferrugineus", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Scarus niger", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Pseudanthias squamipinnis", "Serranidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Hipposcarus harid", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Ptereleotris evides", "Gobiidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Aspidontus dussumieri", "Gobiidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Bolbometopon muricatum", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Cetoscarus bicolor", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Echeneis naucrates", "Echeneidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Plagiotremus tapeinosoma", "Blenniidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Scarus scaber", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Scarus psittacus", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Ecsenius gravieri", "Blenniidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Ecsenius sp", "Blenniidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Scarus falcipinnis", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Triaenodon obesus", "Carcharhinidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Ecsenius midas", "Blenniidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Ecsenius sp", "Blenniidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Scarus ghobban", "Scaridae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Ptereleotris microlepis", "Gobiidae", Family)) %>% 
+    dplyr::mutate(Family = ifelse(Binomial == "Rhynchobatus djiddensis", "Rhinidae", Family)) %>% 
     #create year column from exped column
     dplyr::mutate(Year = unlist(stringi::stri_extract_all(Exped, regex = "[0-9]{4}"))) %>% 
     #correct expedition names
@@ -1000,6 +1067,8 @@ clean_maxn_benthic <- function(dat){
                                            NewOpCode != "BRUV2_07112016" ~ Exped)) %>% 
     #ignore NAs in maxN
     tidyr::drop_na(MaxN) %>% 
+    #ignore NAs in binomial
+    tidyr::drop_na(Binomial) %>% 
     #remove duplicates
     dplyr::distinct() %>% 
     #rename duplicate opcodes related to HitraFroya
@@ -1044,7 +1113,7 @@ removed_notpermitted_expeditions_benthic <- function(dat, expeds_notpermit){
   return(new)
   
 }
-    
+
 
 
 
@@ -1060,7 +1129,7 @@ removed_notpermitted_expeditions_benthic <- function(dat, expeds_notpermit){
 #'
 
 select_fish_families_benthic <- function(dat, families){
-    
+  
   dat %>% 
     #select families
     dplyr::filter(Family %in% families) %>% 
@@ -1350,11 +1419,11 @@ add_individual_fl_data_benthic <- function (dat_fl, dat_maxn) {
         if (nfl == 0){
           #create row without length
           r <- data.frame("NewOpCode" = op,
-                          "Exped" = unique(dat_maxn$Exped[dat_maxn$NewOpCode == op]),
-                          "Year" = unique(dat_maxn$Year[dat_maxn$NewOpCode == op]),
+                          "Exped" = dat_maxn$Exped[dat_maxn$NewOpCode == op & dat_maxn$Binomial == sp],
+                          "Year" = dat_maxn$Year[dat_maxn$NewOpCode == op & dat_maxn$Binomial == sp],
                           "Family" = dat_maxn$Family[dat_maxn$NewOpCode == op & dat_maxn$Binomial == sp],
                           "Genus" = dat_maxn$Genus[dat_maxn$NewOpCode == op & dat_maxn$Binomial == sp],
-                          "Binomial" = dat_maxn$Binomial[dat_maxn$NewOpCode == op & dat_maxn$Binomial == sp])
+                          "Binomial" = sp)
           #add length column to that row
           r$Lengthcm <- unique(datmaxn$mean_fl)
           #add computed column to that row
@@ -1406,7 +1475,7 @@ write_meta_opcodes_benthic <- function (dat) {
   write.csv(dat, here::here("outputs", "benthic", "benthic_opcodes.csv"), row.names = FALSE)
   
 }
-  
+
 
 
 
@@ -1514,7 +1583,6 @@ estimate_weight_from_length = function(data) {
                      mean_b_genus = mean(b, na.rm = T)) -> mean_data_genus
   
   # calculate mean values per family
-  
   data %>% 
     dplyr::select("Family", "Binomial") %>% 
     dplyr::distinct() -> data_family
@@ -1558,7 +1626,7 @@ estimate_weight_from_length = function(data) {
                                              mean_assemblage_b)))) %>% 
     dplyr::select("Binomial",  "a", "b") -> a_b
   
-    data = merge(data, a_b, by = "Binomial", all.x = TRUE)
+  data = merge(data, a_b, by = "Binomial", all.x = TRUE)
   
   # Calculate the weight based on the (converted) length and divide by 1000 to return it in kilograms
   
@@ -1570,69 +1638,7 @@ estimate_weight_from_length = function(data) {
 }
 
 
-#' merge pelagic meta with pelagic FL
-#'
-#' @param dat_meta 
-#' @param dat_fl 
-#'
-#' @return
-#' @export
-#' @import dplyr
 
-merge_fl_pelagic_meta = function(dat_meta, dat_fl) {
-  
-  dat_meta %>% 
-    dplyr::mutate(Type = "Midwater") %>% 
-    dplyr::mutate(Type = as.factor(Type)) -> dat_meta_new 
-  
-  dat_fl %>%
-    dplyr::select("NewOpCode", "Family", "Binomial", "Exped", "Lengthcm", "weight_kg") %>%
-    dplyr::full_join(dat_meta_new[, c("NewOpCode", "string","lon_in", "lat_in", "Type", "Date")], by ="NewOpCode") -> dat_fl_meta
-
-  return(dat_fl_meta)
-  
-}
-
-
-
-#' merge benthic meta with benthic FL
-#'
-#' @param dat_meta 
-#' @param dat_fl 
-#'
-#' @return
-#' @export
-#' @import dplyr
-
-merge_fl_benthic_meta = function(dat_meta, dat_fl) {
-  
-  dat_meta %>% 
-    dplyr::mutate(Type = "Seabed") %>% 
-    dplyr::mutate(Type = as.factor(Type)) -> dat_meta_new 
-  
-  dat_fl %>%
-    dplyr::select("NewOpCode", "Family", "Binomial","Exped", "Lengthcm", "weight_kg") %>%
-    dplyr::full_join(dat_meta_new[, c("NewOpCode","lon_in", "lat_in", "Type", "Date")], by ="NewOpCode") -> dat_fl_meta
-  
-  return(dat_fl_meta)
-  
-}
-
-
-#' save merged meta with FL (benthic or pelagic)
-#'
-#' @param dat 
-#' @param type 
-#'
-#' @return
-#' @export
-#' 
-
-write_merged_fl_meta  <-  function(dat, type){
-  
-  write.csv(dat, file = here::here("outputs", paste0("merged_fl_",type,"_meta.csv")))
-  
-}
 
 
 
@@ -1640,12 +1646,11 @@ write_merged_fl_meta  <-  function(dat, type){
 
 #' merge pelagic meta with pelagic FL
 #'
-#' @param dat_meta
-#' @param dat_fl
+#' @param dat_meta ...
+#' @param dat_fl ...
 #'
 #' @return
 #' @export
-#' @import dplyr
 
 merge_fl_pelagic_meta = function(dat_meta, dat_fl) {
   
@@ -1666,8 +1671,8 @@ merge_fl_pelagic_meta = function(dat_meta, dat_fl) {
 
 #' merge benthic meta with benthic FL
 #'
-#' @param dat_meta
-#' @param dat_fl
+#' @param dat_meta ...
+#' @param dat_fl ...
 #'
 #' @return
 #' @export
@@ -1677,8 +1682,7 @@ merge_fl_benthic_meta = function(dat_meta, dat_fl) {
   
   dat_meta %>%
     dplyr::mutate(Type = "Seabed") %>%
-    dplyr::mutate(Type = as.factor(Type))  %>% 
-    dplyr::rename("Exped" = "exped")  -> dat_meta_new
+    dplyr::mutate(Type = as.factor(Type)) -> dat_meta_new
   
   dat_fl %>%
     dplyr::select("NewOpCode", "Family", "Binomial", "Lengthcm", "weight_kg") %>%
@@ -1691,8 +1695,8 @@ merge_fl_benthic_meta = function(dat_meta, dat_fl) {
 
 #' save merged meta with FL (benthic or pelagic)
 #'
-#' @param dat
-#' @param type
+#' @param dat ...
+#' @param type ...
 #'
 #' @return
 #' @export
@@ -1707,8 +1711,8 @@ write_merged_fl_meta  <-  function(dat, type){
 
 
 #' rbind pelagic and benthic meta coordinates
-#' @param dat_pelagic
-#' @param dat_benthic
+#' @param dat_pelagic ...
+#' @param dat_benthic ...
 #'
 #' @return
 #' @export
@@ -1726,7 +1730,7 @@ rbind_meta_coordinates <- function(dat_pelagic, dat_benthic){
   
   
   dat_pelagic_benthic <- rbind(dat_pelagic[c("NewOpCode", "lat_in", "lon_in", "Type")], dat_benthic[c("NewOpCode", "lat_in", "lon_in", "Type")])
-
+  
   return(dat_pelagic_benthic)
   
 }
@@ -1736,8 +1740,8 @@ rbind_meta_coordinates <- function(dat_pelagic, dat_benthic){
 
 #' rbind benthic and pelagic lengths with meta
 #'
-#' @param dat_pelagic_fl_meta
-#' @param dat_benthic_fl_meta
+#' @param dat_pelagic_fl_meta ...
+#' @param dat_benthic_fl_meta ...
 #'
 #' @return
 #' @export
