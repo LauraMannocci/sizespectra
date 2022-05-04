@@ -46,7 +46,11 @@ Imports:
     tidyr,
     utils,
     sizeSpectra,
-    ggridges
+    ggridges,
+    gridGraphics,
+    multimode,
+    spaMM,
+    RSpectra,
 Remotes: 
     nschiett/fishualize,
     andrew-edwards/sizeSpectra

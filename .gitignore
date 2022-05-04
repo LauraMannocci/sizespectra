@@ -6,3 +6,4 @@ man/
 outputs/
 NAMESPACE
 *.Rproj
+data/

@@ -42,3 +42,13 @@ $git pull
 $git stash pop
 $git stash clear
 
+
+#shortcuts 
+
+𝗖𝘁𝗿𝗹 + 𝗦𝗵𝗶𝗳𝘁 + 𝗖 to (un)comment
+𝗖𝘁𝗿𝗹 + 𝗦𝗵𝗶𝗳𝘁 + 𝗠 to build your pipes quicker.
+Instead of copy/pasting code chunks you can simply move them up and down by pressing 𝗔𝗹𝘁_𝗹𝗲𝗳𝘁 + 𝗨𝗽/𝗗𝗼𝘄𝗻
+Find in files - An absolute killer feature of RStudio when working on larger projects with multiple files. Use  𝗖𝘁𝗿𝗹 + 𝗦𝗵𝗶𝗳𝘁 + 𝗙 to search (and even replace) keywords across your project.
+Rename in scope - Sometimes you want to use a different variable name or call a different function in certain code sections. Search and Replace can be dangerous in these situations. It's safer to use 𝗖𝘁𝗿𝗹 + 𝗦𝗵𝗶𝗳𝘁 + 𝗔𝗹𝘁_𝗹𝗲𝗳𝘁 + 𝗠 to rename in scope
+
+
