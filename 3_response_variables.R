@@ -90,7 +90,7 @@ size_response_envar_pelagic_clean$Bathymetry <- abs(size_response_envar_pelagic_
 #write clean response with envar pelagic
 
 
-write.table(size_response_envar_pelagic_clean,here::here("outputs", "pelagic", file="size_response_envar_pelagic_clean.txt"))
+write.table(size_response_envar_pelagic_clean,here::here("data", "response", file="size_response_envar_pelagic_clean.txt"))
 
 
 # MERGE BENTHIC ENVAR WITH META ----
@@ -153,18 +153,18 @@ size_response_envar_benthic_clean$Bathymetry <- abs(size_response_envar_benthic_
 
 
 
-write.table(size_response_envar_benthic_clean,here::here("outputs", "benthic", file="size_response_envar_benthic_clean.txt"))
+write.table(size_response_envar_benthic_clean,here::here("data", "response", file="size_response_envar_benthic_clean.txt"))
 
 
 
 #COMBINE BENTHIC AND PELAGIC RESPONSE  ----
 
-pelagic_response_envar <- read.table(here::here("outputs", "pelagic", "size_response_envar_pelagic_clean.txt"), header = TRUE)
+pelagic_response_envar <- read.table(here::here("data", "response", "size_response_envar_pelagic_clean.txt"), header = TRUE)
 
 pelagic_response_envar$bruvs_type <- c("pelagic")
 
 
-benthic_response_envar <- read.table(here::here("outputs", "benthic", "size_response_envar_benthic_clean.txt"), header = TRUE)
+benthic_response_envar <- read.table(here::here("data", "response", "size_response_envar_benthic_clean.txt"), header = TRUE)
 
 pelagic_benthic_response_envar_clean <- plyr::rbind.fill(pelagic_response_envar, benthic_response_envar)
 
@@ -172,5 +172,5 @@ summary(pelagic_benthic_response_envar_clean)
 
 pelagic_benthic_response_envar_clean <- pelagic_benthic_response_envar_clean %>% tidyr::drop_na(Exped.)
 
-write.table(pelagic_benthic_response_envar_clean,here::here("outputs", file="pelagic_benthic_response_envar_clean.txt"))
+write.table(pelagic_benthic_response_envar_clean,here::here("data","response", file="pelagic_benthic_response_envar_clean.txt"))
 

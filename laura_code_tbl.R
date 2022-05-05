@@ -1,9 +1,12 @@
 library(magrittr); library(spaMM) ; library(ggplot2); library(parallel); library(nlme); library(effectsize);library(visreg);library(corrgram)
 
 
+#load previous models
+save(mod,mod2, mod3, mod4,mod5, mod6, mod7, file = "model.RData")
+
+load("model.RData")
+
 #---------------------------- load and clean data
-
-
 
 # importation des donnes
 
@@ -13,10 +16,22 @@ tab <- read.table(here::here("outputs", file="pelagic_benthic_response_envar_cle
 tab <- tidyr::drop_na(tab, betaslope)
 
 
-
 summary(tab)
 head(tab)
 dim(tab)
+
+
+ggplot(tab, aes(x=10^logBathy, y=betaslope, colour = bruvs), alpha=.4) +geom_point()
+
+ggplot(tab, aes(x=-Bathymetry, fill =bruvs, alpha=.4)) + geom_density()+scale_x_log10()
+
+
+    
+#remove weird bathy
+tab_pel <- tab[ which(tab$bruvs=='pelagic'), ]
+sum(tab_pel$Bathymetry >-20)
+tab_ben <- tab[ which(tab$bruvs=='benthic'), ]
+sum(tab_ben$Bathymetry >-2)
 
 
 
@@ -67,19 +82,13 @@ tab %>%
 
 
 
-
-
 #------------------------------------- fit model
 
 # full model (bruvs as interaction term of all predictors ; separate spatial autocorrelation structures for pelagic and benthic data)
 mod = fitme(betaslope ~ logBathy*bruvs + Slope*bruvs + logDistP*bruvs + logDistSM*bruvs + GovernmentEffectiveness_mean*bruvs +
             Matern(pelagic | mean_lat + mean_long) + Matern(benthic | mean_lat + mean_long),
-            nb_cores = parallel::floor(detectCores()/1.5) ,
+            nb_cores = floor(parallel::detectCores()/1.5) ,
             data = tab)
-
-
-
-
 
 
 
@@ -118,17 +127,18 @@ tabpred_pel <- subset(tabpred, bruvs == "pelagic")
 tabpred_ben <- subset(tabpred, bruvs == "benthic")
 
 #partial plot with color-coded factor representing pelagic/benthic
+options(scipen=3)
 
 p <- ggplot() +
   # pelagic
-  geom_line(data = tabpred_pel, aes(x = 10^logBathy), y = pred, colour='#077DAA'))+ #predictions
-  geom_ribbon(data = tabpred_pel, aes(x = 10^logBathy),
-                                   ymin = lower,
-                                   ymax = upper,
-                                   fill='#077DAA'),#95% confidence intervals
-  alpha=0.2, show.legend=T)+
+   geom_line(data = tabpred_pel, aes(x = 10^logBathy, y = pred, colour='#077DAA'))+ #predictions
+   geom_ribbon(data = tabpred_pel, aes(x = 10^logBathy,
+                                    ymin = lower,
+                                    ymax = upper,
+                                    fill='#077DAA'),#95% confidence intervals
+   alpha=0.2, show.legend=T) +
 
-  # benthic
+   #benthic
   geom_line(data = tabpred_ben, aes(x = 10^logBathy, y = pred, colour='darkorange'))+ #predictions
   geom_ribbon(data = tabpred_ben, aes(x=10^logBathy,
                                    ymin = lower,
@@ -138,7 +148,7 @@ p <- ggplot() +
   labs(y = "betaslope", x = "Bathy")+
   scale_colour_manual(name = "", values = c('#077DAA', 'darkorange'),
                       labels = c("pelagic", "benthic"),aesthetics = c("colour", "fill"))+
-  theme_classic()
+  theme_light()+scale_x_log10()
 p
 ggsave(here::here("outputs", "partial_plot.png"), p)
 
@@ -149,16 +159,20 @@ ggsave(here::here("outputs", "partial_plot.png"), p)
 mod2 <- gls(betaslope ~ bruvs*(logBathy + Slope + logDistP + logDistSM + GovernmentEffectiveness_mean), data = tab)
 
 mod3 <- gls(betaslope ~ bruvs*(logBathy + Slope + logDistP + logDistSM + GovernmentEffectiveness_mean), data = tab, correlation = corAR1(form=~1))
-
 mod4 <- gls(betaslope ~ bruvs*(logBathy + Slope + logDistP + logDistSM + GovernmentEffectiveness_mean), data = tab, correlation = corExp(form=~1))
-
 mod5 <- gls(betaslope ~ bruvs*(logBathy + Slope + logDistP + logDistSM + GovernmentEffectiveness_mean), data = tab, correlation = corGaus(form=~1))
-
 mod6 <- gls(betaslope ~ bruvs*(logBathy + Slope + logDistP + logDistSM + GovernmentEffectiveness_mean), data = tab, correlation = corLin(form=~1))
+
+mod7 <- gls(betaslope ~ bruvs*(logBathy + Slope + logDistP + logDistSM + GovernmentEffectiveness_mean), data = tab, correlation = corGaus(form=~mean_lat+mean_long))
+
+
 
 
 #https://www.r-bloggers.com/2011/10/linear-regression-with-correlated-data/
-anova(mod2, mod3, mod4, mod5, mod6)
+
+
+#https://www.flutterbys.com.au/stats/tut/tut8.4a.html
+anova(mod2, mod3, mod4, mod5, mod6, mod7)
 
 effectsize(mod3)
 
@@ -171,3 +185,9 @@ plotp <- ggplot(p$fit, aes(10^logBathy, visregFit, colour= bruvs, fill= bruvs)) 
   scale_colour_manual(name = "", values = c('#077DAA', 'darkorange'),aesthetics = c("colour", "fill"))
 
 ggsave(here::here("outputs", "partial_plot.png"), plotp)
+
+
+save(file = "model.RData")
+
+
+
