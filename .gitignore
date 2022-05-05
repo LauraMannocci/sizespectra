@@ -8,3 +8,4 @@ NAMESPACE
 *.Rproj
 data/
 papers/
+model.RData
