@@ -139,7 +139,7 @@ figridges <- function(dat, min_size, lat_band){
 #' length weight relationship with marginal density plot
 #'
 #' @param data 
-#' @import ggplot2 ggExtra
+#' @import ggplot2 ggExtra ggblend
 #' @return
 #' @export
 #'
@@ -379,7 +379,7 @@ summarise_fun <- function(x) {
 #'
 #' @param dat size data
 #' @param minsize minimum lat side
-#' @param lat_band
+#' @param lat_band number of lat bands
 #' @import ggplot2
 #' @return 
 #' @export

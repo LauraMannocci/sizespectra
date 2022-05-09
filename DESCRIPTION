@@ -17,9 +17,13 @@ Imports:
     devtools,
     downloader,
     dplyr,
+    fishualize,
+    ggblend,
+    ggExtra,
     ggmap,
     ggplot2,
     ggridges,
+    ggstance,
     grid,
     gridExtra,
     here,
@@ -37,7 +41,6 @@ Imports:
     rgdal,
     rgeos,
     rlang,
-    rrtools,
     scales,
     sizeSpectra,
     sp,
@@ -51,7 +54,9 @@ Imports:
     multimode,
     spaMM,
     RSpectra,
+    ggblend
 Remotes: 
     nschiett/fishualize,
-    andrew-edwards/sizeSpectra
-    
+    andrew-edwards/sizeSpectra,
+    mjskay/ggblend
+

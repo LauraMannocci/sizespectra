@@ -1,18 +1,16 @@
-#create compendium
 
-devtools::install_github("benmarwick/rrtools")
+# make new compendium
+#create new project in rstudio
 
-rrtools::use_compendium("../sizespectra", open = FALSE)
+rcompendium::new_compendium(create_repo = FALSE) # run this courtesie of Nicolas Casajus
+
+#link compendium to github repo
+#1 make empty github repo
+#2 copy second paragraph into rstudio terminal (not console!)
+#refresh environment or restart rstudio (should show git tab)
+#refresh github - should show first commit and push
 
 #need to edit DESCRIPTION file
-
-#create directories
-dir.create("R")
-
-dir.create("outputs")
-
-dir.create("data")
-
 
 #to automatically add/remove dependencies
 rcompendium::add_dependencies(here::here())

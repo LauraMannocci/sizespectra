@@ -227,7 +227,7 @@ compare_gls_spatial_cor_betaslope <- function(data){
 #' get diagnostic plots for gls model
 #'
 #' @param model gls model
-#' @param model_name
+#' @param model_name name of model
 #' @param dat dataframe with predictor variables
 #'
 #' @return

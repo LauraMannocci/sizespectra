@@ -18,7 +18,6 @@ load("1_read_clean_pelagic.RData")
 #make_map_meta(meta_pelagic, "pelagic")
 
 
-
 #read clean pelagic response with envar (produced using david_code.R)
 
 response_pelagic <- read.table(here::here("outputs", "pelagic", file="size_response_envar_pelagic_clean.txt"))
