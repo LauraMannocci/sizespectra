@@ -7,5 +7,6 @@ outputs/
 NAMESPACE
 *.Rproj
 data/
+data_old/
 papers/
 model.RData

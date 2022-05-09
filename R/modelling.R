@@ -68,8 +68,7 @@ clean_data_with_vars <- function(dat){
 
 
 
-
-#' make correlogram of predictors ******need to update variables
+#' make correlogram of predictors ** ATTENTION need to update variables
 #'
 #' @param dat dataframe with predictor variables
 #'

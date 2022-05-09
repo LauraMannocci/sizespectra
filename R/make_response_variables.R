@@ -745,6 +745,59 @@ return(dat3)
 
 
 
+#' Join measured depth to benthic bruvs data with environmental variables
+#'
+#' @param dat dataframe of benthic bruvs data with environmental variables
+#'
+#' @return
+#' @export
+#'
+
+join_measured_depth_benthic <- function(dat){
+  
+  #read benthic meta
+  dat_ben <- read_meta_benthic()
+  
+  #extract benthic meta depth and join with data with vars
+  dat_ben <-  dat_ben %>% 
+    dplyr::rename("measured_depth" = `Depth (m)`,
+                  "NewOpCode" = NewOpcode) %>% 
+    dplyr::select(measured_depth, NewOpCode) %>% 
+    dplyr::mutate(measured_depth = as.numeric(measured_depth))
+  
+  dat_join <- dplyr::right_join(dat, dat_ben, by = "NewOpCode")
+  
+  return(dat_join)
+  
+}
+
+
+
+
+
+
+#' correct bathymetry data with measured depth data
+#'
+#' @param dat dataframe of benthic bruvs data with environmental variables
+#'
+#' @return
+#' @export
+#'
+
+correct_bathy_benthic  <- function(dat){
+  
+  #if measured depth is NA, replace with bathy data, otherwise keep measured_depth
+  dat %>% 
+    dplyr::mutate(bathy = ifelse(is.na(measured_depth), bathy, measured_depth)) %>% 
+    #removed measured depth
+    dplyr::select(-measured_depth) -> dat
+  
+  return(dat)
+    
+}
+
+
+
 
 
 # # MATURITY ----
