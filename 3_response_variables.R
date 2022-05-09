@@ -22,6 +22,9 @@ write.table(data_to_export,file=here::here("data", "response", "size_response_pe
 
 
 
+
+
+
 # MAKE BENTHIC RESPONSES-----
 
 ##read benthic size----
@@ -93,6 +96,9 @@ size_response_envar_pelagic_clean$Bathymetry <- abs(size_response_envar_pelagic_
 write.table(size_response_envar_pelagic_clean,here::here("data", "response", file="size_response_envar_pelagic_clean.txt"))
 
 
+
+
+
 # MERGE BENTHIC ENVAR WITH META ----
 # load clean benthic length data
 
@@ -105,7 +111,11 @@ envar_benthic <- readRDS(here::here("data", "envar", "benthicdata_inprogress2504
 #envar_meta_newopcode <- merge(meta_benthic, envar_benthic, by.x = "NewOpCode", by.y = "NewOpCode")
 
 
-### compute average pelagic environmental variable by date/exped----
+# join measured depth to benthic bruvs data with environmental variables
+envar_benthic <- join_measured_depth_benthic(envar_benthic)
+
+
+### compute average benthic environmental variable by date/exped----
 
 envar_benthic <- envar_benthic %>% 
   dplyr::group_by(`Exped`, Date) %>% 
@@ -126,6 +136,13 @@ response_benthic <- read.table(here::here("data", "response", "size_response_ben
 size_response_envar_benthic <- merge(envar_benthic, response_benthic, by = "key", all = TRUE)
 
 summary(size_response_envar_benthic)
+
+
+#correct bathymetry data with measured depth data
+
+size_response_envar_benthic <- correct_bathy_benthic(size_response_envar_benthic)
+
+
 
 #retain clean columns
 colnames(size_response_envar_benthic)
@@ -148,12 +165,17 @@ colnames(size_response_envar_benthic_clean) = c("key","Exped.","Date.y","Year","
 size_response_envar_benthic_clean$bruvs_type <- c("benthic")
 
 
-#turn depths negative
-size_response_envar_benthic_clean$Bathymetry <- abs(size_response_envar_benthic_clean$Bathymetry)* -1
+#turn depths negative (in case where it positive)
+size_response_envar_benthic_clean$Bathymetry <- ifelse(size_response_envar_benthic_clean$Bathymetry > 0,
+                                                       abs(size_response_envar_benthic_clean$Bathymetry)* -1,
+                                                       size_response_envar_benthic_clean$Bathymetry)
 
 
 
 write.table(size_response_envar_benthic_clean,here::here("data", "response", file="size_response_envar_benthic_clean.txt"))
+
+
+
 
 
 
@@ -170,7 +192,8 @@ pelagic_benthic_response_envar_clean <- plyr::rbind.fill(pelagic_response_envar,
 
 summary(pelagic_benthic_response_envar_clean)
 
-pelagic_benthic_response_envar_clean <- pelagic_benthic_response_envar_clean %>% tidyr::drop_na(Exped.)
+pelagic_benthic_response_envar_clean <- pelagic_benthic_response_envar_clean %>% 
+  tidyr::drop_na(Exped.)
 
 write.table(pelagic_benthic_response_envar_clean,here::here("data","response", file="pelagic_benthic_response_envar_clean.txt"))
 
