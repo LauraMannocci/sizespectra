@@ -78,24 +78,41 @@ response_pelagic <- read.table(here::here("data", "response", "size_response_pel
 size_response_envar_pelagic <- merge(envar_pelagic, response_pelagic, by = "key", all = TRUE)
 colnames(size_response_envar_pelagic)
 
+
+#turn depth positive
+
+size_response_envar_pelagic$Bathymetry <- abs(size_response_envar_pelagic$Bathymetry)* -1
+
 #retain clean columns
 
-dim(size_response_envar_pelagic)
+size_response_envar_pelagic %>% 
+  #select columns
+  dplyr::select("key","Exped.","Date.x","Year", "Month",
+                "TERRITORY1","conflicts",                    
+                 "RuleofLaw_mean","NoViolence_mean","GovernmentEffectiveness_mean","Voice_mean",                   
+                 "Corruption_mean","HDI_mean","Country","NGO",     
+                 "MarineEcosystemDependency","SAU","TravelTime_market","LinearDistcities",             
+                 "TravelTime_pop","LinearDistpop","FE_PurseSeine","FE_DriftingLongline",          
+                 "FE_FixedGear","FE_OtherFishing","FE_Trawlers","distPort",                     
+                 "distSeamounts", "distCoralReef","Bathymetry","Slope",                        
+                 "distCoast","PP", "CHL","SST_mean",                     
+                 "SST_sd","protection",                       
+                 "mean_lat","mean_long","mean_maxsize","std_maxsize",
+                 "cv_maxsize","median_maxsize","string_number","mean_meansize",                
+                 "std_meansize","cv_meansize","median_meansize","mean_mediansize",              
+                 "std_mediansize","cv_mediansize","median_mediansize","excess_mass",                  
+                 "modes_p_value","unimode","first_mode","second_mode",                  
+                 "betaslope", "betaslope_ci_inf","betaslope_ci_sup") -> size_response_envar_pelagic_clean          
 
-size_response_envar_pelagic_clean  <- size_response_envar_pelagic[ , c(1, 2, 18, 19, 67:123)]
 
-
-#turn depth negative
-
-size_response_envar_pelagic_clean$Bathymetry <- abs(size_response_envar_pelagic_clean$Bathymetry)* -1
 
 
 #write clean response with envar pelagic
 
+size_response_envar_pelagic_clean$bruvs_type <- c("pelagic")
+
 
 write.table(size_response_envar_pelagic_clean,here::here("data", "response", file="size_response_envar_pelagic_clean.txt"))
-
-
 
 
 
@@ -103,9 +120,7 @@ write.table(size_response_envar_pelagic_clean,here::here("data", "response", fil
 # load clean benthic length data
 
 
-#load(here::here("data", "envar","benthic_data_inprogress220422.Rdata"))
-
-envar_benthic <- readRDS(here::here("data", "envar", "benthicdata_inprogress250422.rds"))
+envar_benthic <- readRDS(here::here("data", "envar", "benthicdata_230522.rds"))
 
 #merge benthic envar and meta 
 #envar_meta_newopcode <- merge(meta_benthic, envar_benthic, by.x = "NewOpCode", by.y = "NewOpCode")
@@ -124,7 +139,6 @@ envar_benthic <- envar_benthic %>%
 
 
 # make key
-#envar_benthic$Date <- as.character(as.Date(as.character(envar_benthic$Date), format = "%d/%m/%Y")) #because of Date formating this step is not required
 
 envar_benthic$key <- paste(envar_benthic$Exped, envar_benthic$Date, sep = "__")
 
@@ -135,8 +149,6 @@ response_benthic <- read.table(here::here("data", "response", "size_response_ben
 
 size_response_envar_benthic <- merge(envar_benthic, response_benthic, by = "key", all = TRUE)
 
-summary(size_response_envar_benthic)
-
 
 #correct bathymetry data with measured depth data
 
@@ -145,24 +157,42 @@ size_response_envar_benthic <- correct_bathy_benthic(size_response_envar_benthic
 
 
 #retain clean columns
-colnames(size_response_envar_benthic)
-dim(size_response_envar_benthic)
-size_response_envar_benthic_clean  <- size_response_envar_benthic[ , c(1, 2, 3, 6, 7, 15:22, 24, 27:32, 35:57)]
 
-colnames(size_response_envar_benthic_clean)
-colnames(pelagic_response_envar)
 
-colnames(size_response_envar_benthic_clean) = c("key","Exped.","Date.y","Year","Month", 
-                                                "Bathymetry","Slope","distPort","FE_DriftingLongline","FE_OtherFishing",
-                                                "FE_Trawlers","FE_FixedGear","FE_PurseSeine","TERRITORY1","RuleofLaw_mean",
-                                                "NoViolence_mean","GovernmentEffectiveness_mean","Voice_mean","Corruption_mean","distSeamounts",
-                                                "mean_lat","mean_long","mean_maxsize","std_maxsize","cv_maxsize",
-                                                "median_maxsize","string_number","mean_meansize","std_meansize","cv_meansize",
-                                                "median_meansize","mean_mediansize","std_mediansize","cv_mediansize","median_mediansize",
-                                                "excess_mass", "modes_p_value","unimode","first_mode","second_mode",
-                                                "betaslope", "betaslope_ci_inf","betaslope_ci_sup") 
+#dim(size_response_envar_benthic)
 
-size_response_envar_benthic_clean$bruvs_type <- c("benthic")
+size_response_envar_benthic %>% 
+  #select columns
+  dplyr::select("key","Exped.x","Year","Month", "Date.x",                     
+                "bathy","slope","distPort","DriftingLongline","OtherFishing",                
+                "Trawlers","FixedGear","PurseSeine","TERRITORY1",
+                "RuleofLaw_mean","NoViolence_mean","GovernmentEffectiveness_mean",
+                  "Voice_mean","Corruption_mean","distSeamounts","MarineEcosystemDependency","conflicts",                   
+                  "HDI_mean","sst_mean","sst_week","CHL", "sst_sd","PP", "protection", "distCoralReef",               
+                  "distMarket","tt_market","mean_lat",                    
+                  "mean_long","mean_maxsize","std_maxsize","cv_maxsize","median_maxsize",              
+                  "BRUVS_number","mean_meansize","std_meansize","cv_meansize","median_meansize",             
+                  "mean_mediansize","std_mediansize","cv_mediansize","median_mediansize","excess_mass",                 
+                  "modes_p_value","unimode","first_mode","second_mode","betaslope",                   
+                  "betaslope_ci_inf","betaslope_ci_sup")        %>% 
+  #rename to match pelagic envar names
+  dplyr::rename("Exped." = "Exped.x",
+                "Bathymetry" = "bathy",
+                "Slope"= "slope",
+                "FE_DriftingLongline"="DriftingLongline",
+                "FE_OtherFishing"="OtherFishing",                
+                "FE_Trawlers"="Trawlers",
+                "FE_FixedGear"="FixedGear",
+                "FE_PurseSeine"="PurseSeine",
+                "SST_mean"="sst_mean",
+                "SST_sd"="sst_sd",
+                "SST_week"="sst_week",
+                "TravelTime_market"="tt_market",
+                "string_number"="BRUVS_number" ) -> size_response_envar_benthic_clean
+
+                
+        
+
 
 
 #turn depths negative (in case where it positive)
@@ -171,10 +201,10 @@ size_response_envar_benthic_clean$Bathymetry <- ifelse(size_response_envar_benth
                                                        size_response_envar_benthic_clean$Bathymetry)
 
 
+size_response_envar_benthic_clean$bruvs_type <- c("benthic")
+
 
 write.table(size_response_envar_benthic_clean,here::here("data", "response", file="size_response_envar_benthic_clean.txt"))
-
-
 
 
 
@@ -182,18 +212,11 @@ write.table(size_response_envar_benthic_clean,here::here("data", "response", fil
 #COMBINE BENTHIC AND PELAGIC RESPONSE  ----
 
 pelagic_response_envar <- read.table(here::here("data", "response", "size_response_envar_pelagic_clean.txt"), header = TRUE)
-
-pelagic_response_envar$bruvs_type <- c("pelagic")
-
-
 benthic_response_envar <- read.table(here::here("data", "response", "size_response_envar_benthic_clean.txt"), header = TRUE)
+
 
 pelagic_benthic_response_envar_clean <- plyr::rbind.fill(pelagic_response_envar, benthic_response_envar)
 
-summary(pelagic_benthic_response_envar_clean)
 
-pelagic_benthic_response_envar_clean <- pelagic_benthic_response_envar_clean %>% 
-  tidyr::drop_na(Exped.)
-
-write.table(pelagic_benthic_response_envar_clean,here::here("data","response", file="pelagic_benthic_response_envar_clean.txt"))
+write.table(pelagic_benthic_response_envar_clean, here::here("data","response", file="pelagic_benthic_response_envar_clean.txt"))
 

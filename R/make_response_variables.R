@@ -758,14 +758,15 @@ join_measured_depth_benthic <- function(dat){
   #read benthic meta
   dat_ben <- read_meta_benthic()
   
+  #clean
+  dat_ben <- clean_meta_benthic(dat_ben)
+  
   #extract benthic meta depth and join with data with vars
   dat_ben <-  dat_ben %>% 
-    dplyr::rename("measured_depth" = `Depth (m)`,
-                  "NewOpCode" = NewOpcode) %>% 
     dplyr::select(measured_depth, NewOpCode) %>% 
     dplyr::mutate(measured_depth = as.numeric(measured_depth))
   
-  dat_join <- dplyr::right_join(dat, dat_ben, by = "NewOpCode")
+  dat_join <- dplyr::right_join(dat_ben, dat, by = "NewOpCode")
   
   return(dat_join)
   

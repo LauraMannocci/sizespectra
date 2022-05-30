@@ -784,7 +784,7 @@ clean_meta_benthic <- function(dat){
   
   dat %>% 
     #select columns
-    dplyr::select("NewOpcode",	"New Exped", "Date", "Year", "Month", "Lat", "Long", "Time In",	"USE?",	"Location", "Site", 
+    dplyr::select("NewOpcode",	"New Exped", "Date", "Depth (m)", "Year", "Month", "Lat", "Long", "Time In",	"USE?",	"Location", "Site", 
                   "Biotic", "Substrate") %>% 
     #rename columns
     dplyr::rename("Exped" ="New Exped",
@@ -792,7 +792,8 @@ clean_meta_benthic <- function(dat){
                   "time_in" = "Time In",
                   "NewOpCode" = "NewOpcode",
                   "lat_in" = "Lat", 
-                  "lon_in" = "Long") %>% 
+                  "lon_in" = "Long",
+                  "measured_depth" = "Depth (m)") %>% 
     #reformat time in 
     dplyr::mutate(time_in = strftime(time_in, format="%H:%M:%S")) %>% 
     #get year and month

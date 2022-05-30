@@ -54,9 +54,16 @@ Imports:
     multimode,
     spaMM,
     RSpectra,
-    ggblend
+    ggblend,
+    sjPlot,
+    sjlabelled,
+    sjmisc,
+    performance
 Remotes: 
     nschiett/fishualize,
     andrew-edwards/sizeSpectra,
-    mjskay/ggblend
+    mjskay/ggblend,
+    strengejacke/sjPlot,
+    strengejacke/sjlabelled,
+    strengejacke/sjmisc
 

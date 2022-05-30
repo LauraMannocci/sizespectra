@@ -187,8 +187,9 @@ fl_lengthweight <- function(data){
   fl_speciesrank <-  
     ggExtra::ggMarginal(
     ggplot2::ggplot()+
-    geom_jitter(data= data, aes(x=reorder(Binomial, weight_kg, na.rm = TRUE), y= weight_kg,  colour = Type, alpha= Type), size = 0.5, width = 1.5)+
-    scale_y_log10(name  = "Body size", breaks= c(0.001, 1, 100), labels= c("1g", "1kg", "100kg"))+
+    #geom_jitter(data= data, aes(x=reorder(Binomial, weight_kg, na.rm = TRUE), y= weight_kg,  colour = Type, alpha= Type), size = 0.5, width = 1.5)|> blend("lighten")+
+    geom_jitter(data= data, aes(x=reorder(Binomial, weight_kg, na.rm = TRUE), y= weight_kg,  colour = Type, alpha= Type), size = 0.5, width = 1.5)|> blend("darken", alpha =.10)+
+          scale_y_log10(name  = "Body size", breaks= c(0.001, 1, 100), labels= c("1g", "1kg", "100kg"))+
     labs(x="Species")+
     theme(legend.position = "none", axis.title.y = element_text(size=20, angle = 90),
             legend.text = element_text(size =16),axis.text.x = element_text(size=16),
@@ -197,7 +198,7 @@ fl_lengthweight <- function(data){
             axis.ticks.x = element_blank())+
     scale_colour_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'orange'))+ 
     scale_x_discrete(label = NULL)+
-    scale_alpha_discrete(range = c(0.80, 0.05))+ 
+    #scale_alpha_discrete(range = c(0.80, 0.05))+ 
     geom_hline(yintercept=upper.line, na.rm =TRUE, linetype="dotted")+ 
     geom_hline(yintercept=mid.line, na.rm =TRUE, linetype="dotted")+
     geom_hline(yintercept=lower.line, na.rm =TRUE, linetype="dotted")+
