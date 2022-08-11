@@ -24,6 +24,7 @@ Imports:
     ggplot2,
     ggridges,
     ggstance,
+    ggforce,
     grid,
     gridExtra,
     here,
@@ -65,5 +66,6 @@ Remotes:
     mjskay/ggblend,
     strengejacke/sjPlot,
     strengejacke/sjlabelled,
-    strengejacke/sjmisc
+    strengejacke/sjmisc,
+    strengejacke/ggeffects
 

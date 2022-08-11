@@ -7,7 +7,12 @@ devtools::load_all() ### load packages and functions in R folder
 
 ##read pelagic sizes----
 
-SpecLen <- read_size_pelagic()
+SpecLenAll <- read_size_pelagic()
+
+
+##choose min pelagic size (in kg). must be consistent with benthic ----
+SpecLen <- subset_size(SpecLenAll, 0.0010) 
+
 
 ##make pelagic mean median and max size----
 data_to_export <- mean_median_max_pelagic(SpecLen)
@@ -17,6 +22,9 @@ data_to_export <- modes_pelagic(SpecLen, data_to_export)
 
 ##make pelagic beta slopes - this takes a while----
 data_to_export <- beta_slope_pelagic(SpecLen, data_to_export)
+
+#subset sensible betaslope
+data_to_export <- subset_betaslope(data_to_export, -6, 1)
 
 write.table(data_to_export,file=here::here("data", "response", "size_response_pelagic.txt"), row.names = FALSE)
 
@@ -28,27 +36,26 @@ write.table(data_to_export,file=here::here("data", "response", "size_response_pe
 # MAKE BENTHIC RESPONSES-----
 
 ##read benthic size----
+SpecLenAll <- read_size_benthic()
 
-SpecLen <- read_size_benthic()
+##choose min benthic size (in kg). must be consistent with pelagic ----
+SpecLen <- subset_size(SpecLenAll, 0.0010) 
 
 ##make benthic mean median and max size----
-
 data_to_export <- mean_median_max_benthic(SpecLen)
 
 
 ##make benthic modes - this takes a while----
-
 data_to_export <- modes_benthic(SpecLen, data_to_export)
 
 
 ##make benthic beta slopes - this takes a while----
-
 data_to_export <- beta_slope_benthic(SpecLen, data_to_export)
 
+#subset sensible betaslope - not needed
+#data_to_export <- subset_betaslope(data_to_export, -6, 1)
+
 write.table(data_to_export,file=here::here("data", "response", "size_response_benthic.txt"), row.names = FALSE)
-
-
-#merge and export benthic responses
 
 
 
@@ -56,8 +63,11 @@ write.table(data_to_export,file=here::here("data", "response", "size_response_be
 # MERGE PELAGIC ENVAR WITH META ------
 
 
-envar_pelagic <- readr::read_csv(here::here("data", "envar", "PelagicData_dec2021.csv"), col_names = TRUE)
+#envar_pelagic <- readr::read_csv(here::here("data", "envar", "PelagicData_dec2021.csv"), col_names = TRUE)
+envar_pelagic <- readRDS(here::here("data", "envar", "pelagicdata_020622.rds"))
 
+#ggplot2::ggplot(envar_pelagic, aes(x=distPort, y=LinearDistpop)) + geom_point()
+  
 
 ### compute average pelagic environmental variable by date/exped----
 
@@ -94,9 +104,9 @@ size_response_envar_pelagic %>%
                  "MarineEcosystemDependency","SAU","TravelTime_market","LinearDistcities",             
                  "TravelTime_pop","LinearDistpop","FE_PurseSeine","FE_DriftingLongline",          
                  "FE_FixedGear","FE_OtherFishing","FE_Trawlers","distPort",                     
-                 "distSeamounts", "distCoralReef","Bathymetry","Slope",                        
-                 "distCoast","PP", "CHL","SST_mean",                     
-                 "SST_sd","protection",                       
+                 "distSeamounts", "distCoralReef","Bathymetry","Slope","distCoast",
+                  "PP", "CHL","SST_mean",                     
+                 "SST_sd","sst_week","protection",                       
                  "mean_lat","mean_long","mean_maxsize","std_maxsize",
                  "cv_maxsize","median_maxsize","string_number","mean_meansize",                
                  "std_meansize","cv_meansize","median_meansize","mean_mediansize",              
@@ -120,10 +130,15 @@ write.table(size_response_envar_pelagic_clean,here::here("data", "response", fil
 # load clean benthic length data
 
 
-envar_benthic <- readRDS(here::here("data", "envar", "benthicdata_230522.rds"))
+envar_benthic <- readRDS(here::here("data", "envar", "benthicdata_150622.rds"))
+
+envar_benthic %>% dplyr::mutate(distMarket = as.numeric(distMarket)) %>% 
+                  dplyr::mutate(tt_market = as.numeric(tt_market))-> envar_benthic
+
 
 #merge benthic envar and meta 
 #envar_meta_newopcode <- merge(meta_benthic, envar_benthic, by.x = "NewOpCode", by.y = "NewOpCode")
+#ggplot2::ggplot(envar_benthic, aes(x=distMarket, y=distPort)) + geom_point()
 
 
 # join measured depth to benthic bruvs data with environmental variables
@@ -154,17 +169,13 @@ size_response_envar_benthic <- merge(envar_benthic, response_benthic, by = "key"
 
 size_response_envar_benthic <- correct_bathy_benthic(size_response_envar_benthic)
 
-
-
 #retain clean columns
-
-
 #dim(size_response_envar_benthic)
 
 size_response_envar_benthic %>% 
   #select columns
   dplyr::select("key","Exped.x","Year","Month", "Date.x",                     
-                "bathy","slope","distPort","DriftingLongline","OtherFishing",                
+                "bathy","slope","distPort","distCoast", "DriftingLongline","OtherFishing",                
                 "Trawlers","FixedGear","PurseSeine","TERRITORY1",
                 "RuleofLaw_mean","NoViolence_mean","GovernmentEffectiveness_mean",
                   "Voice_mean","Corruption_mean","distSeamounts","MarineEcosystemDependency","conflicts",                   
@@ -186,7 +197,6 @@ size_response_envar_benthic %>%
                 "FE_PurseSeine"="PurseSeine",
                 "SST_mean"="sst_mean",
                 "SST_sd"="sst_sd",
-                "SST_week"="sst_week",
                 "TravelTime_market"="tt_market",
                 "string_number"="BRUVS_number" ) -> size_response_envar_benthic_clean
 
@@ -210,6 +220,8 @@ write.table(size_response_envar_benthic_clean,here::here("data", "response", fil
 
 
 #COMBINE BENTHIC AND PELAGIC RESPONSE  ----
+
+
 
 pelagic_response_envar <- read.table(here::here("data", "response", "size_response_envar_pelagic_clean.txt"), header = TRUE)
 benthic_response_envar <- read.table(here::here("data", "response", "size_response_envar_benthic_clean.txt"), header = TRUE)

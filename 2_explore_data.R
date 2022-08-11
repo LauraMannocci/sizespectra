@@ -2,10 +2,16 @@
 devtools::document()
 devtools::load_all() ### load packages and functions in R folder
 
+#read port and markets data
+market <-read_data_with_market()
+port <-read_data_with_port()
+
+# port and market maps
+map_port <- globalmap_port(world = WorldData, mar = mar, dat = port)
+map_market <- globalmap_market(world = WorldData, mar = mar, dat = market)
+
 
 # explore bruvs data
-
-
 
 ########### PELAGIC bruvs-----
 
@@ -16,12 +22,6 @@ load("1_read_clean_pelagic.RData")
 
 ## make map meta
 #make_map_meta(meta_pelagic, "pelagic")
-
-
-#read clean pelagic response with envar (produced using david_code.R)
-
-response_pelagic <- read.table(here::here("outputs", "pelagic", file="size_response_envar_pelagic_clean.txt"))
-
 
 
 ########### BENTHIC bruvs----
@@ -53,61 +53,91 @@ mar <- rgdal::readOGR(dsn = dsn_mar_layer, layer = "World_Maritime_Boundaries_v8
 #map
 fig_map <- globalmap(world = WorldData, mar = mar, meta_pb = meta_pelagic_benthic)
 
+
+
+
 ### ggridges weight against lat MAIN BODY
 
-fig_ridges <- figridges(dat = fl_pelagic_benthic_meta, min_size = 0, lat_band = 6)   #tropical latitude = 23.10S-23.10N, subtropical latitude = +/-23.5N-38N, temperate 38-70
+fig_ridges <- figridges(dat = fl_pelagic_benthic_meta, min_size = 0.010, lat_band = 6)   #tropical latitude = 23.10S-23.10N, subtropical latitude = +/-23.5N-38N, temperate 38-70
+
+
+#with overlap by lat ban
+fig_ridges_overlap <- figridges_overlap(dat = fl_pelagic_benthic_meta, 
+                      min_size = 0.010, lat_band = 20, bandw = 0.2)   #tropical latitude = 23.10S-23.10N, subtropical latitude = +/-23.5N-38N, temperate 38-70
+
+#with overlap by exped
+
+fig_ridges_exped <- figridges_overlap_exped(dat = fl_pelagic_benthic_meta, 
+                                        min_size = 0.010, bandw = 0.2, scale= 30, alpha=0.05)   #tropical latitude = 23.10S-23.10N, subtropical latitude = +/-23.5N-38N, temperate 38-70
 
 ##### species rank order weights with marginal violin  MAIN BODY
 
-fig_sp_rank <- fl_species_ord_marg(data = fl_pelagic_benthic_meta, lower.line=0.001, mid.line = 1, upper.line=100)# define quantiles for lines
+fig_sp_rank <- fl_species_ord_marg(data = fl_pelagic_benthic_meta, 
+                                   lower.line=0.001, mid.line = 1, upper.line=100, minsize =0.00001)# define quantiles for lines
 
 
 ### min max size spectra by latitudinal band
-
 ggplot(data=fl_pelagic_benthic_meta, aes(x=abs(lat_in), colour = Type, fill =Type)) + geom_histogram(position ="dodge", alpha=.4) ### check number of bruvs with lat
 
 
 #pareto distribution - cumulative distribution plotting - more appropriate to MLE 
-
 points_lcd <- cum_dist_plot(fl_pelagic_benthic_meta, 0, 6) #sizes, minimum size (in kg), and no of latitudinal bans
 
 # bin data and lm coefs
-
 bin_global_lm <- bin_global_points_lm(fl_pelagic_benthic_meta,0.003, 5)#sizes, minimum size (in kg), and no of latitudinal bans - also saves the coefs in table
-
-
 #bin dat with quadratic polynomial fit using nonlinear regression  (Yurista et al 2014 Can J Fish Aqua. Sci) log10(g·m^2 · g^1) A0.5(C)[log10g) * B]2
-
-
 bin_global_quad <- bin_global_points_quad(fl_pelagic_benthic_meta, 0.003, 5)
-
 ### global size spectra with regression using a stacked histogramm
-
 hist_spectra <- hist_spectra(data=fl_pelagic_benthic_meta)
-
-
+### global size spectra with regression using non-stacked histogramm
+hist_nonstack <- hist_spectra_nonstack(data=fl_pelagic_benthic_meta)
 ### global biomass pyramid
-
 biomass_pyramid <- biomass_pyramid(data=fl_pelagic_benthic_meta)
 
 
-###Fig 1 multiplot sampling overview/species rank order/response variables MAIN BODY FIG 1----
+## PLOT RESPONSE----
+# read data with response variables
+tab <- read_data_with_vars()
+
+#betaslope histogram
+fig_betaslope <- hist_betaslope(tab)
+
+#modes
+fig_modes <- density_modes(tab)
+fig_modes_violin <- violin_modes(tab)
+
+##response vs response
+tab_firstmode <- clean_data_with_vars(tab, "logFirstmode")
+response_vs_response(tab_firstmode)
+
+
+ ###Fig 1 multiplot sampling overview/species rank order/response variables MAIN BODY FIG 1----
 
 fig_1_sample <- cowplot::ggdraw() +
-  cowplot::draw_plot(fig_map, 0, .60, 1, .40) +
-  cowplot::draw_plot(fig_sp_rank,  0, .30,  1,  .30) +
-  cowplot::draw_plot(biomass_pyramid,  0, 0,  .5,  .30)+ 
-  cowplot::draw_plot(hist_spectra,  .5, 0,  .45,  .30) 
+  cowplot::draw_plot(fig_map, 0, .40, 1, .63) +
+  cowplot::draw_plot(fig_sp_rank,  0, 0,  1,  .45)+
+  draw_plot_label(c("a", "b"), c(0, 0), c(1, .47), size = 22, fontface = "bold")
   
-ggsave(fig_1_sample, filename = here::here("outputs", "fig_1_sample.jpeg"), width = 16, height = 20, units = "in", dpi =300)#render cowplots in jpeg less you get seethrough bits
+ggsave(fig_1_sample, filename = here::here("outputs", "fig_1_sample.jpeg"), width = 16, height = 16, units = "in", dpi =300)#render cowplots in jpeg less you get seethrough bits
 
-# Fig 2 multiplot sampling geom_ridges lat_band with pareto CLT distribution----
 
-fig_2_size <- cowplot::ggdraw() +
+
+###Fig 2 response variable ----
+response_fig(fl_pelagic_benthic_meta,  tab, tab_firstmode,min_size=0.01, bandw = 0.2, scale= 30, alpha=0.3)
+
+
+
+###Fig 3 conceptual diagram plus response----
+conceptual_dia(fl_pelagic_benthic_meta,  tab, tab_firstmode,min_size=0.01, bandw = 0.2, scale= 30, alpha=0.05)
+
+
+# multiplot sampling geom_ridges lat_band with pareto CLT distribution----
+
+pareto_size <- cowplot::ggdraw() +
    cowplot::draw_plot(fig_ridges+guides(fill=guide_legend(ncol=2)) ,0, 0, 0.5,1)+
    cowplot::draw_plot(points_lcd+theme(legend.position ='none',strip.background = element_blank()),0.5, 0.035, 0.5,.95)
   
-ggsave(fig_2_size, filename = here::here("outputs", "fig_2_size.jpeg"), width = 16, height = 16, units = "in", dpi =300)#render cowplots in jpeg less you get seethrough bits
+ggsave(pareto_size, filename = here::here("outputs", "pareto_size.jpeg"), width = 16, height = 16, units = "in", dpi =300)#render cowplots in jpeg less you get seethrough bits
 
  ### ggridges responses slope against lat MAIN BODY 
 
@@ -170,9 +200,7 @@ fig_fl_length_weight <- fl_lengthweight(data = fl_pelagic_benthic_meta)
 ##### species rank order weights by quantiles SUPPLEMENTARY MATERIAL
 
 fig_fl_species_rank_vert <- fl_species_rank_order_vert(data = fl_pelagic_benthic_meta, lower.line=0.01, upper.line=0.99)# define quantiles for lines
-
 fig_fl_species_rank_upper <- fl_species_rank_order_quan(data = fl_pelagic_benthic_meta, lower.quan = 0.99, upper.quan = 1, breaks = c(1, 10, 100,1000))
-
 fig_fl_species_rank_lower <- fl_species_rank_order_quan(data = fl_pelagic_benthic_meta, lower.quan = 0, upper.quan = 0.01, breaks = c(0.0001, 0.001, 0.01, 0.1))
 
 
@@ -196,37 +224,6 @@ fig_weights
 
 
 ##################### plot response variable from David ###### MAIN BODY ####
-####### plot MLE slope
-
-response <- read.table(here::here("output", "slope_MLE_by_day_20indmin_pelagic.txt"), header = TRUE)
-
-slope_benthic <- read.table(here::here("data", "response", "slope_MLE_by_day_20indmin_benthic.txt"), col_names = TRUE)
-
-
-ggplot2::ggplot() + geom_density(data=slope_pelagic_benthic, aes(x=number_of_BRUVS, fill =Type), alpha =.5) 
-
-MLE_map <- response_globalmap(world = WorldData, mar = mar, meta_pb = slope_pelagic_benthic)
-
-##compute medians
-
-slope_pelagic_benthic %>%
-  group_by(Type) %>%
-  summarize(median=median(beta_slope)) -> slope_pelagic_benthic_median 
-
-## density plot of MLE slope                               
-fig_slope <- ggplot2::ggplot() + geom_density(data = tab, aes(x= betaslope, fill = bruvs_type), alpha = .6)+
-  #geom_vline(data = slope_pelagic_benthic_median, aes(xintercept = median, color = Type), linetype ="dashed", size=1.5)+
-  scale_colour_manual(values = c("pelagic" = '#077DAA', 'benthic' = 'darkorange'))+
-  scale_fill_manual(values = c("pelagic" = '#077DAA', 'benthic' = 'orange')) + xlim(c(-1.7, 0))+xlab("Beta slope value")+
-  theme_light() +theme(legend.position = "bottom", axis.title=element_text(size=20),legend.title = element_blank(),
-                       legend.text = element_text(size =22), 
-                       axis.text.x = element_text(size=16),
-                       axis.text.y = element_text(size=16))
-fig_slope
-ggsave(fig_slope_MLE_dense, filename = here::here("outputs", "fig_slope_density.png"), width = 12, height = 10, units = "in", dpi =300)
-
-
-
 
 ### plot modes-----
 
@@ -364,10 +361,10 @@ date_hist <- ggplot(data = meta_benthic2, aes(x=Date))+
 fl_pelagic_benthic_meta2 <- subset(fl_pelagic_benthic_meta, weight_kg >100)
 nrow(fl_pelagic_benthic_meta2)
 
-median(fl_pelagic$weight_kg)
-[1] 0.008759282
-median(fl_benthic$weight_kg)
-[1] 0.0585
+# median(fl_pelagic$weight_kg)
+# [1] 0.008759282
+# median(fl_benthic$weight_kg)
+# [1] 0.0585
 
 ### count unique locations
 
@@ -404,6 +401,12 @@ size_hist + geom_line(data = pel_bent_lm,aes(x=pel_bent_dat$x, y=(pel_bent_)[fit
 
 
 
-  
+#locations for Jessica
+
+pelagic_locations <- as.data.frame(levels(as.factor(fl_pelagic$Exped)))
+write.table(pelagic_locations, here::here("outputs", "table", file="Letessier_pelagic_locations.csv"))
+
+benthic_locations <- as.data.frame(levels(as.factor(fl_benthic$Exped)))
+write.table(benthic_locations, here::here("outputs", "table", file="Letessier_benthic_locations.csv"))
 
 

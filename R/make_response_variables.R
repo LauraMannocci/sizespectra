@@ -17,6 +17,23 @@ read_size_pelagic <- function(){
 } #end of function
 
 
+#' subset pelagic size for response
+#'
+#' @return dat
+#' @export
+#'
+#' @examples
+#' 
+#' 
+subset_size <- function(dat, min_size){
+  
+  dat <- dat[which (dat$weight_kg > min_size),]
+
+  
+  #return(dat)
+  
+} #end of function
+
 
 #' Make mean, median and maximum pelagic response
 #'
@@ -344,8 +361,7 @@ for (i in exp)
 }
 
 res = na.omit(res)
-res = res[res$betaslope <  1, ]
-res = res[res$betaslope > -4, ]
+
 
 res$Date <- as.character(as.Date(as.character(res$Date), format = "%Y-%m-%d"))
 res$key <- paste(res$Exped, res$Date, sep = "__")
@@ -363,8 +379,20 @@ return(dat3)
 }#end of function
 
 
+#' subset sensible betaslope
+#'
+#' @return dat
+#' @export
+#'
+#' @examples
+#' 
 
+subset_betaslope <- function(dat, min, max){
 
+dat = dat[dat$betaslope < max, ]
+dat = dat[dat$betaslope > min, ]
+
+}
 
 
 # BENTHIC RESPONSE----
@@ -717,8 +745,8 @@ res=na.omit(res)
 dim(res)
 summary(res)
 
-res = res[res$betaslope <  1, ]
-res = res[res$betaslope > -4, ]
+#res = res[res$betaslope <  1, ]
+#res = res[res$betaslope > -4, ]
 
 
 #write.table(res,file="slope_MLE_by_day_20indmin_benthic.txt")
