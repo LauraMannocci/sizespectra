@@ -217,26 +217,19 @@ figridges <- function(dat, min_size, lat_band){
     alpha = 0.5, scale =0.8, jittered_points = TRUE, quantile_lines = TRUE, quantiles = c(0.5, 1), vline_size = 1.5, 
                                   position = position_points_jitter(height = 0.2, yoffset= 0.2, adjust_vlines = TRUE),
                                   point_size = 0.01, point_alpha = 0)+
-    scale_x_log10(limits = c(5e-06, 1200), breaks = c(0.001, 0.1, 100), labels = c(0.001, 0.1, 100))+
+    scale_x_log10(limits = c(5e-06, 1200), breaks = c(0.0001, 0.1, 100), labels = c(0.0001, 0.1, 100))+
     xlab('Body size (kg)') +ylab('Latitude')+
     scale_fill_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'orange'))+
     scale_colour_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'darkorange'))+
     scale_linetype_manual(breaks=c(0.5,1), values =c("dotted", "solid"))+ 
-    scale_y_discrete(expand = c(0.1, 0))+
-    theme_light() +theme(legend.position = "bottom", axis.title=element_text(size=22),legend.title = element_blank(),
+    scale_y_discrete(expand = expansion(add = c(0.05, 1)))+
+    theme_light() +theme(legend.position = c(.80,.97),legend.background = element_rect(fill='transparent'), axis.title=element_text(size=22),legend.title = element_blank(),
                          legend.text = element_text(size =22), 
                          axis.text.x = element_text(size=16),
                          axis.text.y = element_text(size=16))+
-    theme(plot.margin = margin(1,1,0,1.2, "cm"))+
+    theme(plot.margin = margin(1,1,0,0, "cm"))+
     coord_cartesian(clip = "off")
-  #fishualize::add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = -4.4, xmax = -3.9, ymin = 15.6, ymax =16.1)+
-  #fishualize::add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = -4.7, xmax = -4.2, ymin = 16.1, ymax =16.3)+
-  #fishualize::add_fishape(family = "Blenniidae", option = "Antennablennius_adenensis",  xmin = -5, xmax = -4.3, ymin = 15.5, ymax =16)+
-  #fishualize::add_fishape(family = "Rhincodontidae", option = "Rhincodon_typus", xmin= 0.8, xmax = 3.35, ymin = 14.1 , ymax = 17)+
-  #fishualize::add_fishape(family = "Alopiidae", option = "Alopias_vulpinus", xmin= 1.7, xmax = 3.32, ymin = 15.6 , ymax = 17)
-  #ggstance::stat_summaryh(fun.x=median, geom="text", aes(label=sprintf("%1.1f", ..x..)),
-                 # position=position_nudge(x=-0.1), size=3.5)
-  
+
   print(rigplot)
   
   ggsave(rigplot, filename = here::here("outputs", "fig_ridges.png"), width = 10, height = 16, units = "in", dpi =300)
@@ -281,13 +274,7 @@ figridges_overlap <- function(dat, min_size, lat_band, bandw){
                          legend.background = element_rect(fill = "transparent"))+
     theme(plot.margin = margin(1,1,0,1.2, "cm"))+
     coord_cartesian(clip = "off")+facet_wrap(~Type, nrow =2)
-  #fishualize::add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = -4.4, xmax = -3.9, ymin = 15.6, ymax =16.1)+
-  #fishualize::add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = -4.7, xmax = -4.2, ymin = 16.1, ymax =16.3)+
-  #fishualize::add_fishape(family = "Blenniidae", option = "Antennablennius_adenensis",  xmin = -5, xmax = -4.3, ymin = 15.5, ymax =16)+
-  #fishualize::add_fishape(family = "Rhincodontidae", option = "Rhincodon_typus", xmin= 0.8, xmax = 3.35, ymin = 14.1 , ymax = 17)+
-  #fishualize::add_fishape(family = "Alopiidae", option = "Alopias_vulpinus", xmin= 1.7, xmax = 3.32, ymin = 15.6 , ymax = 17)
-  #ggstance::stat_summaryh(fun.x=median, geom="text", aes(label=sprintf("%1.1f", ..x..)),
-  # position=position_nudge(x=-0.1), size=3.5)
+
   
   print(rigplot)
   
@@ -351,29 +338,24 @@ fl_lengthweight <- function(data){
   fl_speciesrank <-  ggplot2::ggplot()+
     #geom_jitter(data= data, aes(x=reorder(Binomial, weight_kg, na.rm = TRUE), y= weight_kg,  colour = Type, alpha= Type), size = 0.5, width = 1.5)|> blend("lighten")+
     geom_jitter(data= data, aes(x=reorder(Binomial, weight_kg, na.rm = TRUE), y=weight_kg,  colour = Type, alpha= Type), size = 0.5)+
-          scale_y_log10(name  = "Body size (kg)", breaks= c(0.001, 1, 100), labels= c("0.001", "1", "100"))+
-    labs(x="Species (n = 1861)")+
+          scale_y_log10(name  = "Bigger individuals (kg, n = 880,242)", breaks= c(0.001, 1, 100), labels= c("0.001", "1", "100"))+
+    labs(x="Bigger species (n = 1,460)")+
     theme(legend.position = "none", axis.title.y = element_text(size=20, angle = 90),
             legend.text = element_text(size =16),axis.text.x = element_text(size=16),
             axis.text.y = element_text(size=16), axis.title.x = element_text(size=20),
-            #panel.grid.major.x = element_blank(),
-            axis.ticks.x = element_blank())+
+            axis.ticks.x = element_blank(), 
+          axis.line = element_line(arrow = arrow(type='closed', length = unit(10,'pt')))) +
     scale_colour_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'orange'))+ 
     scale_x_discrete(label = NULL)+
     scale_alpha_discrete(range = c(0.80, 0.05))+ 
     geom_hline(yintercept=upper.line, na.rm =TRUE, linetype="dotted")+ 
     geom_hline(yintercept=mid.line, na.rm =TRUE, linetype="dotted")+
     geom_hline(yintercept=lower.line, na.rm =TRUE, linetype="dotted")+
-    geom_hline(yintercept=0.058, na.rm =TRUE, linetype="solid",colour = "sienna2")+ 
-    geom_hline(yintercept=0.0087, na.rm =TRUE, linetype="solid",colour = "darkblue")
+    geom_hline(yintercept=0.058, na.rm =TRUE, linetype="solid",colour = "darkorange")+ 
+    geom_hline(yintercept=0.0087, na.rm =TRUE, linetype="solid",colour = "#077DAA")
   
   fl_species <- ggExtra::ggMarginal(fl_speciesrank,groupFill= TRUE, groupColour = TRUE, type = "violin", alpha = .6, size = 2, margins = "y", draw_quantiles = c(0.05, 0.5, 0.95)) 
-    #fishualize::add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = 0.1, xmax = 0.3, ymin = 0.7, ymax = 0.9, xlim = c(0, 1460), ylim = c(0.1, 100), scaled = TRUE)#+
-    #fishualize::add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = 0.15, xmax = 0.25, ymin = 0.75, ymax =0.85, scaled = TRUE)+
-    #fishualize::add_fishape(family = "Blenniidae", option = "Antennablennius_adenensis",  xmin = 0.2, xmax = 0.3, ymin = 0.85, ymax =0.95, scaled = TRUE)+
-    #fishualize::add_fishape(family = "Rhincodontidae", option = "Rhincodon_typus", xmin= 0.75, xmax = 0.95, ymin = 0.6 , ymax = 0.9, scaled = TRUE)+
-    #fishualize::add_fishape(family = "Alopiidae", option = "Alopias_vulpinus", xmin= 0.7, xmax = 0.95, ymin = 0.75 , ymax = 0.9, scaled = TRUE)
-  
+
   print(fl_species)
   
   ggsave(fl_species, filename = here::here("outputs", "species_ord_marg.png"), width = 20, height = 12, units = "in", dpi =300)
@@ -551,19 +533,22 @@ summarise_fun <- function(x) {
 
 cum_dist_plot <- function(dat, minsize, lat_band){
 
-options(scipen=6)
+#options(scipen=5)
   
  dat2 = dat[dat$weight_kg > minsize, ]# select predatory fish - individuals larger than minsize kg
   
 
-qplot <- ggplot(dat2, aes(weight_kg, group = cut_number(abs(lat_in), n=lat_band)))+
-  stat_ecdf(geom="smooth", aes(y = 1 - ..y.., colour=Type), pad = FALSE) +
-  scale_y_log10(breaks = c(0.0001, 0.01, 1), labels =c('0.01%','1%','100%'))+ scale_x_log10()+theme_light() +
+qplot <- ggplot(dat2, aes(weight_kg, colour = Type))+
+  stat_ecdf(geom="smooth", aes(y = 1 - ..y..), pad = FALSE) +
+  scale_y_log10(breaks = c(0.0001, 0.01, 1), labels =c('0.01%','1%','100%'))+theme_light() +
   scale_colour_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'darkorange'))+
-  theme(legend.position = "none", legend.title = element_blank(), axis.title.x=element_text(size=16),
-        legend.text = element_text(size =16),axis.text.x = element_text(size=16),
-        axis.text.y = element_text(size=16), axis.title.y=element_text(size=16),strip.text.y = element_text(size = 16))+
-  xlab('Body size (x, kg)')+ylab('Proportion of values ≥ x')+facet_wrap(~Type, nrow =2)
+  scale_x_log10(limits = c(5e-06, 1200), breaks = c(0.0001, 0.1, 100), labels = c(0.0001, 0.1, 100))+
+  theme(strip.background = element_blank(),legend.position = "none", legend.title = element_blank(), axis.title=element_text(size=22), 
+        axis.title.x=element_text(size=22),
+        axis.title.y=element_text(size=22),
+        axis.text.x = element_text(size=16),
+        axis.text.y = element_text(size=16),strip.text.y = element_text(size = 16))+
+  xlab('Body size (x, kg)')+ylab('Proportion of values ≥ x')+facet_wrap(~cut_number(abs(lat_in), n=lat_band), nrow =6)
 
 
 print(qplot)
@@ -574,7 +559,32 @@ invisible(qplot)
 
 }
 
+#' extended data multiplot 
+#'
+#' @param lat weights lat plot
+#' @param cdp cumulative density plot
 
+#' @import ggplot2 
+#' @import cowplot
+#' @return 
+#' @export
+#'
+
+
+ex_data_lat_cdp <- function(lat, cdp){
+  
+  
+  multi <- ggdraw()+
+    draw_plot(lat, 0, 0, .5, 1)+
+    draw_plot(cdp, 0.5, 0, .5, 1)+
+    draw_plot_label(c("a", "b"), c(0, .5), c(1,1), size =22)
+  print(multi)
+  
+  ggsave(multi, filename = here::here("outputs", "Extended_Data_Fig_lat_lcd.jpeg"), width = 14, height = 16, units = "in", dpi =300)#render cowplots in jpeg less you get seethrough bits
+  
+  invisible(multi)
+  
+}
 
 #' Title
 #'
@@ -898,13 +908,14 @@ hist_spectra_nonstack <- function(data){
 
 #' response variable multiplot 
 #'
-#' @param data 
+#' @param dat 
 #'
 #' @import ggplot2 
 #' @import cowplot
 #' @import dplyr
 #' @import grid
 #' @import purrr
+#' @import fishualize
 #' 
 #' @return
 #' @export
@@ -913,13 +924,14 @@ hist_spectra_nonstack <- function(data){
 
 
 
-response_fig <- function(dat2, dat, data, min_size, bandw, scale, alpha){
+response_fig <- function(dat2, dat, min_size, lat_band, bandw, scale, alpha){
   options(scipen=4)
   dat2 = dat2[dat2$weight_kg > min_size, ]# select predatory fish - individuals larger than minsize kg
+  dat2 <- tidyr::drop_na(dat2, weight_kg)
   
   
   fig_ridges_exped <- ggplot(dat2, aes(x=weight_kg, height = ..ndensity..))+
-    ggridges::geom_density_ridges(bandwidth = bandw, rel_min_height = 0.005, aes(y = cut_number(abs(lat_in), n=9), fill = Type), alpha = alpha, colour = "#FFFFFF", 
+    ggridges::geom_density_ridges(bandwidth = bandw, rel_min_height = 0.005, aes(y = cut_number(abs(lat_in), n=lat_band), fill = Type), alpha = alpha, colour = "#FFFFFF", 
                                    scale = scale)+
     scale_x_log10(limits = c(0.001, 1200), breaks = c(0.01, 1, 100), labels = c(0.01, 1, 100))+
     xlab('Body size (kg)') +ylab('Probability density')+
@@ -939,7 +951,7 @@ response_fig <- function(dat2, dat, data, min_size, bandw, scale, alpha){
   
   #CFD distribution
 
-  qplot <- ggplot(dat2, aes(weight_kg, group = cut_number(abs(lat_in), n=9), colour = Type))+
+  qplot <- ggplot(dat2, aes(weight_kg, group = cut_number(abs(lat_in), n=lat_band), colour = Type))+
     stat_ecdf(geom="smooth", aes(y = 1 - ..y..), pad= FALSE, size=.4, alpha=.3) +
     scale_y_log10(breaks = c(0.0001, 0.01, 1), labels =c('0.01%','1%','100%'))+ scale_x_log10()+theme_light() +
     scale_colour_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'orange'))+
@@ -952,122 +964,120 @@ response_fig <- function(dat2, dat, data, min_size, bandw, scale, alpha){
   
   #modal histogramme
   #long format
-  
   df = bind_rows(
     #first_mode
-    data.frame(mode = dat$first_mode, mode_type ="First mode", bruvs_type = dat$bruvs_type, stringsAsFactors = T),
+    data.frame(mode = dat$first_mode, mode_type ="Small fishes", bruvs_type = dat$bruvs_type, stringsAsFactors = T),
     #second_mode
-    data.frame(mode = dat$second_mode, mode_type = "Second mode", bruvs_type =dat$bruvs_type, stringsAsFactors = T)
+    data.frame(mode = dat$second_mode, mode_type = "Large fishes", bruvs_type =dat$bruvs_type, stringsAsFactors = T)
   )
 
   df$bruvs_mode <- paste(df$bruvs_type, df$mode_type, sep = "_")
   df$bruvs_mode <- factor(df$bruvs_mode, levels = c("benthic_second", "pelagic_second","benthic_first","pelagic_first"))
   
-  #tp <- unique(df[,c('mode_type')])
-  #tp$total_bill <- tp$tip <- 1
+  df <- tidyr::drop_na(df, mode)
   
-  
-  fig_modes_hist <- ggplot(data=df, aes(x=mode, colour = bruvs_type, fill =bruvs_type)) + #geom_violin()+
-    #geom_boxplot(width=0.25)+
-    geom_histogram(alpha =.4)+
+# if you want to include mean values. Doesn't work for some reason
+  df %>%
+    dplyr::group_by(bruvs_type, mode_type) %>%
+    dplyr::summarise(Mean.mode = mean(mode)) -> df2
+
+  fig_modes_hist <- ggplot()+
+    geom_histogram(data=df, aes(x=mode, colour = bruvs_type, fill =bruvs_type), alpha =.4) + 
     scale_colour_manual(name = "", values = c("pelagic" = "#077DAA", "benthic"="darkorange"))+
     scale_fill_manual(name = "",  values = c("pelagic" = "#077DAA","benthic"="orange"))+
-    xlab("Modal values (kg)") +theme_light()+
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+    xlab("Body size (kg)") +theme_light()+ylim(0,220)+ylab("count")+
+    theme(panel.border = element_rect(linetype = "dashed", size=.8, fill = NA), panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
           legend.position = "none",  axis.text.x = element_text(size=16),
           strip.background =element_rect(fill="white"),
-          #strip.background =element_blank(),
           strip.placement = "inside",
-          strip.text = element_text(size=12, colour ="black"),
+          strip.text = element_text(size=16, colour ="black"),
           axis.title.x = element_text(size=16),
-          axis.title.y = element_text(size=16))+
-    scale_x_log10(limits = c(0.001, 1200), breaks = c(0.01, 1, 100), labels = c(0.01, 1, 100))+#+
-        # geom_rect(data = tp, aes(fill = mode_type),xmin = -Inf,xmax = Inf,
-             # ymin = -Inf,ymax = Inf,alpha = 0.3)
-        facet_wrap(~mode_type, nrow=2)
+          axis.title.y = element_text(size=16), axis.text.y = element_text(size=12))+
+    geom_vline(data=df2, aes(xintercept = Mean.mode, colour = bruvs_type)) +
+    scale_x_log10(limits = c(0.001, 1400), breaks = c(0.01, 1, 100), labels = c(0.01, 1, 100))+
+        facet_wrap(~mode_type, nrow=2, strip.position = "bottom")
 
+
+  dat <- tidyr::drop_na(dat, betaslope)
+  
+  dat %>%
+    dplyr::group_by(bruvs_type) %>%
+    dplyr::summarise(Mean.beta = mean(betaslope)) -> df3
 
   fig_betaslope <- ggplot() +
     geom_histogram(data = dat, aes(x= betaslope, fill = bruvs_type, colour = bruvs_type), alpha =.4)+
     scale_colour_manual(values = c("pelagic" = "#077DAA", "benthic"="darkorange"))+
-    scale_fill_manual(values = c("pelagic" = '#077DAA', 'benthic' = 'orange')) + xlim(c(-2.5, 0))+xlab("Beta slope")+
+    scale_fill_manual(values = c("pelagic" = '#077DAA', 'benthic' = 'orange')) + xlim(c(-2.5, 0))+xlab("Slope value")+ylab("count")+
     theme_light() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none", 
                           axis.title=element_text(size=16),
                           legend.title = element_blank(),
                           legend.text = element_text(size =16), 
                           axis.text.x = element_text(size=16),
-                          axis.text.y = element_text(size=16))
+                          axis.text.y = element_text(size=16))+ 
+    geom_vline(data=df3, aes(xintercept = Mean.beta, colour = bruvs_type))+
+    add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = .0, xmax = .05, ymin = 0.87, ymax = 0.92, scaled = TRUE, xlim = c(-2.5, 0), ylim =c(0, 230), alpha =.4)+
+    add_fishape(family = "Carangidae", option = "Caranx_melampygus",  xmin = .1, xmax = .23, ymin = 0.8, ymax = 0.88, scaled = TRUE, xlim = c(-2.5, 0), ylim =c(0, 230), alpha =.4)+
+    add_fishape(family = "Scombridae", option = "Thunnus_albacares",  xmin = .23, xmax = .43, ymin = 0.67, ymax = 0.87, scaled = TRUE, xlim = c(-2.5, 0), ylim =c(0, 230), alpha =.4)+
+    geom_polygon(data=data.frame(x=c(-2.45, -1.9, -2.45), y = c(165, 165, 200)), aes(x=x, y=y), fill=NA, colour = "grey", alpha =.4)+
+    geom_polygon(data=data.frame(x=c(-2.45, -2.1, -2.45), y = c(165, 165, 200)), aes(x=x, y=y), fill=NA, colour = "grey", alpha =.4, linetype ='dotted')+
+    annotate("text", x=-2, y=155, label= "n = 1041", size = 6)
+
   
   fig_response <- ggdraw()+
     draw_plot(fig_ridges_exped,     0.01, .5,    .49,   .5)+
     draw_plot(qplot,             0.5, .5,   .5,   .52)+
-    draw_plot(fig_modes_hist, 0, 0, 0.5, 0.5)+
+    draw_plot(fig_modes_hist, 0.02, 0, 0.48, 0.5)+
     draw_plot(fig_betaslope,     0.5, 0,   .5,   .5)+
-    draw_plot_label(c("a", "b", "c", "d"), c(0, 0.5, 0, 0.5), c(1, 1,0.5 , .5), size = 20, fontface = "bold")
+    draw_plot_label(c("a", "b", "c", "d", "e"), c(0, 0, 0, 0.5,.5 ), c(1, .52, 0.31 ,1, .52), size = 22, fontface = "bold")
   
   
   fig_response <- fig_response + 
-    geom_curve(aes(x = 0.47, y = .9, xend = 0.6, yend = .9),
-                                            arrow = arrow(length = unit(0.01, "npc"), 
-                                                          type="closed"), curvature = -0.3)+
-    # geom_curve(aes(x = 0.47, y = .62, xend = 0.6, yend = .62),
-    #                                          arrow = arrow(length = unit(0.01, "npc"), 
-    #                                                       type="closed"), curvature = -0.3)+
-    geom_curve(aes(x = 0.17, y = .6, xend = 0.17, yend = .42),
-                                            arrow = arrow(length = unit(0.01, "npc"), 
-                                                          type="closed"), curvature = 0.3)+
-    geom_curve(aes(x = 0.37, y = .6, xend = 0.37, yend = .2),
-               arrow = arrow(length = unit(0.01, "npc"), 
-                             type="closed"), curvature = -0.2)+
-    geom_curve(aes(x = 0.9, y = .9, xend = 0.9, yend = 0.3),
-             arrow = arrow(length = unit(0.01, "npc"), 
-                           type="closed"), curvature = -0.3)+
-    geom_curve(aes(x = 0.9, y = .6, xend = 0.9, yend = .3),
-               arrow = arrow(length = unit(0.01, "npc"), 
-                             type="closed"), curvature = -0.3)
+    geom_curve(aes(x = 0.47, y = .9, xend = 0.6, yend = .9),arrow = arrow(length = unit(0.01, "npc"),type="closed"), curvature = -0.3)+
+    geom_curve(aes(x = 0.47, y = .65, xend = 0.6, yend = .65),arrow = arrow(length = unit(0.01, "npc"),type="closed"), curvature = 0.3)+
+    geom_curve(aes(x = 0.19, y = .6, xend = 0.19, yend = .42),arrow = arrow(length = unit(0.01, "npc"),type="closed"), curvature = 0.3)+
+    geom_curve(aes(x = 0.42, y = .6, xend = 0.42, yend = .25),arrow = arrow(length = unit(0.01, "npc"),type="closed"), curvature = -0.3)+
+    geom_curve(aes(x = 0.9, y = .9, xend = 0.9, yend = 0.3),arrow = arrow(length = unit(0.01, "npc"),type="closed"), curvature = -0.3)+
+    geom_curve(aes(x = 0.9, y = .6, xend = 0.9, yend = .3),arrow = arrow(length = unit(0.01, "npc"), type="closed"), curvature = -0.3)
   
   rect_mode1 <- rectGrob(
-    x = unit(1.5, "in"),
-    y = unit(10.6, "in"),
+    x = unit(1.4, "in"),
+    y = unit(11.65, "in"),
     width = unit(1.5, "in"),
-    height = unit(5, "in"),
+    height = unit(4.9, "in"),
     hjust = 0, vjust = 1,
-    gp = gpar(col =  "white", fill = "skyblue", alpha = 0.25)
-  ) 
-  
-  
-  rect_mode2 <- rectGrob(
-    x = unit(.6, "in"),
-    y = unit(4.65, "in"),
-    width = unit(5.33, "in"),
-    height = unit(1.83, "in"),
-    hjust = 0, vjust = 1,
-    gp = gpar(col =  "white", fill = "skyblue", alpha = 0.25)
+    gp = gpar(col =  "black", alpha = 0.7, lty = "dashed")
   ) 
   
   
   rect_mode3 <- rectGrob(
     x = unit(3.5, "in"),
-    y = unit(10.6, "in"),
+    y = unit(11.65, "in"),
     width = unit(1.65, "in"),
-    height = unit(5, "in"),
+    height = unit(4.9, "in"),
     hjust = 0, vjust = 1,
-    gp = gpar(col =  "white", fill = "red", alpha = 0.10)
+    gp = gpar(col =  "black", alpha = 0.7, lty = "dashed")
   ) 
   
-  rect_mode4 <- rectGrob(
-    x = unit(.6, "in"),
-    y = unit(2.43, "in"),
-    width = unit(5.33, "in"),
-    height = unit(1.83, "in"),
-    hjust = 0, vjust = 1,
-    gp = gpar(col =  "white", fill = "red", alpha = 0.10)
-  ) 
   
-  fig_response <- fig_response + draw_grob(rect_mode1) +draw_grob(rect_mode2)+ draw_grob(rect_mode3) +draw_grob(rect_mode4)
+  fig_response <- fig_response + draw_grob(rect_mode1) + draw_grob(rect_mode3)#+
+    
+  
+  fig_response <- fig_response + 
+    #firstmode 
+    add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = .35, xmax = .38, ymin = 0.46, ymax = 0.48, alpha =.4)+
+    add_fishape(family = "Carcharhinidae", option = "Triaenodon_obesus",  xmin = .38, xmax = .43, ymin = 0.44, ymax = 0.49, alpha =.4)+
+    add_fishape(family = "Kyphosidae", option = "Kyphosus_cinerascens",  xmin = .36, xmax = .39, ymin = 0.43, ymax = 0.46, alpha =.4)+
+    add_fishape(family = "Muraenidae", option = "Gymnothorax_javanicus",  xmin = .3, xmax = .36, ymin = 0.43, ymax = 0.47, alpha =.4)+
+    annotate("text", x=0.35, y=.42, label= "n = 919", size = 6)+
+    #secondmode
+    add_fishape(family = "Scombridae", option = "Thunnus_albacares",  xmin = .17, xmax = .24, ymin = 0.15, ymax = 0.25, alpha =.4)+
+    add_fishape(family = "Alopiidae", option = "Alopias_vulpinus",  xmin = .17, xmax = .25, ymin = 0.21, ymax = 0.26, alpha =.4)+
+    add_fishape(family = "Rhincodontidae", option = "Rhincodon_typus",  xmin = .24, xmax = .34, ymin = 0.13, ymax = 0.23, alpha =.4)+
+    add_fishape(family = "Mobulidae", option = "Mobula_birostris",  xmin = .25, xmax = .33, ymin = 0.2, ymax = 0.25, alpha =.4)+
+    annotate("text", x=0.22, y=.155, label= "n = 919", size = 6)
   
   print(fig_response)
-  ggsave(fig_response, filename = here::here("outputs", "fig_2_response.jpeg"), width = 12, height = 10, units = "in", dpi =300)#render cowplots in jpeg less you get seethrough bits
+  ggsave(fig_response, filename = here::here("outputs", "fig_2_response.jpeg"), width = 12, height = 12, units = "in", dpi =300)#render cowplots in jpeg less you get seethrough bits
     
 }
 
@@ -1113,11 +1123,47 @@ conceptual_dia <- function(dat2, dat, data, min_size, bandw, scale, alpha){
     ggplot2::ggplot(aes(x, vals, fill=type, group=id)) +
     ggplot2::geom_area(position = 'identity', alpha=0.1, aes(colour=type)) +
     theme_light() +
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = c(0.87, 0.9),
+    theme(plot.title = element_text(size =16, hjust = 0.5), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = c(0.87, 0.9),
           legend.background = element_rect(fill = "transparent"), axis.title.y= element_text(size=16), axis.title.x = element_text(size=16),axis.text.y = element_text(size = 16),axis.text.x = element_text(size = 16), legend.text = element_text(size = 16), legend.title = element_blank()) + labs(x = "Body size (kg)",y = "Probability density") +
     scale_fill_manual(name="Mode", labels = c("First mode", "Second mode"), values =  c("darkgreen", "lightgreen"))+ 
     scale_colour_manual(name="Mode", labels = c("First mode", "Second mode"), values =  c("darkgreen", "lightgreen"))+
-    scale_x_continuous(breaks = c(20, 50, 80), labels = c("0.01", "1", "100"))+xlab("Body size (kg")+ylab("")
+    scale_x_continuous(breaks = c(20, 50, 80), labels = c("0.01", "1", "100"))+xlab("Body size (kg)")+ylab("")
+  
+  
+  ####hypothesised effects of fishing on modes
+  
+  #second mode smaller
+  p2 <- p + geom_segment(aes(x = 70, y = 0.02, xend = 50, yend = 0.02),
+                         arrow = arrow(length = unit(0.3, "cm")), linetype = "solid")+
+    theme(legend.position = "null")+xlab("")+ylab("Probability density")+ggtitle("Predator depletion")
+  
+  #first mode smaller
+  p3 <- p + geom_segment(aes(x = 30, y = 0.03, xend = 10, yend = 0.03),
+                         arrow = arrow(length = unit(0.3, "cm")), linetype = "solid")+
+    theme(legend.position = "null")+xlab("")+ggtitle("Prey fish depletion")
+  
+  #first and second mode smaller
+  
+  p4 <- p + geom_segment(aes(x = 30, y = 0.03, xend = 10, yend = 0.03),
+                         arrow = arrow(length = unit(0.3, "cm")), linetype = "solid")+
+    geom_segment(aes(x = 70, y = 0.02, xend = 50, yend = 0.02),
+                 arrow = arrow(length = unit(0.3, "cm")), linetype = "solid")+
+    theme(legend.position = "null")+xlab("")+ggtitle("Predator and prey depletion")
+  
+  
+  # first mode smaller and second mode bigger
+  p5 <-p + geom_segment(aes(x = 35, y = 0.03, xend = 55, yend = 0.03),
+                        arrow = arrow(length = unit(0.5, "cm")), linetype = "dashed")+ 
+    geom_segment(aes(x = 70, y = 0.02, xend = 50, yend = 0.02),
+                 arrow = arrow(length = unit(0.3, "cm")), linetype = "solid")+
+    theme(legend.position = "none")+
+    ##for legend
+    geom_segment(aes(x = 40, y = 0.07, xend = 55, yend = 0.07),
+                 arrow = arrow(length = unit(0.3, "cm")), linetype = "solid")+
+    geom_segment(aes(x = 40, y = 0.065, xend = 55, yend = 0.065),
+                 arrow = arrow(length = unit(0.5, "cm")), linetype = "dashed")+
+    annotate("text", x=80, y=0.07, label= "Direct effect", size=5)+
+    annotate("text", x=80, y=.065, label= "Indirect effect", size =5)+xlab("")+ggtitle("Trophic release, following \n predator depletion")
   
   
   #steepening of size spectra
@@ -1129,13 +1175,14 @@ conceptual_dia <- function(dat2, dat, data, min_size, bandw, scale, alpha){
     ggplot2::geom_line(aes(linetype = type), size = 2, colour = "darkgreen", alpha =.5) + 
     #ggplot2::geom_point(aes(fill = type), col="black", shape=21, size=3) + 
     theme_light() +
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none", 
+    theme(plot.title = element_text(size =16, hjust = 0.5),panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none", 
           legend.background = element_rect(fill = "transparent")) + 
     labs(x = "Body size (kg)",
-         y = "Log(abundance)")+ theme(axis.text.x = element_text(size=16), axis.text.y = element_blank(),axis.title = element_text(size =16), legend.text =element_text(size =16), legend.title = element_blank())+
+         y = "Log(abundance)") +ggtitle("Slope steepening") +
+    theme(axis.text.x = element_text(size=16), axis.text.y = element_blank(),axis.title = element_text(size =16), legend.text =element_text(size =16), legend.title = element_blank())+
     scale_linetype_manual(values=c("dotted", "solid"))+scale_x_continuous(breaks = c(2.5, 5, 7.5), labels = c("0.01", "1", "100"))
   
-
+  
   #shallowing of size spectra
   p1b <-
     tibble(mass = 1:10, fished = (4 + (-0.8*mass)), unfished =  (6 + (-1*mass))) %>% 
@@ -1144,8 +1191,8 @@ conceptual_dia <- function(dat2, dat, data, min_size, bandw, scale, alpha){
     ggplot2::geom_ribbon(aes(ymin=(4 + (-0.8*mass)), ymax=(6 + (-1*mass))), alpha=0.3, col="transparent") +
     ggplot2::geom_line(aes(linetype = type), size = 2, colour = "darkgreen", alpha =.5) + 
     #ggplot2::geom_point(aes(fill = type), col="black", shape=21, size=3) + 
-    theme_light() +
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none", 
+    theme_light() +ggtitle("Slope shallowing") +
+    theme(plot.title = element_text(size =16, hjust = 0.5),panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none", 
           legend.background = element_rect(fill = "transparent")) + 
     labs(x = "Body size (kg)",
          y = "")+ theme(axis.text.x = element_text(size=16), axis.text.y = element_blank(),axis.title = element_text(size =16), legend.text =element_text(size =16), legend.title = element_blank())+
@@ -1161,10 +1208,10 @@ conceptual_dia <- function(dat2, dat, data, min_size, bandw, scale, alpha){
     ggplot2::geom_line(aes(linetype = type), size = 2, colour = "darkgreen", alpha =.5) + 
     #ggplot2::geom_point(aes(fill = type), col="black", shape=21, size=3) + 
     theme_light() +
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none", 
+    theme(plot.title = element_text(size =16, hjust = 0.5),panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none", 
           legend.background = element_rect(fill = "transparent")) + 
     labs(x = "Body size (kg)",
-         y = "")+ theme(axis.text.x = element_text(size=16), axis.text.y = element_blank(),axis.title = element_text(size =16), legend.text =element_text(size =16), legend.title = element_blank())+
+         y = "")+ggtitle("Slope the same") + theme(axis.text.x = element_text(size=16), axis.text.y = element_blank(),axis.title = element_text(size =16), legend.text =element_text(size =16), legend.title = element_blank())+
     scale_linetype_manual(values=c("dotted", "solid"))+scale_x_continuous(breaks = c(2.5, 5, 7.5), labels = c("0.01", "1", "100"))
   
   # steepening of size spectra with trophic release
@@ -1176,56 +1223,20 @@ conceptual_dia <- function(dat2, dat, data, min_size, bandw, scale, alpha){
     ggplot2::geom_line(aes(linetype = type), size = 2, colour = "darkgreen", alpha =.5) + 
     #ggplot2::geom_point(aes(fill = type), col="black", shape=21, size=3) + 
     theme_light() +
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = c(0.8, 0.8), 
+    theme(plot.title = element_text(size =16, hjust = 0.5),panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = c(0.8, 0.8), 
           legend.background = element_rect(fill = "transparent")) + 
     labs(x = "Body size (kg)",
-         y = "")+ theme(axis.text.x = element_text(size =16), axis.text = element_blank(),axis.title = element_text(size =16), legend.text =element_text(size =16), legend.title = element_blank())+
+         y = "")+ggtitle("Slope pronounced steepening")+  theme(axis.text.x = element_text(size =16), axis.text = element_blank(),axis.title = element_text(size =16), legend.text =element_text(size =16), legend.title = element_blank())+
     scale_linetype_manual(values=c("dotted", "solid"))+scale_x_continuous(breaks = c(2.5, 5, 7.5), labels = c("0.01", "1", "100"))
   
-  
-  ####hypothesised effects of fishing on modes
-  
-  #second mode smaller
-  p2 <- p + geom_segment(aes(x = 70, y = 0.02, xend = 50, yend = 0.02),
-                         arrow = arrow(length = unit(0.3, "cm")), linetype = "solid")+
-    theme(legend.position = "null")+xlab("")+ylab("Probability density")
-  
-  #first mode smaller
-  p3 <- p + geom_segment(aes(x = 30, y = 0.03, xend = 10, yend = 0.03),
-                         arrow = arrow(length = unit(0.3, "cm")), linetype = "solid")+
-    theme(legend.position = "null")+xlab("")
-  
-  #first and second mode smaller
-  
-  p4 <- p + geom_segment(aes(x = 30, y = 0.03, xend = 10, yend = 0.03),
-                         arrow = arrow(length = unit(0.3, "cm")), linetype = "solid")+
-    geom_segment(aes(x = 70, y = 0.02, xend = 50, yend = 0.02),
-                 arrow = arrow(length = unit(0.3, "cm")), linetype = "solid")+
-    theme(legend.position = "null")+xlab("")
-  
-  
-  # first mode smaller and second mode bigger
-  p5 <-p + geom_segment(aes(x = 35, y = 0.03, xend = 55, yend = 0.03),
-                        arrow = arrow(length = unit(0.5, "cm")), linetype = "dashed")+ 
-    geom_segment(aes(x = 70, y = 0.02, xend = 50, yend = 0.02),
-                 arrow = arrow(length = unit(0.3, "cm")), linetype = "solid")+
-    theme(legend.position = "none")+
-    ##for legend
-    geom_segment(aes(x = 40, y = 0.07, xend = 55, yend = 0.07),
-                 arrow = arrow(length = unit(0.3, "cm")), linetype = "solid")+
-    geom_segment(aes(x = 40, y = 0.065, xend = 55, yend = 0.065),
-                 arrow = arrow(length = unit(0.5, "cm")), linetype = "dashed")+
-    annotate("text", x=80, y=0.07, label= "Direct effect", size=5)+
-    annotate("text", x=80, y=.065, label= "Indirect effect", size =5)+xlab("")
-  
-  
+  #combined for multiplot
   
   fig_cptual <-     ggdraw()+
     draw_plot(p+ylab("Probability density"), 0.25, 0.6, 0.45, 0.4)+
     draw_plot(p2, 0,    0.3, 0.25,0.3)+
     draw_plot(p3, 0.25, 0.3, 0.25,0.3)+
     draw_plot(p4, 0.50, 0.3, 0.25,0.3)+
-    draw_plot(p5, 0.75, 0.3, 0.25,0.3)+
+    draw_plot(p5, 0.75, 0.3, 0.25,0.315)+
     draw_plot(p1a, 0,    0, 0.25, 0.3)+
     draw_plot(p1b, 0.25, 0, 0.25, 0.3)+
     draw_plot(p1c, 0.50, 0, 0.25, 0.3)+
@@ -1233,7 +1244,7 @@ conceptual_dia <- function(dat2, dat, data, min_size, bandw, scale, alpha){
     draw_plot_label(c("a", "b", "c", "d", "e", "f", "g", "h", "i"), c(0.25, 0, .25, 0.5, .75, 0, .25, 0.5, .75), c(1, .6, .6, .6, .6, .3, .3,.3,.3), size = 22, fontface = "bold")
 
   print(fig_cptual)
-  ggsave(fig_cptual, filename = here::here("outputs", "fig_3_cptual.jpeg"), width = 16, height = 12, units = "in", dpi =300)#render cowplots in jpeg less you get seethrough bits
+  ggsave(fig_cptual, filename = here::here("outputs", "fig_3_cptual.jpeg"), width = 16, height = 14, units = "in", dpi =300)#render cowplots in jpeg less you get seethrough bits
 }
 
 
@@ -1332,13 +1343,7 @@ figridges_overlap_exped <- function(dat, min_size, bandw, scale, alpha){
                          legend.background = element_rect(fill = "transparent"))+
     theme(plot.margin = margin(1,1,0,1.2, "cm"))+
     coord_cartesian(clip = "off")+facet_wrap(~Type, nrow =2)
-  #fishualize::add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = -4.4, xmax = -3.9, ymin = 15.6, ymax =16.1)+
-  #fishualize::add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = -4.7, xmax = -4.2, ymin = 16.1, ymax =16.3)+
-  #fishualize::add_fishape(family = "Blenniidae", option = "Antennablennius_adenensis",  xmin = -5, xmax = -4.3, ymin = 15.5, ymax =16)+
-  #fishualize::add_fishape(family = "Rhincodontidae", option = "Rhincodon_typus", xmin= 0.8, xmax = 3.35, ymin = 14.1 , ymax = 17)+
-  #fishualize::add_fishape(family = "Alopiidae", option = "Alopias_vulpinus", xmin= 1.7, xmax = 3.32, ymin = 15.6 , ymax = 17)
-  #ggstance::stat_summaryh(fun.x=median, geom="text", aes(label=sprintf("%1.1f", ..x..)),
-  # position=position_nudge(x=-0.1), size=3.5)
+
   
   print(rigplot)
   
@@ -1347,4 +1352,44 @@ figridges_overlap_exped <- function(dat, min_size, bandw, scale, alpha){
   invisible(rigplot)
   
 }
+
+
+#' multiplot fig 1 sampling effort and rank order species 
+
+#' @param covariate_name name of covariate
+#' 
+#' @import ggplot2
+#' @import cowplot
+#' @import fishualize
+#' @return
+#' @export
+#'
+#'
+
+multi_fig_sample <- function(fig_map, fig_sp_rank){
+  
+  fig_1_sample <- cowplot::ggdraw() +
+    cowplot::draw_plot(fig_map, 0, .40, 1, .63) +
+    cowplot::draw_plot(fig_sp_rank,  0, 0,  1,  .43)+
+    draw_plot_label(c("a", "b", "c"), c(0, 0, .7), c(1, .45, .45), size = 26, fontface = "bold")
+  
+  
+  fig_1_sample <- fig_1_sample + 
+    add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = .09, xmax = .115, ymin = 0.4, ymax = 0.45, alpha=.4)+
+    add_fishape(family = "Kyphosidae", option = "Kyphosus_cinerascens",  xmin = .2, xmax = .25, ymin = 0.4, ymax = 0.45, alpha=.4)+
+    add_fishape(family = "Muraenidae", option = "Gymnothorax_javanicus",  xmin = .31, xmax = .4, ymin = 0.38, ymax = 0.47, alpha =.4)+
+    add_fishape(family = "Scombridae", option = "Thunnus_albacares",  xmin = .435, xmax = .52, ymin = 0.4, ymax = 0.45, alpha=.4)+
+    add_fishape(family = "Rhincodontidae", option = "Rhincodon_typus",  xmin = .56, xmax = .69, ymin = 0.38, ymax = 0.47, alpha =.4)
+    
+  print(fig_1_sample)
+  
+  invisible(fig_1_sample)
+  
+  ggsave(fig_1_sample, filename = here::here("outputs", "fig_1_sample.jpeg"), width = 16, height = 16, units = "in", dpi =300)#render cowplots in jpeg less you get seethrough bits
+  
+  
+  
+}
+
+
 

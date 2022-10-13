@@ -59,7 +59,8 @@ Imports:
     sjPlot,
     sjlabelled,
     sjmisc,
-    performance
+    performance,
+    lemon
 Remotes: 
     nschiett/fishualize,
     andrew-edwards/sizeSpectra,

@@ -98,11 +98,11 @@ multi_envar_range_cat <- function() {
     draw_plot(prot_var_SST_sd,  0.5, .50, .5, .16) +
     draw_plot(prot_var_GEm,     0.5,   .67, .5, .16) +
     draw_plot(prot_var_Slope,     0.5,   .84, .5, .16) +
-    draw_plot_label(c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K"), c(0,.5, .0, 0.5,0,0.5,0,0.5,0, .5,0), c(1, 1, .84, .84, .67, .67, .5, .5, .33, .33, .16), size = 10)
+    draw_plot_label(c("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"), c(0,.5, .0, 0.5,0,0.5,0,0.5,0, .5,0), c(1, 1, .84, .84, .67, .67, .5, .5, .33, .33, .16), size = 16)
   
   print(multi_envar)
   
-  ggsave(multi_envar, filename = here::here("outputs", "supp_fig_envar_range_cat.jpeg"), width = 10, height = 12, units = "in", dpi =300)
+  ggsave(multi_envar, filename = here::here("outputs", "Extended_data_fig_envar_range_cat.jpeg"), width = 10, height = 12, units = "in", dpi =300)
   
   invisible(multi_envar)
   
@@ -595,6 +595,46 @@ get_adj_r2 <- function(model){
 }
 
 
+#' get coefficient plot for model for significant terms
+#'
+#' @param model gls
+#' @param model_name model name
+#' @param signif_cutoff significance cutoff (eg 0.001)
+#' @import ggplot2
+#' @import sjPlot sjlabelled sjmisc
+#'
+#' @return
+#' @export
+#'
+
+coef_plot_signif_terms <- function(model, model_name, signif_cutoff){
+  
+  mod_coef <- plot_model(model, sort.est = TRUE, show.values = TRUE, value.offset = .3, type = "std")
+  
+  #select terms with pvalue greater than a significance cutoff
+  mod_coef$data %>%
+    dplyr::filter(p.value < signif_cutoff) -> dat
+  
+  #reconstruct ggplot
+  cols <- c("pos" = "blue", "neg" = "red")
+  p <- ggplot(data = dat, aes(y = estimate, x = term, color = group, group = group)) +
+    scale_y_continuous(limits = c(min(dat$conf.low), max(dat$conf.high))) +
+    coord_flip() +
+    geom_point() +
+    geom_text(label = dat$p.label, nudge_x = 0.3, check_overlap = T) +
+    geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
+    scale_color_manual(values = cols) +
+    ylab("Estimates") +
+    xlab("") + ggtitle(model_name)+
+    theme(legend.position="none")
+  
+  print(p)
+  ggsave(p, filename = here::here("outputs", "model_outputs", paste0(model_name, "_coef_plot_signif_terms", ".png")), width = 10, height = 8, units = "in", dpi =300)
+  #write.csv(dat, file = here::here("outputs", "model_outputs", paste0(model_name, "_coef_data_signif_terms.csv")), row.names = TRUE)
+  
+  
+  invisible(mod_coef)
+}
 
 
 
@@ -1131,7 +1171,7 @@ fit_gls_sat_cor_betaslope <- function(data){
                                              poly(logSST,2)  + poly(logCHL,2) +logDistSM + poly(SST_sd,2))")
   
   mod <- nlme::gls(betaslope ~ bruvs * protection_use * (logBathy + logTTM + GovernmentEffectiveness_mean + logDistC+ logDistP + logDistCR + Slope +
-                                             poly(logSST,2) + poly(logCHL,2) +logDistSM + poly(SST_sd,2)), data = tab_betaslope,  correlation = nlme::corRatio(form=~1),method='ML') 
+                                             poly(logSST,2) + poly(logCHL,2) +logDistSM + poly(SST_sd,2)), data = data,  correlation = nlme::corRatio(form=~1),method='ML') 
   
   
   #get aic
@@ -1157,10 +1197,10 @@ fit_gls_sim_cor_betaslope <- function(data){
   
 
   #autocorrelation
-  print("fitting gls with formula: betaslope ~ bruvs + protection_use + logBathy + logTTM + poly(GovernmentEffectiveness_mean,      2) + logDistC + logDistP + logDistCR + Slope + poly(logSST,      2) + poly(logCHL, 2) + poly(SST_sd, 2) + bruvs:protection_use +      bruvs:logBathy + bruvs:logTTM + bruvs:poly(GovernmentEffectiveness_mean,      2) + bruvs:logDistC + bruvs:logDistP + bruvs:logDistCR +      bruvs:Slope + bruvs:poly(logSST, 2) + bruvs:poly(logCHL,      2) + bruvs:poly(SST_sd, 2) + protection_use:logBathy + protection_use:logTTM +      protection_use:poly(GovernmentEffectiveness_mean, 2) + protection_use:logDistC +      protection_use:logDistP + protection_use:logDistCR + protection_use:Slope +      protection_use:poly(logCHL, 2) + bruvs:protection_use:logBathy +      bruvs:protection_use:logTTM + bruvs:protection_use:logDistC +      bruvs:protection_use:logDistP + bruvs:protection_use:logDistCR +      bruvs:protection_use:Slope + bruvs:protection_use:poly(logCHL,      2)")
+  print("fitting gls with formula: betaslope ~ bruvs + protection_use + logBathy + logTTM + GovernmentEffectiveness_mean + logDistC + logDistP + logDistCR + Slope + poly(logSST,      2) + poly(logCHL, 2) + poly(SST_sd, 2) + bruvs:protection_use +      bruvs:logBathy + bruvs:logTTM + bruvs:poly(GovernmentEffectiveness_mean,      2) + bruvs:logDistC + bruvs:logDistP + bruvs:logDistCR +      bruvs:Slope + bruvs:poly(logSST, 2) + bruvs:poly(logCHL,      2) + bruvs:poly(SST_sd, 2) + protection_use:logBathy + protection_use:logTTM +      protection_use:poly(GovernmentEffectiveness_mean, 2) + protection_use:logDistC +      protection_use:logDistP + protection_use:logDistCR + protection_use:Slope +      protection_use:poly(logCHL, 2) + bruvs:protection_use:logBathy +      bruvs:protection_use:logTTM + bruvs:protection_use:logDistC +      bruvs:protection_use:logDistP + bruvs:protection_use:logDistCR +      bruvs:protection_use:Slope + bruvs:protection_use:poly(logCHL,      2)")
   
   #this one is good and works
-  #mod <- nlme::gls(betaslope ~ bruvs + protection_use + logBathy + logTTM + poly(GovernmentEffectiveness_mean,      2) + logDistC + logDistP + logDistCR + Slope + poly(logSST,      2) + poly(logCHL, 2) + poly(SST_sd, 2) + bruvs:protection_use +      bruvs:logBathy + bruvs:logTTM + bruvs:poly(GovernmentEffectiveness_mean,      2) + bruvs:logDistC + bruvs:logDistP + bruvs:logDistCR +      bruvs:Slope + bruvs:poly(logSST, 2) + bruvs:poly(logCHL,      2) + bruvs:poly(SST_sd, 2) + protection_use:logBathy + protection_use:logTTM +      protection_use:poly(GovernmentEffectiveness_mean, 2) + protection_use:logDistC +      protection_use:logDistP + protection_use:logDistCR + protection_use:Slope +      protection_use:poly(logCHL, 2) + bruvs:protection_use:logBathy +      bruvs:protection_use:logTTM + bruvs:protection_use:logDistC +      bruvs:protection_use:logDistP + bruvs:protection_use:logDistCR +      bruvs:protection_use:Slope + bruvs:protection_use:poly(logCHL,      2), data =tab_betaslope,  correlation = nlme::corRatio(form=~1),method='ML') 
+  #mod <- nlme::gls(betaslope ~ bruvs + protection_use + logBathy + logTTM + GovernmentEffectiveness_mean + logDistC + logDistP + logDistCR + Slope + poly(logSST,      2) + poly(logCHL, 2) + poly(SST_sd, 2) + bruvs:protection_use +      bruvs:logBathy + bruvs:logTTM + bruvs:poly(GovernmentEffectiveness_mean,      2) + bruvs:logDistC + bruvs:logDistP + bruvs:logDistCR +      bruvs:Slope + bruvs:poly(logSST, 2) + bruvs:poly(logCHL,      2) + bruvs:poly(SST_sd, 2) + protection_use:logBathy + protection_use:logTTM +      protection_use:poly(GovernmentEffectiveness_mean, 2) + protection_use:logDistC +      protection_use:logDistP + protection_use:logDistCR + protection_use:Slope +      protection_use:poly(logCHL, 2) + bruvs:protection_use:logBathy +      bruvs:protection_use:logTTM + bruvs:protection_use:logDistC +      bruvs:protection_use:logDistP + bruvs:protection_use:logDistCR +      bruvs:protection_use:Slope + bruvs:protection_use:poly(logCHL,      2), data =tab_betaslope,  correlation = nlme::corRatio(form=~1),method='ML') 
   
   mod <- nlme::gls(betaslope ~ bruvs + protection_use + logBathy + logTTM + GovernmentEffectiveness_mean + 
                      logDistC + logDistP + logDistCR + Slope + poly(logSST, 2) + 
@@ -1463,8 +1503,7 @@ bruvs_protect_var <- function(dat, envar_name) {
   
   envar_plot <- ggplot(data=dat, aes(x=interaction_cat, y= dat[[envar_name]] )) +
     stat_summary(fun = mean, fun.min = min, fun.max = max) +
-    theme(axis.text = element_text(size = 10)) +
-    theme(axis.title = element_text(size = 10)) +
+    theme(axis.text = element_text(size = 10), axis.title = element_text(size = 10)) + theme_light()+
     #ylim(0, 6000)+
     coord_flip() +xlab("") +ylab(envar_name)
   
@@ -1553,12 +1592,12 @@ marg_plot_cat_covar_noextra <- function(response, mod_name, dat, mod, var, var_n
   pred  %>%
     tidyr::drop_na(x) -> pred
   
-  marg <- ggplot(pred, aes(x, predicted, group=group, colour = group, fill=group)) +
+  marg <- ggplot(transform(pred, facet=factor(facet, levels =c("not_protected","part_protected","protected"))), aes(x, predicted, group=group, colour = group, fill=group)) +
     geom_line() + 
     geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha = .3, linetype=0) +
     scale_colour_manual(name = "", values = c('orange','#077DAA'), aesthetics = c("colour", "fill"))+
     theme_light()+ labs(x = var_name, y = response) + facet_wrap(~facet)#+ylim(-5.5, 3.5)
-  
+    #facet_rep_grid(~facet, repeat.tick.labels = TRUE)
   print(marg)
   
   ggsave(marg, filename = here::here("outputs", "model_outputs", paste0(mod_name, "_marg_plot_", group2,"_", var_name, ".png")), width = 10, height = 6, units = "in", dpi =300)
@@ -1568,6 +1607,112 @@ marg_plot_cat_covar_noextra <- function(response, mod_name, dat, mod, var, var_n
 }
 
 
+
+#' marginal plots for categorical co_variates with noextra but with bruvs as facet wrap
+#'
+#' @param response, dat with predictor variables
+#' @param mod_name name of model
+#' @param dat data
+#' @param mod model
+#' @param var variable
+#' @param var_name variable name
+#' @param group group
+#' @param group2 second group
+#' 
+#' @return
+#' @export
+#'
+
+marg_plot_cat_covar_separate_bruvs <- function(response, mod_name, dat, mod, var, var_name, group, group2, condition){
+  
+  
+  
+  #function
+  var_to_plot <- dat[var_name]
+  group_var <- dat[group]
+  group_var2 <-dat[group2]
+  
+  pred <- as.data.frame(ggeffects::ggpredict(mod, terms= c(var, group, group2), condition = condition)) #between 40 and 469 meter depth"logBathy [1.35:1.85]"
+  
+  #select empirical range of covariate bruvs
+  
+  min(var_to_plot[group_var=="pelagic"]) -> min_var_pel 
+  max(var_to_plot[group_var=="pelagic"]) -> max_var_pel 
+  min(var_to_plot[group_var=="benthic"]) -> min_var_ben
+  max(var_to_plot[group_var=="benthic"]) -> max_var_ben
+  
+  #filter predictions to empirical range of bruvs
+  pred %>%    
+    dplyr::mutate(x = dplyr::case_when(group=="pelagic" ~ replace(x, x<min_var_pel | x>max_var_pel, NA),
+                                       group=="benthic" ~ replace(x, x<min_var_ben | x>max_var_ben, NA))) -> pred
+  
+  #select empirical range of var per bruvs
+  
+  min(var_to_plot[group_var=="pelagic"&group_var2 == "protected"]) -> min_var2_pel_pro 
+  min(var_to_plot[group_var=="pelagic"&group_var2 == "part_protected"]) -> min_var2_pel_part
+  min(var_to_plot[group_var=="pelagic"&group_var2 == "not_protected"]) -> min_var2_pel_not
+  min(var_to_plot[group_var=="benthic"&group_var2 == "protected"]) -> min_var2_ben_pro
+  min(var_to_plot[group_var=="benthic"&group_var2 == "part_protected"]) -> min_var2_ben_part
+  min(var_to_plot[group_var=="benthic"&group_var2 == "not_protected"]) -> min_var2_ben_not
+  
+  #filter predictions to empirical range of var per bruvs
+  
+  pred %>%
+    dplyr::mutate(x = dplyr::case_when(group=="pelagic"&facet=="protected" ~ replace(x, x<min_var2_pel_pro, NA),
+                                       group=="pelagic"&facet=="part_protected" ~ replace(x, x<min_var2_pel_part, NA),
+                                       group=="pelagic"&facet=="not_protected" ~ replace(x, x<min_var2_pel_not, NA),
+                                       group=="benthic"&facet=="protected"~ replace(x, x<min_var2_ben_pro, NA),
+                                       group=="benthic"&facet=="part_protected"~ replace(x, x<min_var2_ben_part, NA),
+                                       group=="benthic"&facet=="not_protected"~ replace(x, x<min_var2_ben_not, NA))) -> pred
+  
+  #select empirical range of var per bruvs
+  
+  max(var_to_plot[group_var=="pelagic"&group_var2 == "protected"]) -> max_var2_pel_pro 
+  max(var_to_plot[group_var=="pelagic"&group_var2 == "part_protected"]) -> max_var2_pel_part
+  max(var_to_plot[group_var=="pelagic"&group_var2 == "not_protected"]) -> max_var2_pel_not
+  max(var_to_plot[group_var=="benthic"&group_var2 == "protected"]) -> max_var2_ben_pro
+  max(var_to_plot[group_var=="benthic"&group_var2 == "part_protected"]) -> max_var2_ben_part
+  max(var_to_plot[group_var=="benthic"&group_var2 == "not_protected"]) -> max_var2_ben_not
+  
+  #filter predictions to empirical range of var per bruvs
+  
+  pred %>%
+    dplyr::mutate(x = dplyr::case_when(group=="pelagic"&facet=="protected" ~ replace(x, x>max_var2_pel_pro, NA),
+                                       group=="pelagic"&facet=="part_protected" ~ replace(x, x>max_var2_pel_part, NA),
+                                       group=="pelagic"&facet=="not_protected" ~ replace(x, x>max_var2_pel_not, NA),
+                                       group=="benthic"&facet=="protected"~ replace(x, x>max_var2_ben_pro, NA),
+                                       group=="benthic"&facet=="part_protected"~ replace(x, x>max_var2_ben_part, NA),
+                                       group=="benthic"&facet=="not_protected"~ replace(x, x>max_var2_ben_not, NA))) -> pred
+  
+  pred  %>%
+    tidyr::drop_na(x) -> pred
+  
+
+  #marg <- ggplot(transform(pred, facet=factor(facet, levels =c("not_protected","part_protected","protected"))), aes(x, predicted, fill=group, linetype =facet, alpha = facet)) +
+    
+    # Replicate data
+  levels(pred$group) <- c("Seabed", "Midwater")
+  levels(pred$facet) <- c("prot", "part prot", "not prot")
+  
+  marg <- ggplot(transform(pred, group=factor(group, levels =c("Seabed","Midwater"))), aes(x, predicted, fill=group, linetype =facet, alpha = facet)) +
+    
+    geom_line(size=0.8, aes(alpha =NULL)) + 
+    geom_ribbon(aes(ymin = conf.low, ymax = conf.high)) +
+    scale_fill_manual(name = "", values = c('orange','#077DAA'), guide = "none")+
+   # scale_fill_manual(name = "", values = c('#077DAA','orange'), guide = "none")+
+    scale_alpha_manual(name = "", values = c("not prot"= 0.12, "part prot"=0.22, "prot"=0.65))+
+    #scale_alpha_manual(name = "", values = c("not prot"= 0.12, "part prot"=0.22, "prot"=0.65))+
+    scale_linetype_manual(name ="", values = c("not prot"="dotted", "part prot"="dashed", "prot"="solid"))+
+    theme_light()+ labs(x = var_name, y = response) + guides(linetype=guide_legend(keywidth =3))+
+    scale_x_continuous(expand = c(0,0), limits =c(.8,4)) +facet_wrap(~group, ncol=2, scales = "free_y")
+ 
+  print(marg)
+  
+  ggsave(marg, filename = here::here("outputs", "model_outputs", paste0(mod_name, "_marg_plot_bruvs_", group2,"_", var_name, ".png")), width = 10, height = 6, units = "in", dpi =300)
+  
+  invisible(marg)
+  
+}
 
 
 #' fit fully saturated gls models with unimode as response variable and bruvs as factor of all covariates
@@ -1619,7 +1764,7 @@ multi_covariate_marg <- function(beta_marg, firstmode_marg, secondmode_marg, cov
   
   multi_marg <- ggdraw() +
     draw_plot(beta_marg+theme(strip.text.x = element_text(size = 16), 
-                              axis.text = element_text(size =16), axis.title = element_text(size =16), legend.text =element_text(size =16),legend.position= c(.9, .8), 
+                              axis.text = element_text(size =16), axis.title = element_text(size =16), legend.text =element_text(size =16),legend.position= c(.95, .9), 
                               legend.background = element_rect(fill = "transparent"))+ labs(x=""),  0,   0.66, 1, 0.33) +
     draw_plot(firstmode_marg+theme(strip.text.x = element_text(size = 16), 
                               axis.text = element_text(size =16),axis.title = element_text(size =16), legend.text =element_text(size =16),legend.position= "none")+ labs(x=""), 0, 0.33, 1, .33) +
@@ -1628,6 +1773,66 @@ multi_covariate_marg <- function(beta_marg, firstmode_marg, secondmode_marg, cov
   
     draw_plot_label(c("a", "b", "c"), c(0, 0, 0), c(.99, .66, .33), size = 22)
   
+  print(multi_marg)
+  
+  ggsave(multi_marg, filename = here::here("outputs", "model_outputs", paste0("All_model", covariate_name, ".png")), width = 12, height = 12, units = "in", dpi =300)
+  
+  invisible(multi_marg)
+  
+  
+}
+
+
+#' multi marginal plot across models
+
+#' @param beta_marg marg betaslop
+#' @param firstmode_marg marg firstmode
+#' @param secondmode_marg marg secondmode
+#' @param covariate_name name of covariate
+#' 
+#' @import ggplot2
+#' @import cowplot
+#' @return
+#' @export
+#'
+#'
+
+multi_covariate_marg_bruvs <- function(beta_marg, firstmode_marg, secondmode_marg, covariate_name){
+  
+  multi_marg <- ggdraw() +
+    draw_plot(beta_marg+theme(strip.text.x = element_text(size = 16), 
+                              axis.text = element_text(size =16),
+                               axis.title = element_text(size =16), legend.text =element_text(size =16),panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position= c(.08, .215), 
+                              legend.background = element_rect(fill = "transparent"),legend.key.size = unit(.9, 'cm'))+ guides(linetype = guide_legend(override.aes = list(alpha =.5)))+ labs(x="", y="Small fishes (log10, kg)"),  0,   0.66, 1, 0.33) +
+    draw_plot(firstmode_marg+theme(strip.background = element_blank(),
+                                   axis.text = element_text(size =16),
+                                   strip.text.x = element_blank(),axis.title = element_text(size =16), legend.text =element_text(size =16),legend.position= "none",panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ labs(x="", y="Large fishes (log10, kg)"), 0, 0.33, 1, .33) +
+    draw_plot(secondmode_marg+theme(strip.background = element_blank(),
+                                    strip.text.x = element_blank(), 
+                                    axis.text = element_text(size =16),axis.title = element_text(size =16), legend.text =element_text(size =16),legend.position= "none",panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ labs(x="Travel time to market (log10, hours)", y="Size spectra slope"), 0, 0, 1,.33) +
+    
+    draw_plot_label(c("a", "b", "c"), c(0, 0, 0), c(.99, .66, .33), size = 22)
+  
+  
+  
+  multi_marg <- multi_marg +
+    #firstmode 
+    add_fishape(family = "Kyphosidae", option = "Kyphosus_cinerascens",  xmin = .13, xmax = .175, ymin = 0.91, ymax = 0.93, alpha =.4)+
+    add_fishape(family = "Carcharhinidae", option = "Triaenodon_obesus",  xmin = .115, xmax = .17, ymin = 0.88, ymax = 0.92, alpha =.4)+
+    add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = .08, xmax = .11, ymin = 0.92, ymax = 0.94, alpha =.4)+
+    add_fishape(family = "Muraenidae", option = "Gymnothorax_javanicus",  xmin = .07, xmax = .12, ymin = 0.87, ymax = 0.91, alpha =.4)+
+    #secondmode
+    add_fishape(family = "Scombridae", option = "Thunnus_albacares",  xmin = .13, xmax = .19, ymin = 0.55, ymax = 0.6, alpha =.4)+
+    add_fishape(family = "Alopiidae", option = "Alopias_vulpinus",  xmin = .10, xmax = .17, ymin = 0.51, ymax = 0.56, alpha =.4)+
+    add_fishape(family = "Rhincodontidae", option = "Rhincodon_typus",  xmin = .11, xmax = .17, ymin = 0.58, ymax = 0.62, alpha =.4)+
+    add_fishape(family = "Mobulidae", option = "Mobula_birostris",  xmin = .07, xmax = .12, ymin = 0.53, ymax = 0.6, alpha =.4)+
+    #betaslope
+    add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = .08, xmax = .1, ymin = 0.29, ymax = 0.32, alpha =.4)+
+    add_fishape(family = "Carangidae", option = "Caranx_melampygus",  xmin = .12, xmax = .155, ymin = 0.275, ymax = 0.305, alpha =.4)+
+    add_fishape(family = "Scombridae", option = "Thunnus_albacares",  xmin = .171, xmax = .22, ymin = 0.25, ymax = 0.28, alpha =.4)+
+    geom_polygon(data=data.frame(x=c(.08, .18, .08), y = c(.25, .25, .3)), aes(x=x, y=y), fill=NA, colour = "grey", alpha =.4)+
+    geom_polygon(data=data.frame(x=c(.08, .16, .08), y = c(.25, .25, .3)), aes(x=x, y=y), fill=NA, colour = "grey", alpha =.4, linetype ='dotted')
+
   print(multi_marg)
   
   ggsave(multi_marg, filename = here::here("outputs", "model_outputs", paste0("All_model", covariate_name, ".png")), width = 12, height = 12, units = "in", dpi =300)
@@ -1680,6 +1885,7 @@ multi_covariate_marg_SST_sd <- function(beta_marg, firstmode_marg, covariate_nam
 #' @param group group
 #' @param group2 second group
 #' 
+#' @import ggplot2
 #' @return
 #' @export
 #'
@@ -1763,8 +1969,9 @@ marg_plot_cat_covar_noextra_deLog <- function(response, mod_name, dat, mod, var,
   
 }
 
+## categorical effect of protection combining
 
-
+#' @name multi_covariate_marg_cat
 #' @param beta_marg marg betaslop
 #' @param firstmode_marg marg firstmode
 #' @param secondmode_marg marg secondmode
@@ -1805,6 +2012,7 @@ multi_covariate_marg_cat <- function(beta_marg, firstmode_marg, secondmode_marg,
 #' @param data 
 #'
 #' @import ggplot2 
+#' @import cowplot
 #' @return
 #' @export
 #'
@@ -1813,19 +2021,54 @@ multi_covariate_marg_cat <- function(beta_marg, firstmode_marg, secondmode_marg,
 mode_vs_mode_lm <- function(dat){
   options(scipen=5)
   
-  mode_mode <- ggplot(data=dat, aes(x=logFirstmode, y=logSecondmode, group=bruvs, colour=bruvs, fill=bruvs))+
-    geom_point(size = 1)+
-    geom_smooth(method="lm")+theme_light()+
-    theme(legend.position = c(0.8, 0.9), legend.title = element_blank(), axis.title.y = element_text(size=16),
+  df =data.frame(logFirstmode=c(0.25, 0.21), logSecondmode = c(3, 2.1), x.SE = c(0.18, 0.12), y.SE = c(3, .8), bruvs = c("pelagic", "benthic") )
+  
+  mode_mode <- ggplot()+
+    geom_point(data=dat, aes(x=logFirstmode, y=logSecondmode, group=bruvs, colour=bruvs, fill=bruvs), alpha=.4, size=2)+
+    #geom_point(data=df, aes(x=logFirstmode, y=logSecondmode, colour = bruvs, fill ="black"), alpha=.4, size=5)+
+    geom_pointrange(data=df, aes(x=logFirstmode, y=logSecondmode, ymin=logSecondmode - y.SE, ymax=logSecondmode + y.SE, shape =bruvs))+
+    geom_errorbarh(data =df, aes(y=logSecondmode, xmin=logFirstmode - x.SE, xmax=logFirstmode + x.SE), width =0)+
+    geom_smooth(data=dat, aes(x=logFirstmode, y=logSecondmode, group=bruvs, colour="black", fill=bruvs), method="lm")+
+    #geom_smooth(data=dat, aes(x=logFirstmode, y=logSecondmode), method = "lm", colour = "black", linetype = 'dashed', alpha =.4, fill =NA)+
+    #geom_smooth(data=dat[ which(dat$bruvs=='pelagic'),], aes(x=logFirstmode, y=logSecondmode, group=protection_use,  linetype =  protection_use), colour='#077DAA', alpha =.2,fill=NA, method="lm")+
+    #geom_smooth(data=dat[ which(dat$bruvs=='benthic'),], aes(x=logFirstmode, y=logSecondmode, group=protection_use,  linetype =  protection_use), colour='darkorange', alpha =.2,fill=NA, method="lm")+
+    theme_light()+scale_linetype_manual(name ="", values = c("not_protected"="dotted", "part_protected"="dashed", "protected"="solid"))+
+    theme(legend.position = c(0.8, 0.8), legend.title = element_blank(), axis.title.y = element_text(size=16),
           legend.text = element_text(size =16),axis.text.x = element_text(size=16),
           axis.text.y = element_text(size=16), axis.title.x = element_text(size=16))+
     scale_fill_manual(values = c("pelagic" = '#077DAA', 'benthic' = 'orange'))+  
-    scale_colour_manual(values = c("pelagic" = '#077DAA', 'benthic' = 'darkorange')) +xlab("First mode (kg), log10(x+1)")+ylab("Second mode (kg), log10(x+1)")+facet_wrap(~protection_use)
-
-  print(mode_mode)
+    scale_colour_manual(values = c("pelagic" = '#077DAA', 'benthic' = 'darkorange')) +xlab("First mode (kg), log10(x+1)")+ylab("Second mode (kg), log10(x+1)")
+    
+  mode_logTTM <- ggplot()+
+    geom_smooth(data=dat, aes(x=logFirstmode, y=logTTM, group=bruvs, colour=bruvs, fill=bruvs), method="lm")+
+    geom_point(data=dat, aes(x=logFirstmode, y=logTTM, group=bruvs, colour=bruvs, fill=bruvs, shape=protection_use), alpha=.4, size=4) +
+    scale_fill_manual(values = c("pelagic" = '#077DAA', 'benthic' = 'orange'))+ theme_light()+
+    scale_colour_manual(values = c("pelagic" = '#077DAA', 'benthic' = 'darkorange')) +
+    theme(legend.position = c(0.9, 0.2), legend.title = element_blank(), axis.title.y = element_text(size=16),
+         legend.text = element_text(size =16),axis.text.x = element_text(size=16),
+          axis.text.y = element_text(size=16), axis.title.x = element_text(size=16))+
+    xlab("First mode (kg), log10(x+1)")+
+    ylab("Travel time to market (hrs), log10(x+1)")
   
-  ggsave(mode_mode, filename = here::here("outputs", "mode_vs_mode.png"), width = 12, height =6, units = "in", dpi =300)
-  invisible(mode_mode)
+  # mode_mode_prot <- ggplot()+
+  #   geom_point(data=dat, aes(x=logFirstmode, y=logSecondmode, group=bruvs, colour=bruvs, fill=bruvs), size = 1)+
+  #   geom_smooth(data=dat, aes(x=logFirstmode, y=logSecondmode, group=bruvs, colour=bruvs, fill=bruvs), method="lm")+
+  #   theme_light()+
+  #   theme(legend.position = "none", legend.title = element_blank(), axis.title.y = element_text(size=16),
+  #         legend.text = element_text(size =16),axis.text.x = element_text(size=16),
+  #         axis.text.y = element_text(size=16), axis.title.x = element_text(size=16))+
+  #   scale_fill_manual(values = c("pelagic" = '#077DAA', 'benthic' = 'orange'))+  
+  #   scale_colour_manual(values = c("pelagic" = '#077DAA', 'benthic' = 'darkorange')) +xlab("First mode (kg), log10(x+1)")+ylab("Second mode (kg), log10(x+1)")+facet_wrap(~protection_use)
+
+  multi_mode <-ggdraw()+
+    draw_plot(mode_mode, 0, .5, 1, .5)+
+    draw_plot(mode_logTTM, 0, 0, 1, .5)+
+    draw_plot_label(c("a", "b"), c(0, 0), c(.99, .5), size = 22)
+  
+  print(multi_mode)
+  
+  ggsave(multi_mode, filename = here::here("outputs", "multi_mode_vs_mode.png"), width = 12, height =16, units = "in", dpi =300)
+  invisible(multi_mode)
   
   #modal regression analysis - to estimate the spacing between the modes in log10 units
   
@@ -1877,5 +2120,288 @@ invisible(mode_res)
 mode_mod_res <- lm(betaslope ~ bruvs*lm_res, data = dat)
 
 return(summary(mode_mod_res))
+
+}
+
+
+#' modal analysis linear regression
+#'
+#' @param data 
+#'
+#' @import ggplot2 
+#' @import cowplot
+#' @return
+#' @export
+#'
+#' 
+
+mode_lm_res_beta_Secondmode <- function(dat){
+  
+
+  #get residuals from modal regression
+  mod <- lm(logFirstmode ~ bruvs*logSecondmode, data = dat)
+  lm_res <- residuals(mod)
+  tab_res <- cbind(dat, lm_res)
+  
+  #plot residuals against betaslope to see if negative residuals (ie where the difference between the modes is less than expected) are associated with more negative betaslopes
+  
+  #mode_res <- ggplot(data = tab_res, aes(x = logSecondmode, y=lm_res,  colour = protection_use, fill = protection_use, size=logFirstmode), alpha =.2)+
+    mode_res <- ggplot(data = tab_res, aes(x = logTTM, y=lm_res, colour = bruvs, fill = bruvs, size=abs(betaslope)), alpha =.2)+
+    
+    geom_point(alpha =.3)+ scale_radius()+
+    geom_hline(yintercept = 0, linetype="dashed", 
+                  size=0.5)+
+    #geom_smooth(method="lm")+
+    #stat_summary(fun = mean, geom = "line") +
+   # coord_cartesian(xlim = c(1.5, -1.5), ylim=c(0,-3)) +
+    theme_light()+
+    theme(strip.text = element_text(size =16) , legend.title = element_text(size =16), legend.box = "horizontal",legend.position = c(0.7, 0.9), axis.title.y = element_text(size=16),
+          legend.text = element_text(size =16),axis.text.x = element_text(size=16),
+          axis.text.y = element_text(size=16), axis.title.x = element_text(size=16), legend.background = element_rect(fill = "transparent"))+
+    scale_fill_manual(values = c("pelagic" = '#077DAA', 'benthic' = 'orange'))+  
+    scale_colour_manual(values = c("pelagic" = '#077DAA', 'benthic' = 'darkorange')) +#+xlab("Residuals from modal regression")
+    #scale_linetype_discrete(name="bruvs")+
+    #scale_size_continuous(name = "lm_res")+
+    facet_grid(rows=vars(bruvs), cols=vars(protection_use))
+ 
+
+  
+  print(mode_res)
+  
+  ggsave(mode_res, filename = here::here("outputs", "mode_lm_res_beta_secondmode.png"), width = 9, height =9, units = "in", dpi =300)
+  
+  invisible(mode_res)
+  
+  
+  mode_mod_res <- lm(betaslope ~ bruvs*lm_res, data = dat)
+  
+  return(summary(mode_mod_res))
+  
+}
+
+
+#' combined marginal plots with conceptual diagram with model and size spectra fishing effects 
+#'
+#' @param data 
+#' @import ggplot2 
+#' @import cowplot
+#' @import dplyr
+#' @import purrr
+#' 
+#' @return
+#' @export
+#'
+#' 
+
+#code adapted from https://github.com/FreddieJH/inverts_size_spec.
+#Heather FJ, Blanchard JL, Edgar GJ, Trebilco R, Stuart‐Smith RD. 2021. Globally consistent reef size spectra integrating fishes and invertebrates. Ecology Letters 24:572–579.
+
+
+conceptual_marg_mod <- function(firstmode_marg, secondmode_marg, beta_marg, covariate_name){
+  
+  ##not_protected
+  # no change pelagic bruvs
+  no_change_pel <-
+    tibble(mass = 1:10, fished = (6 + (-1*mass)), unfished =  (6 + (-1*mass))) %>% 
+    gather(key = "type", value = "abundance", -mass) %>% 
+    ggplot2::ggplot(aes(mass, abundance)) +
+    ggplot2::geom_ribbon(aes(ymin=(6 + (-1*mass)), ymax=(6 + (-1*mass))), alpha=0.3, col="transparent") +
+    ggplot2::geom_line(aes(linetype = type), size = 2, colour = "#077DAA", alpha =.5) + 
+    theme_light() +
+    theme(plot.title = element_text(size =13, hjust = 0.5),panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none", 
+          legend.background = element_rect(fill = "transparent")) + 
+    labs(x = "Body size (kg)",
+         y = "Log(abundance)") +ggtitle("No change") +
+    theme(axis.text.x = element_text(size=13), axis.text.y = element_blank(),axis.title = element_text(size =13), legend.text =element_text(size =13), legend.title = element_blank())+
+    scale_linetype_manual(values=c("dotted", "solid"))+scale_x_continuous(breaks = c(2.5, 5, 7.5), labels = c("0.01", "1", "100"))
+  
+  # no change benthic bruvs
+  no_change_ben <-
+    tibble(mass = 1:10, fished = (6 + (-1*mass)), unfished =  (6 + (-1*mass))) %>% 
+    gather(key = "type", value = "abundance", -mass) %>% 
+    ggplot2::ggplot(aes(mass, abundance)) +
+    ggplot2::geom_ribbon(aes(ymin=(6 + (-1*mass)), ymax=(6 + (-1*mass))), alpha=0.3, col="transparent") +
+    ggplot2::geom_line(aes(linetype = type), size = 2, colour = "darkorange", alpha =.5) + 
+    theme_light() +
+    theme(plot.title = element_text(size =13, hjust = 0.5),panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none", 
+          legend.background = element_rect(fill = "transparent")) + 
+    labs(x = "Body size (kg)",
+         y = "") +ggtitle("No change") +
+    theme(axis.text.x = element_text(size=13), axis.text.y = element_blank(),axis.title = element_text(size =13), legend.text =element_text(size =13), legend.title = element_blank())+
+    scale_linetype_manual(values=c("dotted", "solid"))+scale_x_continuous(breaks = c(2.5, 5, 7.5), labels = c("0.01", "1", "100"))
+  
+ ##part_protected
+  #steepening of size spectra plus offset pelagic
+  steep_off_pelagic <-
+    tibble(mass = 1:10, fished = (4 + (-1.4*mass)), unfished =  (6 + (-1*mass))) %>% 
+    gather(key = "type", value = "abundance", -mass) %>% 
+    ggplot2::ggplot(aes(mass, abundance)) +
+    ggplot2::geom_ribbon(aes(ymin=(4 + (-1.4*mass)), ymax=(6 + (-1*mass))), alpha=0.3, col="transparent") +
+    ggplot2::geom_line(aes(linetype = type), size = 2, colour = "#077DAA", alpha =.5) + 
+    #ggplot2::geom_point(aes(fill = type), col="black", shape=21, size=3) + 
+    theme_light() +
+    theme(plot.title = element_text(size =13, hjust = 0.5),panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none", 
+          legend.background = element_rect(fill = "transparent")) + 
+    labs(x = "Body size (kg)",
+         y = "") +ggtitle("Steepening") +
+    theme(axis.text.x = element_text(size=13), axis.text.y = element_blank(),axis.title = element_text(size =13), legend.text =element_text(size =13), legend.title = element_blank())+
+    scale_linetype_manual(values=c("dotted", "solid"))+scale_x_continuous(breaks = c(2.5, 5, 7.5), labels = c("0.01", "1", "100"))
+  
+
+  
+  #stable size spectra - proportional depletion
+  proportion_dep_ben <-
+    tibble(mass = 1:10, fished = (4 + (-1*mass)), unfished =  (6 + (-1*mass))) %>% 
+    gather(key = "type", value = "abundance", -mass) %>% 
+    ggplot2::ggplot(aes(mass, abundance)) +
+    ggplot2::geom_ribbon(aes(ymin=(4 + (-1*mass)), ymax=(6 + (-1*mass))), alpha=0.3, col="transparent") +
+    ggplot2::geom_line(aes(linetype = type), size = 2, colour = "darkorange", alpha =.5) + 
+    #ggplot2::geom_point(aes(fill = type), col="black", shape=21, size=3) + 
+    theme_light() +
+    theme(plot.title = element_text(size =13, hjust = 0.5),panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none", 
+          legend.background = element_rect(fill = "transparent")) + 
+    labs(x = "Body size (kg)",
+         y = "")+ggtitle("No change") + theme(axis.text.x = element_text(size=13), axis.text.y = element_blank(),axis.title = element_text(size =13), legend.text =element_text(size =13), legend.title = element_blank())+
+    scale_linetype_manual(values=c("dotted", "solid"))+scale_x_continuous(breaks = c(2.5, 5, 7.5), labels = c("0.01", "1", "100"))
+  
+  
+  
+  ##Protected
+
+  # steepening of size spectra with trophic release pelagic
+  trophic_release_pelagic <-
+    tibble(mass = 1:10, Fished = (9 + (-1.4*mass)), Unfished =  (6 + (-.85*mass))) %>% 
+    gather(key = "type", value = "abundance", -mass) %>% 
+    ggplot2::ggplot(aes(mass, abundance)) +
+    ggplot2::geom_ribbon(aes(ymin=(9 + (-1.4*mass)), ymax=(6 + (-.85*mass))), alpha=0.3, col="transparent") +
+    ggplot2::geom_line(aes(linetype = type), size = 2, colour = "#077DAA", alpha =.5) + 
+    #ggplot2::geom_point(aes(fill = type), col="black", shape=21, size=3) + 
+    theme_light() +
+    theme(plot.title = element_text(size =13, hjust = 0.5),panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none", 
+          legend.background = element_rect(fill = "transparent")) + 
+    labs(x = "Body size (kg)",
+         y = "")+ggtitle("Pronounced \n steepening")+  theme(axis.text.x = element_text(size =13), axis.text = element_blank(),axis.title = element_text(size =13), legend.text =element_text(size =13), legend.title = element_blank())+
+    scale_linetype_manual(values=c("dotted", "solid"))+scale_x_continuous(breaks = c(2.5, 5, 7.5), labels = c("0.01", "1", "100"))
+  
+  #steepening of size spectra benthic
+  steep_ben <-
+    tibble(mass = 1:10, fished = (6 + (-1.4*mass)), unfished =  (6 + (-1*mass))) %>% 
+    gather(key = "type", value = "abundance", -mass) %>% 
+    ggplot2::ggplot(aes(mass, abundance)) +
+    ggplot2::geom_ribbon(aes(ymin=(6 + (-1.4*mass)), ymax=(6 + (-1*mass))), alpha=0.3, col="transparent") +
+    ggplot2::geom_line(aes(linetype = type), size = 2, colour = "darkorange", alpha =.5) + 
+    #ggplot2::geom_point(aes(fill = type), col="black", shape=21, size=3) + 
+    theme_light() +ggtitle("Steepening") +
+    theme(plot.title = element_text(size =13, hjust = 0.5),panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none", 
+          legend.background = element_rect(fill = "transparent")) + 
+    labs(x = "Body size (kg)",
+         y = "")+ theme(axis.text.x = element_text(size=13), axis.text.y = element_blank(),axis.title = element_text(size =13), legend.text =element_text(size =13), legend.title = element_blank())+
+    scale_linetype_manual(values=c("dotted", "solid"))+scale_x_continuous(breaks = c(2.5, 5, 7.5), labels = c("0.01", "1", "100"))
+  
+  
+  #combined for multiplot
+
+    
+  multi_marg <- ggdraw() +
+    draw_plot(firstmode_marg+theme(strip.text.x = element_text(size = 16), 
+                              axis.text = element_text(size =16), axis.title = element_text(size =16), legend.text =element_text(size =16),legend.position= c(.1, .8), 
+                              legend.background = element_rect(fill = "transparent"))+ labs(x=""),  0,   0.75, 1, 0.25) +
+    draw_plot(secondmode_marg+theme(strip.background = element_blank(),
+                                    strip.text.x = element_blank(), 
+                                   axis.text = element_text(size =16),axis.title = element_text(size =16), legend.text =element_text(size =16),legend.position= "none")+ labs(x=""), 0, 0.5, 1, .25) +
+    draw_plot(beta_marg+theme(strip.background = element_blank(),
+                              strip.text.x = element_blank(),
+                                    axis.text = element_text(size =16),axis.title = element_text(size =16), legend.text =element_text(size =16),legend.position= "none"), 0, 0.25, 1,.25) +
+    
+    draw_plot(no_change_pel, 0, 0, 0.17, 0.25)+
+    draw_plot(no_change_ben, 0.166, 0, 0.17, 0.25)+
+    draw_plot(steep_off_pelagic, 0.33, 0, 0.17, 0.25)+
+    draw_plot(proportion_dep_ben, 0.5, 0, 0.17, 0.25)+
+    draw_plot(trophic_release_pelagic, 0.66, 0, 0.17, 0.27)+
+    draw_plot(steep_ben, 0.83, 0, 0.17, 0.25)+
+    
+    draw_plot_label(c("a", "b", "c"), c(0, 0, 0), c(.99, .75, .50), size = 16)
+  
+  print(multi_marg)
+  
+  ggsave(multi_marg, filename = here::here("outputs", "model_outputs", paste0("All_model_concept", covariate_name, ".png")), width = 12, height = 12, units = "in", dpi =300)
+  
+  invisible(multi_marg)
+  
+  }
+
+#' multi marginal plot across models plus concept by bruvs
+
+#' @param beta_marg marg betaslop
+#' @param firstmode_marg marg firstmode
+#' @param secondmode_marg marg secondmode
+#' @param covariate_name name of covariate
+#' 
+#' @import ggplot2
+#' @import cowplot
+#' @return
+#' @export
+#'
+#'
+
+conceptual_marg_bruvs <- function(beta_marg, firstmode_marg, secondmode_marg, covariate_name){
+  
+
+
+# steepening of size spectra with trophic release pelagic
+trophic_release_pelagic <-
+  tibble(mass = 1:10, Fished = (10 + (-1.6*mass)), Unfished =  (6 + (-.85*mass))) %>% 
+  gather(key = "type", value = "abundance", -mass) %>% 
+  ggplot2::ggplot(aes(mass, abundance)) +
+  ggplot2::geom_ribbon(aes(ymin=(10 + (-1.6*mass)), ymax=(6 + (-.85*mass))), alpha=0.3, col="transparent") +
+  ggplot2::geom_line(aes(linetype = type), size = 2, colour = "#077DAA", alpha =.5) + 
+  #ggplot2::geom_point(aes(fill = type), col="black", shape=21, size=3) + 
+  theme_light() +
+  theme(plot.title = element_text(size =16, hjust = 0.5),panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none", 
+        legend.background = element_rect(fill = "transparent")) + 
+  labs(x = "Body size (kg)",
+       y = "Log(abundance)")+ggtitle("Predator depletion, leading to \n trophic release and slope steepening")+  theme(axis.text.x = element_text(size =16), axis.text = element_blank(),axis.title = element_text(size =16), legend.text =element_text(size =16), legend.title = element_blank())+
+  scale_linetype_manual(values=c("dotted", "solid"))+scale_x_continuous(breaks = c(2.5, 5, 7.5), labels = c("0.01", "1", "100"))
+
+#steepening of size spectra benthic
+steep_ben <-
+  tibble(mass = 1:10, fished = (4 + (-1*mass)), unfished =  (6 + (-1*mass))) %>% 
+  gather(key = "type", value = "abundance", -mass) %>% 
+  ggplot2::ggplot(aes(mass, abundance)) +
+  ggplot2::geom_ribbon(aes(ymin=(4 + (-1*mass)), ymax=(6 + (-1*mass))), alpha=0.3, col="transparent") +
+  ggplot2::geom_line(aes(linetype = type), size = 2, colour = "darkorange", alpha =.5) + 
+  #ggplot2::geom_point(aes(fill = type), col="black", shape=21, size=3) + 
+  theme_light() +ggtitle("Proportional depletion, leading to \n no change in slope") +
+  theme(plot.title = element_text(size =16, hjust = 0.5),panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none", 
+        legend.background = element_rect(fill = "transparent")) + 
+  labs(x = "Body size (kg)",
+       y = "")+ theme(axis.text.y = element_blank(),
+                                     axis.title = element_text(size =16), axis.text.x =element_text(size =16),legend.text =element_text(size =16), legend.title = element_blank())+
+  scale_linetype_manual(values=c("dotted", "solid"))+scale_x_continuous(breaks = c(2.5, 5, 7.5), labels = c("0.01", "1", "100"))
+
+
+multi_marg <- ggdraw() +
+  draw_plot(beta_marg+theme(strip.text.x = element_text(size = 16), 
+                            axis.text = element_text(size =16),
+                            axis.title = element_text(size =16), legend.text =element_text(size =16),panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position= c(.1, .88), 
+                            legend.background = element_rect(fill = "transparent"))+ labs(x="", y="First mode (log10, kg)"),  0,   0.75, 0.99, 0.25) +
+  draw_plot(firstmode_marg+theme(strip.background = element_blank(),
+                                 axis.text = element_text(size =16),
+                                 strip.text.x = element_blank(),axis.title = element_text(size =16), legend.text =element_text(size =16),panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position= "none")+ labs(x="", y="Second mode (log10, kg)"), 0, 0.5, 0.99, .25) +
+  draw_plot(secondmode_marg+theme(strip.background = element_blank(),
+                                  strip.text.x = element_blank(), 
+                                  axis.text = element_text(size =16),axis.title = element_text(size =16), legend.text =element_text(size =16),panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position= "none")+ labs(x ="Travel Time to Market (log10, hours)", y= "Size spectra slope" ), 0, 0.25, 0.99,.25) +
+  draw_plot(trophic_release_pelagic, 0.02, 0, .49,.24)+
+  draw_plot(steep_ben, 0.52, 0, .47,.24)+
+  
+  draw_plot_label(c("a", "b", "c", "d"), c(0, 0, 0,0), c(1.005, .77, .51, .25), size = 22)
+
+
+print(multi_marg)
+
+ggsave(multi_marg, filename = here::here("outputs", "model_outputs", paste0("All_model_concept_bruvs_", covariate_name, ".jpeg")), width = 12, height = 14, units = "in", dpi =300)
+
+invisible(multi_marg)
+
 
 }

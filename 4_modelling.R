@@ -14,7 +14,7 @@ tab <- read_data_with_vars()
 
 
 ###DEFINE CONDITION----
-condition = c(logBathy = 2, logDistCR = 5, logSST = 1.4, logDistP = 1, logCHL=.10, logDistC = 4, SST_sd = 0.7, logTTM = 3, GovernmentEffectiveness_mean = 1.5, Slope =88)
+condition = c(logBathy = 1.7, logDistCR = 5, logSST = 1.4, logDistP = 1, logCHL=.10, logDistC = 4, SST_sd = 0.7, logTTM = 3, GovernmentEffectiveness_mean = 1.5, Slope =88)
 
 
 ###BETASLOPE MODEL -----
@@ -91,9 +91,9 @@ get_gls_diagnostics(tab_betaslope, mod_sim_betaslope, "mod_sim_betaslope")
 coef_plot(mod_sim_betaslope, "mod_sim_betaslope")
 
 #standardized effect plot with significant terms of interest
-coef_plot_terms(mod_sim_betaslope, "mod_sim_betaslope")
+coef_plot_signif_terms(mod_sim_betaslope, "mod_sim_betaslope", 0.05)
 
-#betaslope marginal plot of simplified model----
+ #betaslope marginal plot of simplified model----
 #mod_sim_betaslope <- mod_sim_betaslope
 
 
@@ -135,6 +135,9 @@ SST_sdBetaslope <- marg_plot_cat_covar_noextra(response = "beta_slope", mod_name
 marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "GovernmentEffectiveness_mean [all]", var_name = "GovernmentEffectiveness_mean", group = "bruvs", group2 = "protection_use", condition = condition)
 TTMBetaslope <- marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition)
 distPBetaslope <- marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logDistP [all]", var_name = "logDistP", group = "bruvs", group2 = "protection_use", condition = condition)
+
+
+TTMBetaslope_bruvs <- marg_plot_cat_covar_separate_bruvs(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition)
 
 
 
@@ -179,6 +182,9 @@ get_gls_diagnostics(tab_firstmode, mod_sim_firstmode, "mod_sim_firstmode")
 #coef plot
 coef_plot(mod_sim_firstmode, "mod_sim_firstmode")
 
+#standardized effect plot with significant terms of interest
+coef_plot_signif_terms(mod_sim_firstmode, "mod_sim_firstmode", 0.05)
+
 #firstmode marginal plot of simplified model----
 #mod_sim_firstmode <- mod_sat_firstmode
 
@@ -197,6 +203,10 @@ distPFirstmode <- marg_plot_cat_covar_noextra(response = "logFirstmode", mod_nam
 SSTFirstmode <- marg_plot_cat_covar_noextra(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "logSST [all]", var_name = "logSST", group = "bruvs", group2 = "protection_use", condition = condition)
 TTMFirstmode <- marg_plot_cat_covar_noextra(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition)
 SST_sdFirstmode <- marg_plot_cat_covar_noextra(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "SST_sd [all]", var_name = "SST_sd", group = "bruvs", group2 = "protection_use", condition = condition)
+
+TTMFirstmode_bruvs <- marg_plot_cat_covar_separate_bruvs(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition)
+
+
 
 #multiple categorical terms
 ProtFirstmode <- marg_plot_cat_catvar(response= "logFirstmode", mod_name = "mod_sim_firstmode", tab_firstmode, mod_sim_firstmode, "protection_use [all]", "protection_use", "bruvs", condition = condition)
@@ -242,6 +252,9 @@ mod_sim_secondmode <- fit_gls_sim_cor_secondmode(tab_secondmode)
 
 coef_plot(mod_sim_secondmode, "mod_sim_secondmode")
 
+#standardized effect plot with significant terms of interest
+coef_plot_signif_terms(mod_sim_secondmode, "mod_sim_secondmode", 0.05)
+
 # model diagnostics
 get_gls_diagnostics(tab_secondmode, mod_sim_secondmode, "mod_sim_secondmode")
 
@@ -277,6 +290,10 @@ marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_seco
 marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "GovernmentEffectiveness_mean [all]", var_name = "GovernmentEffectiveness_mean", group = "bruvs", group2 = "protection_use", condition = condition)
 TTMSecondmode <- marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition)
 
+
+TTMSecondmode_bruvs <- marg_plot_cat_covar_separate_bruvs(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition)
+
+
 #multiple categorical terms
 ProtSecondmode <- marg_plot_cat_catvar(response= "logSecondmode", mod_name = "mod_sim_secondmode", tab_secondmode, mod_sim_secondmode, "protection_use [all]", "protection_use", "bruvs", condition = condition)
 
@@ -284,8 +301,17 @@ ProtSecondmode <- marg_plot_cat_catvar(response= "logSecondmode", mod_name = "mo
 ### ALL MODEL COMBINED-----
 #TTM
 multi_covariate_marg(TTMFirstmode, TTMSecondmode,TTMBetaslope, "TTM")
+multi_covariate_marg_bruvs(TTMFirstmode_bruvs, TTMSecondmode_bruvs,TTMBetaslope_bruvs, "TTM")
 
-#distPort
+
+ #TTM with conceptual 
+conceptual_marg_mod(TTMFirstmode, TTMSecondmode,TTMBetaslope, "TTM")
+conceptual_marg_bruvs(TTMFirstmode_bruvs, TTMSecondmode_bruvs,TTMBetaslope_bruvs, "TTM")
+
+
+
+
+   #distPort
 multi_covariate_marg(distPFirstmode, distPSecondmode, distPBetaslope, "distP")
 
 #protection
@@ -306,6 +332,11 @@ response_vs_response(tab_firstmode)
 mode_vs_mode_lm(tab_firstmode)
 mode_lm_res_beta(tab_firstmode)
 
+tab_firstmode2 <- subset(tab_firstmode, betaslope > -4,)
+
+tapply(tab_firstmode$logFirstmode, tab_firstmode$bruvs, summary)
+
+mode_lm_res_beta_Secondmode(tab_firstmode2)
 
 
 
