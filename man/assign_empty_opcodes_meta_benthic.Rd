@@ -11,9 +11,6 @@ assign_empty_opcodes_meta_benthic(dat_meta, dat_maxn)
 
 \item{dat_maxn}{}
 }
-\value{
-
-}
 \description{
 Assign empty opcodes in meta for benthic bruvs
 }

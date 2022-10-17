@@ -9,9 +9,6 @@ clean_maxn_pelagic(dat)
 \arguments{
 \item{dat}{}
 }
-\value{
-
-}
 \description{
 Clean maxn data for pelagic bruvs
 }

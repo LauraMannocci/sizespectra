@@ -9,9 +9,6 @@ clean_maxn_benthic(dat)
 \arguments{
 \item{dat}{}
 }
-\value{
-
-}
 \description{
 Clean maxn data for benthic bruvs
 }

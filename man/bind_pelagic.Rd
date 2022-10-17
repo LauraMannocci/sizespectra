@@ -11,9 +11,6 @@ bind_pelagic(dat1, dat2)
 
 \item{dat2}{}
 }
-\value{
-
-}
 \description{
 Bind pelagic (maxn or fl) data
 }

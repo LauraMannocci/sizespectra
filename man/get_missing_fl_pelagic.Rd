@@ -6,9 +6,6 @@
 \usage{
 get_missing_fl_pelagic()
 }
-\value{
-
-}
 \description{
 Get missing fl data for pelagic bruvs (2 expeditions)
 }

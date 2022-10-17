@@ -9,9 +9,6 @@ clean_meta_pelagic(dat)
 \arguments{
 \item{dat}{}
 }
-\value{
-
-}
 \description{
 Clean meta data for pelagic bruvs
 }

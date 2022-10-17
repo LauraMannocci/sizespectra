@@ -1482,7 +1482,7 @@ write_meta_opcodes_benthic <- function (dat) {
 
 
 #
-#' Estimate weight from observed length for a taxa using rfishbase
+#' Estimate weight from observed length for a taxa using rfishbase OLD VERSION
 #'
 #' @param data 
 #'
@@ -1490,18 +1490,23 @@ write_meta_opcodes_benthic <- function (dat) {
 #' @export
 #'
 
-estimate_weight_from_length = function(data) {
+estimate_weight_from_length_old = function(data) {
   
   if(!all(c("Binomial", "Lengthcm") %in% names(data))) {
     print("Data must contain species name (Binomial) and observed length (Lengthcm)")
     break
   }
   
-  #all lengths are assumed to be fork length with unit in cm
-  if(!("length_type" %in% names(data))) {data$length_type = "FL"}
+  #all lengths are assumed to be fork length (FL) 
+  if(!("length_type" %in% names(data))) { data$length_type = "FL"} 
+  
+  #all lengths are assumed to be in cm
   if(!("length_units" %in% names(data))) {data$length_units = "cm"}
   
-  # First we need to convert observed fork length (FL) to total length (TL) in centimeters if not already in those units
+  
+  
+  
+  # First we need to get the TL to FL conversion ratio
   
   length_length_data = NA
   
@@ -1521,7 +1526,6 @@ estimate_weight_from_length = function(data) {
     
     if(nrow(length_length_data) == 1 & is.na(length_length_data$a[1]))  {data$TL_FLmean_ratio = 1} else {
       
-      # print(length_length_data)
       
       if(is.data.frame(length_length_data) & nrow(length_length_data > 0)) {
         
@@ -1532,7 +1536,6 @@ estimate_weight_from_length = function(data) {
         length_length_data[length_length_data$Length1 == ("TL") & length_length_data$Length2 == ("FL"),]$TL_FLratio = length_length_data[length_length_data$Length1 == ("TL") & length_length_data$Length2 == ("FL"),]$b
         length_length_data[length_length_data$Length1 == ("FL") & length_length_data$Length2 == ("TL"),]$TL_FLratio = 1/(length_length_data[length_length_data$Length1 == ("FL") & length_length_data$Length2 == ("TL"),]$b)
         
-        #print(length_length_data)
         
         # Calculate the mean TL:FL ratio
         
@@ -1552,7 +1555,10 @@ estimate_weight_from_length = function(data) {
     
     
     
-  } else {data$TL_FLmean_ratio = 1}
+  } else {data$TL_FLmean_ratio = 1} #ie length_type = "TL"
+  
+ 
+  
   
   # Apply this to the observed fork length
   
@@ -1561,8 +1567,11 @@ estimate_weight_from_length = function(data) {
   # Convert length from meters to centimeters if needed
   
   data$conv_length[data$length_units == "m"] =  data$conv_length[data$length_units == "m"] * 100
+
   
-  # print(paste("TL(cm) =", conv_length))
+  
+  
+  
   
   # Get the a and b estimates for the length to weight equation W = a * L^b
   
@@ -1571,8 +1580,8 @@ estimate_weight_from_length = function(data) {
   
   names(a_b)[1] = "Binomial"
   
-  # print(paste("a =", a_b$a))
-  # print(paste("b =", a_b$b))
+  
+  
   
   # fill values for missing species using values from genus and family
   
@@ -1629,6 +1638,9 @@ estimate_weight_from_length = function(data) {
   
   data = merge(data, a_b, by = "Binomial", all.x = TRUE)
   
+  
+  
+  
   # Calculate the weight based on the (converted) length and divide by 1000 to return it in kilograms
   
   data$weight_kg = (data$a * data$conv_length^data$b)/1000
@@ -1639,6 +1651,187 @@ estimate_weight_from_length = function(data) {
 }
 
 
+
+
+#
+#' Estimate weight from observed length for a taxa using rfishbase 
+#'
+#' @param data 
+#'
+#' @return
+#' @export
+#'
+
+
+
+estimate_weight_from_length = function(data) {
+  
+  if(!all(c("Binomial", "Lengthcm") %in% names(data))) {
+    print("Data must contain species name (Binomial) and observed length (Lengthcm)")
+    break
+  }
+  
+  #all lengths are assumed to be fork length (FL) with some exeptions
+  if(!("length_type" %in% names(data))) {
+    
+    
+    # all Istiophoridae and one Sphyrna lewini (exceed max recorded weight if assumed FL)
+    data$length_type = ifelse(data$Family == "Istiophoridae",
+                              "TL", #total length
+                              ifelse(data$Binomial == "Sphyrna lewini" & data$NewOpCode == "GNP19_066",
+                                     "TL", 
+                                     "FL")) #fork length
+
+    
+  }
+  
+  #all lengths are assumed to be in cm
+  if(!("length_units" %in% names(data))) {data$length_units = "cm"}
+  
+  
+  
+  
+  # First we need to get the TL to FL conversion ratio
+  
+  length_length_data = NA
+  
+  # Get the length to length conversions from Fishbase
+  
+  tryCatch(length_length_data <- data.frame(rfishbase::length_length(unique(data$Binomial), fields = c("Species", "Length1","Length2","a","b"))),
+           error=function(e){})
+  
+  names(length_length_data)[1] = "Binomial"
+  
+  length_length_data = length_length_data[length_length_data$a == 0 & !is.na(length_length_data$Binomial),]
+  
+  length_length_data = length_length_data[length_length_data$Length1 %in% c("TL", "FL") & length_length_data$Length2 %in% c("TL", "FL"),]
+  
+  
+  if(nrow(length_length_data) == 1 & is.na(length_length_data$a[1]))  {data$TL_FLmean_ratio = 1} else {
+    
+    
+    if(is.data.frame(length_length_data) & nrow(length_length_data > 0)) {
+      
+      length_length_data$TL_FLratio = NA
+      
+      # Find the TL:FL ratios (either direction)
+      
+      length_length_data[length_length_data$Length1 == ("TL") & length_length_data$Length2 == ("FL"),]$TL_FLratio = length_length_data[length_length_data$Length1 == ("TL") & length_length_data$Length2 == ("FL"),]$b
+      length_length_data[length_length_data$Length1 == ("FL") & length_length_data$Length2 == ("TL"),]$TL_FLratio = 1/(length_length_data[length_length_data$Length1 == ("FL") & length_length_data$Length2 == ("TL"),]$b)
+      
+      
+      # Calculate the mean TL:FL ratio by species
+      
+      TL_FLmean_ratio = length_length_data %>% 
+        dplyr::group_by(Binomial) %>% 
+        dplyr::summarise(TL_FLmean_ratio = mean(TL_FLratio, na.rm = TRUE))
+      
+      
+    }
+    
+  }
+  
+  #merge with data
+  
+  data = merge(data, TL_FLmean_ratio, by = "Binomial", all.x = TRUE)
+  
+  
+  #handles special cases : set the TL:FL ratio to 1 when it is NA or when length_type is TL
+  
+  data$TL_FLmean_ratio[is.na(data$TL_FLmean_ratio)] = 1
+  data$TL_FLmean_ratio[data$length_type == "TL"] = 1
+  
+  
+  
+  # Apply the TL:FL ratio to the observed length to obtain total length
+  
+  data$total_length = data$Lengthcm * data$TL_FLmean_ratio
+  
+  # Convert length from meters to centimeters if needed
+  
+  data$total_length[data$length_units == "m"] =  data$total_length[data$length_units == "m"] * 100
+  
+  
+  
+  
+  
+  
+  # Get the a and b estimates for the length to weight equation W = a * L^b
+  
+  tryCatch(a_b <- rfishbase::estimate(unique(data$Binomial), fields = c("Species", "a", "b")),
+           error=function(e) {})
+  
+  names(a_b)[1] = "Binomial"
+  
+  
+  
+  
+  # fill values for missing species using values from genus and family
+  
+  # calculate mean values per genus
+  a_b %>% 
+    dplyr::mutate(Genus = stringr::word(Binomial, 1)) %>% 
+    dplyr::group_by(Genus) %>% 
+    dplyr::summarise(mean_a_genus = mean(a, na.rm = T),
+                     mean_b_genus = mean(b, na.rm = T)) -> mean_data_genus
+  
+  # calculate mean values per family
+  data %>% 
+    dplyr::select("Family", "Binomial") %>% 
+    dplyr::distinct() -> data_family
+  
+  a_b %>% 
+    dplyr::left_join(data_family, by = "Binomial") %>% 
+    dplyr::group_by(Family) %>% 
+    dplyr::summarise(mean_a_family = mean(a, na.rm = T),
+                     mean_b_family = mean(b, na.rm = T)) -> mean_data_family
+  
+  # calculate mean values for assemblage
+  a_b %>% 
+    dplyr::summarise(mean_a = mean(a, na.rm = T), 
+                     mean_b = mean(b, na.rm = T)) -> mean_data_assemblage
+  
+  # hierarchically fill missing values
+  a_b %>% 
+    # join mean genus
+    dplyr::mutate(Genus = stringr::word(Binomial, 1)) %>% 
+    dplyr::left_join(mean_data_genus, by = c("Genus")) %>% 
+    # join mean family 
+    dplyr::left_join(data_family, by = "Binomial") %>% 
+    dplyr::left_join(mean_data_family, by = c("Family"))  %>%       
+    # add mean assemblage 
+    dplyr::mutate(mean_assemblage_a = mean_data_assemblage$mean_a) %>%
+    dplyr::mutate(mean_assemblage_b = mean_data_assemblage$mean_b) %>%
+    # fill mean length column hierachically for that species 
+    dplyr::mutate("a" = ifelse(!is.na(a), 
+                               a, 
+                               ifelse(!is.na(mean_a_genus),
+                                      mean_a_genus,
+                                      ifelse(!is.na(mean_a_family),
+                                             mean_a_family,
+                                             mean_assemblage_a)))) %>% 
+    dplyr::mutate("b" = ifelse(!is.na(b), 
+                               b, 
+                               ifelse(!is.na(mean_b_genus),
+                                      mean_b_genus,
+                                      ifelse(!is.na(mean_b_family),
+                                             mean_b_family,
+                                             mean_assemblage_b)))) %>% 
+    dplyr::select("Binomial",  "a", "b") -> a_b
+  
+  data = merge(data, a_b, by = "Binomial", all.x = TRUE)
+  
+  
+  
+  
+  # Calculate the weight based on total length and divide by 1000 to return it in kilograms
+  
+  data$weight_kg = (data$a * data$total_length^data$b)/1000
+  
+  
+  return(data)
+  
+}
 
 
 

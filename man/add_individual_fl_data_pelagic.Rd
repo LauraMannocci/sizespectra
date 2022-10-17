@@ -13,9 +13,6 @@ add_individual_fl_data_pelagic(dat_fl, dat_maxn)
 
 \item{dat_maxn}{}
 }
-\value{
-
-}
 \description{
 Add fork length data for individuals counted in maxn but with no available fork length
 for these individuals we assign the mean fork length calculated in maxn data

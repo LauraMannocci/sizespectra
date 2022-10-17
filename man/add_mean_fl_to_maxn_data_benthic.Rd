@@ -11,9 +11,6 @@ add_mean_fl_to_maxn_data_benthic(dat_fl, dat_maxn)
 
 \item{dat_maxn}{}
 }
-\value{
-
-}
 \description{
 Add mean fork length data to maxn data based on a hierarchy for benthic bruvs
 }

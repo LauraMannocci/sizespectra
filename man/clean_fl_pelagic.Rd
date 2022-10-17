@@ -9,9 +9,6 @@ clean_fl_pelagic(dat)
 \arguments{
 \item{dat}{}
 }
-\value{
-
-}
 \description{
 Clean fl data for pelagic bruvs
 }
