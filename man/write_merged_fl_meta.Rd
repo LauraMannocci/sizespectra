@@ -11,9 +11,6 @@ write_merged_fl_meta(dat, type)
 
 \item{type}{...}
 }
-\value{
-
-}
 \description{
 save merged meta with FL (benthic or pelagic)
 }

@@ -9,9 +9,6 @@ write_meta_opcodes_pelagic(dat)
 \arguments{
 \item{dat}{}
 }
-\value{
-
-}
 \description{
 Write meta opcodes for pelagic bruvs
 }

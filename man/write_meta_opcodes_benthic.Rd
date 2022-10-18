@@ -9,9 +9,6 @@ write_meta_opcodes_benthic(dat)
 \arguments{
 \item{dat}{}
 }
-\value{
-
-}
 \description{
 Write meta opcodes for benthic bruvs
 }

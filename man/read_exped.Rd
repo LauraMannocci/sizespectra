@@ -6,9 +6,6 @@
 \usage{
 read_exped()
 }
-\value{
-
-}
 \description{
 Read exped data (all bruvs)
 }

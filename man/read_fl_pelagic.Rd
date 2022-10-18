@@ -6,9 +6,6 @@
 \usage{
 read_fl_pelagic()
 }
-\value{
-
-}
 \description{
 Read fl data for pelagic bruvs
 }

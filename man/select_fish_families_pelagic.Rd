@@ -11,9 +11,6 @@ select_fish_families_pelagic(dat, families)
 
 \item{families}{}
 }
-\value{
-
-}
 \description{
 select fish families in pelagic bruvs (fl/maxn data)
 }

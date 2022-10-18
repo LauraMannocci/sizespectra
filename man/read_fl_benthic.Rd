@@ -6,9 +6,6 @@
 \usage{
 read_fl_benthic()
 }
-\value{
-
-}
 \description{
 Read fl data for benthic bruvs
 }

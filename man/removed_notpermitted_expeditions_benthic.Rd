@@ -11,9 +11,6 @@ removed_notpermitted_expeditions_benthic(dat, expeds_notpermit)
 
 \item{expeds_permit}{}
 }
-\value{
-
-}
 \description{
 Removed expeditions that are not permitted to be used in this study for benthic bruvs
 }

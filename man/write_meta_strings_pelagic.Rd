@@ -9,9 +9,6 @@ write_meta_strings_pelagic(dat)
 \arguments{
 \item{dat}{}
 }
-\value{
-
-}
 \description{
 Write meta strings for pelagic bruvs
 }

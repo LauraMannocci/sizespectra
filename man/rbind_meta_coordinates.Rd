@@ -11,9 +11,6 @@ rbind_meta_coordinates(dat_pelagic, dat_benthic)
 
 \item{dat_benthic}{...}
 }
-\value{
-
-}
 \description{
 rbind pelagic and benthic meta coordinates
 }

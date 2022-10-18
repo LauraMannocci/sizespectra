@@ -143,7 +143,7 @@ save(maxn_pelagic, fl_pelagic, meta_pelagic, file = here::here("1_read_clean_pel
 
 
 ### remove objects
-rm(maxn_pelagic, fl_pelagic, meta_pelagic, fl1, fl2, maxn1, maxn2, fl, maxn, meta)
+#rm(maxn_pelagic, fl_pelagic, meta_pelagic, fl1, fl2, maxn1, maxn2, fl, maxn, meta)
 
 
 
@@ -299,7 +299,7 @@ save(maxn_benthic, fl_benthic, meta_benthic, file = here::here("1_read_clean_ben
 
 
 ### remove objects
-rm(maxn_benthic, fl_benthic, meta_benthic, maxn, fl, meta)
+#rm(maxn_benthic, fl_benthic, meta_benthic, maxn, fl, meta)
 
 
 
