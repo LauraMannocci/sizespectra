@@ -2,7 +2,11 @@
 % Please edit documentation in R/read_clean_data.R
 \name{clean_meta_benthic}
 \alias{clean_meta_benthic}
-\title{Clean meta data for benthic bruvs}
+\title{#' Read a and b parametersfrom fishbase
+#'
+#'
+#' @return
+#' @export}
 \usage{
 clean_meta_benthic(dat)
 }
@@ -10,5 +14,11 @@ clean_meta_benthic(dat)
 \item{dat}{}
 }
 \description{
+read_a_b_parameters <- function(){
+
+readxl::read_excel(here::here("data", "fishbase", "a_b_parameters.xlsx"),
+sheet = 1)
+
+}
 Clean meta data for benthic bruvs
 }

@@ -126,8 +126,8 @@ sum(maxn$MaxN) - nrow(fl) # 1175 supplementary row numbers in fl due to error in
 
 
 
-### Estimate weight from observed length for a taxa using rfishbase
-fl <- estimate_weight_from_length(fl)
+### Estimate weight from observed length for a taxa using rfishbase with regression method
+fl <- estimate_weight_from_length_regression(fl)
 
 
 
