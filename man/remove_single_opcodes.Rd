@@ -11,6 +11,9 @@ remove_single_opcodes(dat_fl, dat_maxn)
 
 \item{dat_maxn}{}
 }
+\value{
+
+}
 \description{
 remove from fl the opcodes not available in maxn, ie the single opcodes, for pelagic or benthic bruvs
 }

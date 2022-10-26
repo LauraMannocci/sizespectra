@@ -9,6 +9,9 @@ clean_meta_benthic(dat)
 \arguments{
 \item{dat}{}
 }
+\value{
+
+}
 \description{
 Clean meta data for benthic bruvs
 }

@@ -11,6 +11,9 @@ make_map_meta(meta, type)
 
 \item{type}{}
 }
+\value{
+
+}
 \description{
 Make map of meta for pelagic/benthic bruvs
 }

@@ -9,6 +9,9 @@ clean_fl_benthic(dat)
 \arguments{
 \item{dat}{}
 }
+\value{
+
+}
 \description{
 Clean fl data for benthic bruvs
 }

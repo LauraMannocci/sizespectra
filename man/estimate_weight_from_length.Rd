@@ -9,6 +9,9 @@ estimate_weight_from_length(data)
 \arguments{
 \item{data}{}
 }
+\value{
+
+}
 \description{
 Estimate weight from observed length for a taxa using rfishbase
 }

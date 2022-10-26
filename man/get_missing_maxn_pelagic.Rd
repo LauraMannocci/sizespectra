@@ -6,6 +6,9 @@
 \usage{
 get_missing_maxn_pelagic()
 }
+\value{
+
+}
 \description{
 Get missing maxn data for pelagic bruvs (2 expeditions)
 }
