@@ -60,7 +60,11 @@ Imports:
     sjlabelled,
     sjmisc,
     performance,
-    lemon
+    lemon,
+    car,
+    ape,
+    geosphere,
+    raster
 Remotes: 
     nschiett/fishualize,
     andrew-edwards/sizeSpectra,

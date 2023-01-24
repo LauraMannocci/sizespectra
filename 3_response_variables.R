@@ -11,7 +11,7 @@ SpecLenAll <- read_size_pelagic()
 
 
 ##choose min pelagic size (in kg). must be consistent with benthic ----
-SpecLen <- subset_size(SpecLenAll, 0.0010) 
+SpecLen <- subset_size(SpecLenAll, 0.001) 
 
 
 ##make pelagic mean median and max size----

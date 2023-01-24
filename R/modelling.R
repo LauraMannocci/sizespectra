@@ -142,23 +142,22 @@ clean_data_with_vars <- function(dat, response_name){
   protection_use = as.factor(dat$protection)
   logconflicts = log10(dat$conflicts+1)
   logNGO = log10(dat$NGO+1)
-  logTTM = log10(dat$TravelTime_market+1)
+  logTTM = log10(dat$TravelTime_market)
   logSAU = log10(dat$SAU+1)
   logTTP = log10(dat$TravelTime_pop+1)
-  logSAU = log10(dat$SAU+1)
   logDistP = log10(dat$distPort+1)
-  logDistSM = log10(dat$distSeamounts+1)
+  logDistSM = log10(dat$distSeamounts)
   logDistCR = log10(dat$distCoralReef+1)
   logDistC = log10(dat$distCoast+1)
   logBathy = log10(-dat$Bathymetry)
   logPP = log10(dat$PP+1)
-  logCHL = log10(dat$CHL+1)
+  logCHL = log10(dat$CHL)
   logSST = log10(dat$SST_mean)
   bruvs = as.factor(dat$bruvs_type)
   exped = as.factor(dat$TERRITORY1)
-  logFirstmode = log10(dat$first_mode+1)
-  logSecondmode = log10(dat$second_mode+1)
-  logUnimode = log10(dat$unimode+1)
+  logFirstmode = log10(dat$first_mode)
+  logSecondmode = log10(dat$second_mode)
+  logUnimode = log10(dat$unimode)
   logDiffmode = log10(dat$second_mode - dat$first_mode)
   diffNormmode = (dat$second_mode - dat$first_mode)/dat$second_mode
   
@@ -193,9 +192,36 @@ clean_data_with_vars <- function(dat, response_name){
 
 }
 
+#' truncate predictor variables to three standard deviation from the mean
+#'
+#' @param dat dataframe with predictor variables
+#' @param response_name response name 
+#'  
+#' @return
+#' @export
+#'
 
+truncate_data <- function(dat, response_name, std_no){
+  
+  # dat = tab_betaslope
+  # response_name = "betaslope"
 
+  response <- dat[response_name]
+  response <- as.numeric(unlist(response))
+  
+#calculate std and mean and upper and lower lims
+  three_std = std_no*sd(response)
+  mean = mean(response)
+  upper_lim = mean + three_std
+  lower_lim = mean - three_std
+  
+#truncate 
+  index = which(response >= lower_lim & response <= upper_lim )
+  out = dat[index,]
 
+  return(out)
+
+}
 
 #' make correlogram of predictors ** ATTENTION need to update variables
 #'
@@ -272,17 +298,22 @@ fit_gls_no_cor_betaslope <- function(data){
 
 compare_gls_basic_cor_betaslope <- function(data){
 
-  #basic autocorrelation based on order of the observations in the data as a covariate, and no groups.
-  print("fitting gls with formula : betaslope ~ bruvs*(logBathy + Slope + logDistP + logDistSM + GovernmentEffectiveness_mean)")
-  mod1 <- nlme::gls(betaslope ~ bruvs*(logBathy + Slope + logDistP + logDistSM + GovernmentEffectiveness_mean), data = data, correlation = nlme::corAR1(form=~1))
-  mod2 <- nlme::gls(betaslope ~ bruvs*(logBathy + Slope + logDistP + logDistSM + GovernmentEffectiveness_mean), data = data, correlation = nlme::corExp(form=~1))
-  mod3 <- nlme::gls(betaslope ~ bruvs*(logBathy + Slope + logDistP + logDistSM + GovernmentEffectiveness_mean), data = data, correlation = nlme::corGaus(form=~1))
-  mod4 <- nlme::gls(betaslope ~ bruvs*(logBathy + Slope + logDistP + logDistSM + GovernmentEffectiveness_mean), data = data, correlation = nlme::corLin(form=~1))
-  mod5 <- nlme::gls(betaslope ~ bruvs*(logBathy + Slope + logDistP + logDistSM + GovernmentEffectiveness_mean), data = data, correlation = nlme::corRatio(form=~1))
-  mod6 <- nlme::gls(betaslope ~ bruvs*(logBathy + Slope + logDistP + logDistSM + GovernmentEffectiveness_mean), data = data, correlation = nlme::corSpher(form=~1))
-
+  #basic autocorrelation based on order of the observations in the data as a covariate, and no groups and with different spatial autocorrelation structures (form=~long+lat) 
+  print("fitting gls with formula : betaslope ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2))")
+  mod1 <- nlme::gls(betaslope ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corAR1(form=~1))
+  mod2 <- nlme::gls(betaslope ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corExp(form=~1))
+  mod3 <- nlme::gls(betaslope ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corGaus(form=~1))
+  mod4 <- nlme::gls(betaslope ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corLin(form=~1))
+  mod5 <- nlme::gls(betaslope ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corRatio(form=~1))
+  mod6 <- nlme::gls(betaslope ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corSpher(form=~1))
+  mod7 <- nlme::gls(betaslope ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corAR1(form=~mean_long+mean_lat))
+  mod8 <- nlme::gls(betaslope ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corExp(form=~mean_long+mean_lat))
+  mod9 <- nlme::gls(betaslope ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corGaus(form=~mean_long+mean_lat))
+  mod10 <- nlme::gls(betaslope ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corLin(form=~mean_long+mean_lat))
+  mod11 <- nlme::gls(betaslope ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corRatio(form=~mean_long+mean_lat))
+  mod12 <- nlme::gls(betaslope ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corSpher(form=~mean_long+mean_lat))
   #get aic for all models
-  a <- AIC(mod1, mod2, mod3, mod4, mod5, mod6)
+  a <- AIC(mod1, mod2, mod3, mod4, mod5, mod6, mod7, mod8, mod9, mod10, mod11, mod12)
   print(a)
 
   #get model with lowest aic
@@ -294,7 +325,12 @@ compare_gls_basic_cor_betaslope <- function(data){
   if (bestmod == "mod4") print("best model is the one with corLin")
   if (bestmod == "mod5") print("best model is the one with corRatio")
   if (bestmod == "mod6") print("best model is the one with corSpher")
-
+  if (bestmod == "mod7") print("best model is the one with corAR1+latlong")
+  if (bestmod == "mod8") print("best model is the one with corExp+latlong")
+  if (bestmod == "mod9") print("best model is the one with corGaus+latlong")
+  if (bestmod == "mod10") print("best model is the one with corLin+latlong")
+  if (bestmod == "mod11") print("best model is the one with corRatio+latlong")
+  if (bestmod == "mod12") print("best model is the one with corSpher+latlong")
   #return best model
   print("returning best model")
   return(get(paste(bestmod)))
@@ -302,7 +338,106 @@ compare_gls_basic_cor_betaslope <- function(data){
 }
 
 
+#' compare gls models with firstmode as response variable and bruvs as factor of all covariates
+#' with different basic autocorrelation structures (form=~1)  **ATTENTION need to update with new variables
+#'
+#' @param data dataframe with predictor variables
+#' 
+#' @return
+#' @export
+#'
 
+compare_gls_basic_cor_firstmode <- function(data){
+  
+  #basic autocorrelation based on order of the observations in the data as a covariate, and no groups and with different spatial autocorrelation structures (form=~long+lat) 
+  print("fitting gls with formula : firstmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2))")
+  mod1 <-  nlme::gls(logFirstmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corAR1(form=~1))
+  mod2 <-  nlme::gls(logFirstmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corExp(form=~1))
+  mod3 <-  nlme::gls(logFirstmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corGaus(form=~1))
+  mod4 <-  nlme::gls(logFirstmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corLin(form=~1))
+  mod5 <-  nlme::gls(logFirstmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corRatio(form=~1))
+  mod6 <-  nlme::gls(logFirstmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corSpher(form=~1))
+  mod7 <-  nlme::gls(logFirstmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corAR1(form=~mean_long+mean_lat))
+  mod8 <-  nlme::gls(logFirstmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corExp(form=~mean_long+mean_lat))
+  mod9 <-  nlme::gls(logFirstmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corGaus(form=~mean_long+mean_lat))
+  mod10 <- nlme::gls(logFirstmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corLin(form=~mean_long+mean_lat))
+  mod11 <- nlme::gls(logFirstmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corRatio(form=~mean_long+mean_lat))
+  mod12 <- nlme::gls(logFirstmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corSpher(form=~mean_long+mean_lat))
+  #get aic for all models
+  a <- AIC(mod1, mod2, mod3, mod4, mod5, mod6, mod7, mod8, mod9, mod10, mod11, mod12)
+  print(a)
+  
+  #get model with lowest aic
+  m <- which.min(a$AIC)
+  bestmod <- paste0("mod", m)
+  if (bestmod == "mod1") print("best model is the one with corAR1")
+  if (bestmod == "mod2") print("best model is the one with corExp")
+  if (bestmod == "mod3") print("best model is the one with corGaus")
+  if (bestmod == "mod4") print("best model is the one with corLin")
+  if (bestmod == "mod5") print("best model is the one with corRatio")
+  if (bestmod == "mod6") print("best model is the one with corSpher")
+  if (bestmod == "mod7") print("best model is the one with corAR1+latlong")
+  if (bestmod == "mod8") print("best model is the one with corExp+latlong")
+  if (bestmod == "mod9") print("best model is the one with corGaus+latlong")
+  if (bestmod == "mod10") print("best model is the one with corLin+latlong")
+  if (bestmod == "mod11") print("best model is the one with corRatio+latlong")
+  if (bestmod == "mod12") print("best model is the one with corSpher+latlong")
+  #return best model
+  print("returning best model")
+  return(get(paste(bestmod)))
+  
+}
+
+
+#' compare gls models with secondmode as response variable and bruvs as factor of all covariates
+#' with different basic autocorrelation structures (form=~1)  **ATTENTION need to update with new variables
+#'
+#' @param data dataframe with predictor variables
+#' 
+#' @return
+#' @export
+#'
+
+compare_gls_basic_cor_secondmode <- function(data){
+  
+  #basic autocorrelation based on order of the observations in the data as a covariate, and no groups and with different spatial autocorrelation structures (form=~long+lat) 
+  print("fitting gls with formula : secondmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2))")
+  mod1 <-  nlme::gls(logSecondmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corAR1(form=~1))
+  mod2 <-  nlme::gls(logSecondmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corExp(form=~1))
+  mod3 <-  nlme::gls(logSecondmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corGaus(form=~1))
+  mod4 <-  nlme::gls(logSecondmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corLin(form=~1))
+  mod5 <-  nlme::gls(logSecondmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corRatio(form=~1))
+  mod6 <-  nlme::gls(logSecondmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corSpher(form=~1))
+  mod7 <-  nlme::gls(logSecondmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corAR1(form=~mean_long+mean_lat))
+  mod8 <-  nlme::gls(logSecondmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corExp(form=~mean_long+mean_lat))
+  mod9 <-  nlme::gls(logSecondmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corGaus(form=~mean_long+mean_lat))
+  mod10 <- nlme::gls(logSecondmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corLin(form=~mean_long+mean_lat))
+  mod11 <- nlme::gls(logSecondmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corRatio(form=~mean_long+mean_lat))
+  mod12 <- nlme::gls(logSecondmode ~ bruvs*protection_use*(logBathy + Slope + logDistP + logDistSM + logTTM + logDistCR + logDistC+ poly(logSST, 2) + poly(logCHL,2)), data = data, correlation = nlme::corSpher(form=~mean_long+mean_lat))
+  #get aic for all models
+  a <- AIC(mod1, mod2, mod3, mod4, mod5, mod6, mod7, mod8, mod9, mod10, mod11, mod12)
+  print(a)
+  
+  #get model with lowest aic
+  m <- which.min(a$AIC)
+  bestmod <- paste0("mod", m)
+  if (bestmod == "mod1") print("best model is the one with corAR1")
+  if (bestmod == "mod2") print("best model is the one with corExp")
+  if (bestmod == "mod3") print("best model is the one with corGaus")
+  if (bestmod == "mod4") print("best model is the one with corLin")
+  if (bestmod == "mod5") print("best model is the one with corRatio")
+  if (bestmod == "mod6") print("best model is the one with corSpher")
+  if (bestmod == "mod7") print("best model is the one with corAR1+latlong")
+  if (bestmod == "mod8") print("best model is the one with corExp+latlong")
+  if (bestmod == "mod9") print("best model is the one with corGaus+latlong")
+  if (bestmod == "mod10") print("best model is the one with corLin+latlong")
+  if (bestmod == "mod11") print("best model is the one with corRatio+latlong")
+  if (bestmod == "mod12") print("best model is the one with corSpher+latlong")
+  #return best model
+  print("returning best model")
+  return(get(paste(bestmod)))
+  
+}
 
 
 #' compare gls models with betaslope as response variable and bruvs as factor of all covariates
@@ -630,7 +765,7 @@ coef_plot_signif_terms <- function(model, model_name, signif_cutoff){
   
   print(p)
   ggsave(p, filename = here::here("outputs", "model_outputs", paste0(model_name, "_coef_plot_signif_terms", ".png")), width = 10, height = 8, units = "in", dpi =300)
-  #write.csv(dat, file = here::here("outputs", "model_outputs", paste0(model_name, "_coef_data_signif_terms.csv")), row.names = TRUE)
+  write.csv(dat, file = here::here("outputs", "model_outputs", paste0(model_name, "_coef_data_signif_terms.csv")), row.names = TRUE)
   
   
   invisible(mod_coef)
@@ -1165,13 +1300,13 @@ marg_plot_cat_catvar <- function(response, mod_name, dat, mod, var, var_name, gr
 
 fit_gls_sat_cor_betaslope <- function(data){
   
-  
+ data = tab_betaslope
   #autocorrelation
-  print("fitting gls with formula: betaslope ~ bruvs * protection_use  * (logBathy + logTTM + GovernmentEffectiveness_mean +logDistC + logDistP+ logDistCR+ Slope+
-                                             poly(logSST,2)  + poly(logCHL,2) +logDistSM + poly(SST_sd,2))")
+  print("fitting gls with formula: betaslope ~ bruvs * protection_use * (logTTM +logDistP) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
+                                              poly(logSST,2) + poly(logCHL,2)")
   
-  mod <- nlme::gls(betaslope ~ bruvs * protection_use * (logBathy + logTTM + GovernmentEffectiveness_mean + logDistC+ logDistP + logDistCR + Slope +
-                                             poly(logSST,2) + poly(logCHL,2) +logDistSM + poly(SST_sd,2)), data = data,  correlation = nlme::corRatio(form=~1),method='ML') 
+  mod <- nlme::gls(betaslope ~ bruvs * protection_use * (logTTM +logDistP) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
+                                              poly(logSST,2) + poly(logCHL,2)), data = tab_betaslope,  correlation = nlme::corRatio(form=~1),method='ML') 
   
   
   #get aic
@@ -1181,6 +1316,28 @@ fit_gls_sat_cor_betaslope <- function(data){
   #return model
   print("returning model")
   return(mod)
+  
+}
+
+
+
+#' Estimate variance inflation factor and visualise the VIF values
+#' @param mod saturated model to test for VIF
+#' 
+#' @return
+#' @export
+#' @import car
+#'
+
+vif_mod <- function(mod){
+  
+vif_values <- vif(mod)
+return(vif_values)
+
+plot_vif <- barplot(vif_values, main = "VIF Values", horiz = TRUE, col = "steelblue") 
+abline(v = 5, lwd = 3, lty = 2)
+
+plot(plot_vif)
   
 }
 
@@ -1202,19 +1359,14 @@ fit_gls_sim_cor_betaslope <- function(data){
   #this one is good and works
   #mod <- nlme::gls(betaslope ~ bruvs + protection_use + logBathy + logTTM + GovernmentEffectiveness_mean + logDistC + logDistP + logDistCR + Slope + poly(logSST,      2) + poly(logCHL, 2) + poly(SST_sd, 2) + bruvs:protection_use +      bruvs:logBathy + bruvs:logTTM + bruvs:poly(GovernmentEffectiveness_mean,      2) + bruvs:logDistC + bruvs:logDistP + bruvs:logDistCR +      bruvs:Slope + bruvs:poly(logSST, 2) + bruvs:poly(logCHL,      2) + bruvs:poly(SST_sd, 2) + protection_use:logBathy + protection_use:logTTM +      protection_use:poly(GovernmentEffectiveness_mean, 2) + protection_use:logDistC +      protection_use:logDistP + protection_use:logDistCR + protection_use:Slope +      protection_use:poly(logCHL, 2) + bruvs:protection_use:logBathy +      bruvs:protection_use:logTTM + bruvs:protection_use:logDistC +      bruvs:protection_use:logDistP + bruvs:protection_use:logDistCR +      bruvs:protection_use:Slope + bruvs:protection_use:poly(logCHL,      2), data =tab_betaslope,  correlation = nlme::corRatio(form=~1),method='ML') 
   
-  mod <- nlme::gls(betaslope ~ bruvs + protection_use + logBathy + logTTM + GovernmentEffectiveness_mean + 
-                     logDistC + logDistP + logDistCR + Slope + poly(logSST, 2) + 
-                     poly(logCHL, 2) + poly(SST_sd, 2) + bruvs:protection_use + 
-                     bruvs:logBathy + bruvs:logTTM + bruvs:GovernmentEffectiveness_mean + 
-                     bruvs:logDistC + bruvs:logDistP + bruvs:logDistCR + bruvs:Slope + 
-                     bruvs:poly(logSST, 2) + bruvs:poly(logCHL, 2) + bruvs:poly(SST_sd, 
-                                                                                2) + protection_use:logBathy + protection_use:logTTM + protection_use:GovernmentEffectiveness_mean + 
-                     protection_use:logDistC + protection_use:logDistP + protection_use:logDistCR + 
-                     protection_use:Slope + protection_use:poly(logCHL, 2) + bruvs:protection_use:logBathy + 
-                     bruvs:protection_use:logTTM + bruvs:protection_use:GovernmentEffectiveness_mean + 
-                     bruvs:protection_use:logDistC + bruvs:protection_use:logDistP + 
-                     bruvs:protection_use:logDistCR + bruvs:protection_use:Slope + 
-                     bruvs:protection_use:poly(logCHL, 2), data =tab_betaslope,  correlation = nlme::corRatio(form=~1),method='ML')
+  mod <- nlme::gls(betaslope ~ bruvs + protection_use + logDistP + logTTM + logDistSM + 
+                     logBathy + logDistCR + Slope + poly(logSST, 2) + poly(logCHL, 
+                                                                           2) + bruvs:protection_use + bruvs:logDistP + bruvs:logTTM + 
+                     protection_use:logDistP + protection_use:logTTM + bruvs:logDistSM + 
+                     bruvs:logBathy + bruvs:logDistCR + bruvs:Slope + bruvs:poly(logSST, 
+                                                                                 2) + bruvs:poly(logCHL, 2) + bruvs:protection_use:logDistP + 
+                     bruvs:protection_use:logTTM
+                   , data = tab_betaslope,  correlation = nlme::corRatio(form=~1),method='ML')
   
   #get aic
   a <- AIC(mod)
@@ -1330,11 +1482,11 @@ fit_gls_sat_cor_firstmode <- function(data){
   
   
   #autocorrelation
-  print("fitting gls with formula: logFirstmode ~ bruvs * protection_use  * (logBathy + logTTM + GovernmentEffectiveness_mean +logDistC + logDistP+ logDistCR+ Slope+
-                                             poly(logSST,2)  + poly(logCHL,2) +logDistSM + poly(SST_sd,2))")
+  print("fitting gls with formula: logFirstmode ~ bruvs * protection_use * (logDistP+logTTM) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
+                                                                                            poly(logSST,2) + poly(logCHL,2)")
   
-  mod <- nlme::gls(logFirstmode ~ bruvs * protection_use * (logBathy + logTTM + GovernmentEffectiveness_mean + logDistC+ logDistP + logDistCR + Slope +
-                                                           poly(logSST,2) + poly(logCHL,2) +logDistSM + poly(SST_sd,2)), data = tab_firstmode,  correlation = nlme::corRatio(form=~1),method='ML') 
+  mod <- nlme::gls(logFirstmode ~ bruvs * protection_use * (logDistP+logTTM) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
+                                                                                            poly(logSST,2) + poly(logCHL,2)), data = tab_firstmode,  correlation = nlme::corRatio(form=~1),method='ML') 
   
   
   #get aic
@@ -1347,7 +1499,7 @@ fit_gls_sat_cor_firstmode <- function(data){
   
 }
 
-#' fit fully saturated gls models with firstmode as response variable and bruvs as factor of all covariates
+#' fit fully simplified gls models with firstmode as response variable and bruvs as factor of all covariates
 #' with autocorrelation  **ATTENTION need to update with new variables
 #'
 #' @param data dataframe with predictor variables
@@ -1359,33 +1511,29 @@ fit_gls_sat_cor_firstmode <- function(data){
 fit_gls_sim_cor_firstmode <- function(data){
   
   
-  #autocorrelation
-  print("fitting gls with formula: logFirstmode ~ bruvs + protection_use + logBathy + logTTM + GovernmentEffectiveness_mean + 
-    logDistC + logDistP + Slope + poly(logSST, 2) + logDistSM + 
-    poly(SST_sd, 2) + bruvs:protection_use + bruvs:logBathy + 
-    bruvs:logTTM + bruvs:GovernmentEffectiveness_mean + bruvs:logDistP + 
-    bruvs:Slope + bruvs:poly(logSST, 2) + bruvs:logDistSM + bruvs:poly(SST_sd, 
-    2) + protection_use:logBathy + protection_use:logTTM + protection_use:GovernmentEffectiveness_mean + 
-    protection_use:logDistP + protection_use:Slope + protection_use:poly(logSST, 
-    2) + protection_use:logDistSM + protection_use:poly(SST_sd, 
-    2) + bruvs:protection_use:logTTM + bruvs:protection_use:GovernmentEffectiveness_mean + 
-    bruvs:protection_use:logDistP + bruvs:protection_use:Slope + 
-    bruvs:protection_use:poly(logSST, 2) + bruvs:protection_use:logDistSM + 
-    bruvs:protection_use:poly(SST_sd, 2)")
+  # #autocorrelation
   
-  mod <- nlme::gls(logFirstmode ~ bruvs + protection_use + logBathy + logTTM + GovernmentEffectiveness_mean + 
-                     logDistC + logDistP + Slope + poly(logSST, 2) + logDistSM + 
-                     poly(SST_sd, 2) + bruvs:protection_use + bruvs:logBathy + 
-                     bruvs:logTTM + bruvs:GovernmentEffectiveness_mean + bruvs:logDistP + 
-                     bruvs:Slope + bruvs:poly(logSST, 2) + bruvs:logDistSM + bruvs:poly(SST_sd, 
-                                                                                        2) + protection_use:logBathy + protection_use:logTTM + protection_use:GovernmentEffectiveness_mean + 
-                     protection_use:logDistP + protection_use:Slope + protection_use:poly(logSST, 
-                                                                                          2) + protection_use:logDistSM + protection_use:poly(SST_sd, 
-                                                                                                                                              2) + bruvs:protection_use:logTTM + bruvs:protection_use:GovernmentEffectiveness_mean + 
-                     bruvs:protection_use:logDistP + bruvs:protection_use:Slope + 
-                     bruvs:protection_use:poly(logSST, 2) + bruvs:protection_use:logDistSM + 
-                     bruvs:protection_use:poly(SST_sd, 2),
-                     data = tab_firstmode,  correlation = nlme::corRatio(form=~1),method='ML') 
+
+  #autocorrelation
+  print("logFirstmode ~ bruvs + protection_use + logBathy + logTTM + logDistP + 
+    logDistC + logDistCR + Slope + poly(logSST, 2) + poly(logCHL, 
+    2) + bruvs:protection_use + bruvs:logBathy + bruvs:logTTM + 
+    bruvs:logDistP + bruvs:logDistC + bruvs:logDistCR + bruvs:Slope + 
+    bruvs:poly(logSST, 2) + bruvs:poly(logCHL, 2) + protection_use:logBathy + 
+    protection_use:logTTM + protection_use:logDistP + protection_use:logDistCR + 
+    protection_use:poly(logSST, 2) + protection_use:poly(logCHL, 
+    2) + bruvs:protection_use:logTTM + bruvs:protection_use:logDistP + 
+    bruvs:protection_use:logDistCR + bruvs:protection_use:poly(logSST, 
+    2) + bruvs:protection_use:poly(logCHL, 2)
+")
+  
+  mod <- nlme::gls(logFirstmode ~ bruvs + protection_use + logDistP + logTTM + logDistSM + 
+                     logDistC + logBathy + logDistCR + Slope + poly(logSST, 2) + 
+                     bruvs:protection_use + bruvs:logDistP + bruvs:logTTM + protection_use:logDistP + 
+                     protection_use:logTTM + bruvs:logDistSM + bruvs:logBathy + 
+                     bruvs:logDistCR + bruvs:Slope + bruvs:poly(logSST, 2) + bruvs:protection_use:logDistP + 
+                     bruvs:protection_use:logTTM, data = tab_firstmode,  correlation = nlme::corRatio(form=~1),method='ML') 
+  
   
   
   #get aic
@@ -1415,11 +1563,11 @@ fit_gls_sat_cor_secondmode <- function(data){
   
   
   #autocorrelation
-  print("fitting gls with formula: logSecondmode ~ bruvs * protection_use  * (logBathy + logTTM + GovernmentEffectiveness_mean +logDistC + logDistP+ logDistCR+ Slope+
-                                             poly(logSST,2)  + poly(logCHL,2) +logDistSM + poly(SST_sd,2))")
+  print("fitting gls with formula: bruvs * protection_use * (logDistP+logTTM) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
+                                                                                            poly(logSST,2) + poly(logCHL,2)")
   
-  mod <- nlme::gls(logSecondmode ~ bruvs * protection_use * (logBathy + logTTM + GovernmentEffectiveness_mean + logDistC+ logDistP + logDistCR + Slope +
-                                                            poly(logSST,2) + poly(logCHL,2) +logDistSM + poly(SST_sd,2)), data = tab_secondmode,  correlation = nlme::corRatio(form=~1),method='ML') 
+  mod <- nlme::gls(logSecondmode ~ bruvs * protection_use * (logDistP+logTTM) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
+                                                                                             poly(logSST,2) + poly(logCHL,2)), data = tab_secondmode,  correlation = nlme::corRatio(form=~1),method='ML') 
   
   
   #get aic
@@ -1448,30 +1596,23 @@ fit_gls_sim_cor_secondmode <- function(data){
   
   #autocorrelation
   print("fitting gls with formula: logSecondmode ~ bruvs + protection_use + logBathy + logTTM + 
-    GovernmentEffectiveness_mean + logDistC + logDistP + logDistCR + 
-    poly(logSST, 2) + poly(logCHL, 2) + logDistSM + bruvs:protection_use + 
-    bruvs:logBathy + bruvs:logTTM + bruvs:GovernmentEffectiveness_mean + 
-    bruvs:logDistP + bruvs:logDistCR + bruvs:poly(logSST, 2) + 
-    bruvs:poly(logCHL, 2) + bruvs:logDistSM + protection_use:logBathy + 
-    protection_use:logTTM + protection_use:GovernmentEffectiveness_mean + 
-    protection_use:logDistP + protection_use:poly(logSST, 2) + 
-    protection_use:poly(logCHL, 2) + bruvs:protection_use:logBathy + 
-    bruvs:protection_use:logTTM + bruvs:protection_use:GovernmentEffectiveness_mean + 
+    logDistC + logDistP + logDistCR + Slope + poly(logSST, 2) + 
+    poly(logCHL, 2) + logDistSM + bruvs:protection_use + bruvs:logBathy + 
+    bruvs:logTTM + bruvs:logDistP + bruvs:logDistCR + bruvs:poly(logSST, 
+    2) + bruvs:poly(logCHL, 2) + bruvs:logDistSM + protection_use:logBathy + 
+    protection_use:logTTM + protection_use:logDistC + protection_use:logDistP + 
+    protection_use:logDistCR + protection_use:Slope + protection_use:poly(logSST, 
+    2) + protection_use:poly(logCHL, 2) + protection_use:logDistSM + 
+    bruvs:protection_use:logBathy + bruvs:protection_use:logTTM + 
     bruvs:protection_use:logDistP + bruvs:protection_use:poly(logSST, 
-    2) + bruvs:protection_use:poly(logCHL, 2)")
+    2) + bruvs:protection_use:poly(logCHL, 2) + bruvs:protection_use:logDistSM")
   
-  mod <- nlme::gls(logSecondmode ~ bruvs + protection_use + logBathy + logTTM + 
-                     GovernmentEffectiveness_mean + logDistC + logDistP + logDistCR + 
-                     poly(logSST, 2) + poly(logCHL, 2) + logDistSM + bruvs:protection_use + 
-                     bruvs:logBathy + bruvs:logTTM + bruvs:GovernmentEffectiveness_mean + 
-                     bruvs:logDistP + bruvs:logDistCR + bruvs:poly(logSST, 2) + 
-                     bruvs:poly(logCHL, 2) + bruvs:logDistSM + protection_use:logBathy + 
-                     protection_use:logTTM + protection_use:GovernmentEffectiveness_mean + 
-                     protection_use:logDistP + protection_use:poly(logSST, 2) + 
-                     protection_use:poly(logCHL, 2) + bruvs:protection_use:logBathy + 
-                     bruvs:protection_use:logTTM + bruvs:protection_use:GovernmentEffectiveness_mean + 
-                     bruvs:protection_use:logDistP + bruvs:protection_use:poly(logSST, 
-                                                                               2) + bruvs:protection_use:poly(logCHL, 2), data = tab_secondmode,  correlation = nlme::corRatio(form=~1),method='ML') 
+  mod <- nlme::gls(logSecondmode ~ bruvs + protection_use + logDistP + logTTM + 
+                     logDistSM + logDistC + logBathy + logDistCR + Slope + poly(logSST, 
+                                                                                2) + poly(logCHL, 2) + bruvs:protection_use + bruvs:logDistP + 
+                     bruvs:logTTM + protection_use:logDistP + protection_use:logTTM + 
+                     bruvs:logDistSM + bruvs:logBathy + bruvs:poly(logSST, 2) + 
+                     bruvs:poly(logCHL, 2) + bruvs:protection_use:logDistP + bruvs:protection_use:logTTM, data = tab_secondmode,  correlation = nlme::corRatio(form=~1),method='ML') 
   
   
   #get aic
@@ -1496,7 +1637,7 @@ fit_gls_sim_cor_secondmode <- function(data){
 #'
 
 
-bruvs_protect_var <- function(dat, envar_name) { 
+bruvs_protect_var <- function(dat, envar_name, vert_value) { 
   
   
   dat$interaction_cat <- paste(dat$protection_use, dat$bruvs, sep = "__")
@@ -1505,7 +1646,7 @@ bruvs_protect_var <- function(dat, envar_name) {
     stat_summary(fun = mean, fun.min = min, fun.max = max) +
     theme(axis.text = element_text(size = 10), axis.title = element_text(size = 10)) + theme_light()+
     #ylim(0, 6000)+
-    coord_flip() +xlab("") +ylab(envar_name)
+    coord_flip() +xlab("") +ylab(envar_name) + geom_hline(yintercept=vert_value, linetype="dashed")
   
   print(envar_plot)
   invisible(envar_plot)
@@ -1971,7 +2112,7 @@ marg_plot_cat_covar_noextra_deLog <- function(response, mod_name, dat, mod, var,
 
 ## categorical effect of protection combining
 
-#' @name multi_covariate_marg_cat
+
 #' @param beta_marg marg betaslop
 #' @param firstmode_marg marg firstmode
 #' @param secondmode_marg marg secondmode
@@ -2405,3 +2546,295 @@ invisible(multi_marg)
 
 
 }
+
+
+
+
+#' marginal plots for categorical co_variates with noextra but with bruvs as facet wrap
+#'
+#' @param response, dat with predictor variables
+#' @param mod_name name of model
+#' @param dat data
+#' @param mod model
+#' @param var variable
+#' @param var_name variable name
+#' @param group group
+#' @param group2 second group
+#' 
+#' @return
+#' @export
+#'
+
+marg_data_bruvs_prot <- function(response, mod_name, dat, mod, var, var_name, group, group2, condition){
+  
+  
+  
+  #function
+  var_to_plot <- dat[var_name]
+  group_var <- dat[group]
+  group_var2 <-dat[group2]
+  
+  pred <- as.data.frame(ggeffects::ggpredict(mod, terms= c(var, group, group2), condition = condition)) #between 40 and 469 meter depth"logBathy [1.35:1.85]"
+  
+  #select empirical range of covariate bruvs
+  
+  min(var_to_plot[group_var=="pelagic"]) -> min_var_pel 
+  max(var_to_plot[group_var=="pelagic"]) -> max_var_pel 
+  min(var_to_plot[group_var=="benthic"]) -> min_var_ben
+  max(var_to_plot[group_var=="benthic"]) -> max_var_ben
+  
+  #filter predictions to empirical range of bruvs
+  pred %>%    
+    dplyr::mutate(x = dplyr::case_when(group=="pelagic" ~ replace(x, x<min_var_pel | x>max_var_pel, NA),
+                                       group=="benthic" ~ replace(x, x<min_var_ben | x>max_var_ben, NA))) -> pred
+  
+  #select empirical range of var per bruvs
+  
+  min(var_to_plot[group_var=="pelagic"&group_var2 == "protected"]) -> min_var2_pel_pro 
+  min(var_to_plot[group_var=="pelagic"&group_var2 == "part_protected"]) -> min_var2_pel_part
+  min(var_to_plot[group_var=="pelagic"&group_var2 == "not_protected"]) -> min_var2_pel_not
+  min(var_to_plot[group_var=="benthic"&group_var2 == "protected"]) -> min_var2_ben_pro
+  min(var_to_plot[group_var=="benthic"&group_var2 == "part_protected"]) -> min_var2_ben_part
+  min(var_to_plot[group_var=="benthic"&group_var2 == "not_protected"]) -> min_var2_ben_not
+  
+  #filter predictions to empirical range of var per bruvs
+  
+  pred %>%
+    dplyr::mutate(x = dplyr::case_when(group=="pelagic"&facet=="protected" ~ replace(x, x<min_var2_pel_pro, NA),
+                                       group=="pelagic"&facet=="part_protected" ~ replace(x, x<min_var2_pel_part, NA),
+                                       group=="pelagic"&facet=="not_protected" ~ replace(x, x<min_var2_pel_not, NA),
+                                       group=="benthic"&facet=="protected"~ replace(x, x<min_var2_ben_pro, NA),
+                                       group=="benthic"&facet=="part_protected"~ replace(x, x<min_var2_ben_part, NA),
+                                       group=="benthic"&facet=="not_protected"~ replace(x, x<min_var2_ben_not, NA))) -> pred
+  
+  #select empirical range of var per bruvs
+  
+  max(var_to_plot[group_var=="pelagic"&group_var2 == "protected"]) -> max_var2_pel_pro 
+  max(var_to_plot[group_var=="pelagic"&group_var2 == "part_protected"]) -> max_var2_pel_part
+  max(var_to_plot[group_var=="pelagic"&group_var2 == "not_protected"]) -> max_var2_pel_not
+  max(var_to_plot[group_var=="benthic"&group_var2 == "protected"]) -> max_var2_ben_pro
+  max(var_to_plot[group_var=="benthic"&group_var2 == "part_protected"]) -> max_var2_ben_part
+  max(var_to_plot[group_var=="benthic"&group_var2 == "not_protected"]) -> max_var2_ben_not
+  
+  #filter predictions to empirical range of var per bruvs
+  
+  pred %>%
+    dplyr::mutate(x = dplyr::case_when(group=="pelagic"&facet=="protected" ~ replace(x, x>max_var2_pel_pro, NA),
+                                       group=="pelagic"&facet=="part_protected" ~ replace(x, x>max_var2_pel_part, NA),
+                                       group=="pelagic"&facet=="not_protected" ~ replace(x, x>max_var2_pel_not, NA),
+                                       group=="benthic"&facet=="protected"~ replace(x, x>max_var2_ben_pro, NA),
+                                       group=="benthic"&facet=="part_protected"~ replace(x, x>max_var2_ben_part, NA),
+                                       group=="benthic"&facet=="not_protected"~ replace(x, x>max_var2_ben_not, NA))) -> pred
+  
+  pred  %>%
+    tidyr::drop_na(x) -> pred
+  
+  
+  #marg <- ggplot(transform(pred, facet=factor(facet, levels =c("not_protected","part_protected","protected"))), aes(x, predicted, fill=group, linetype =facet, alpha = facet)) +
+  
+  # Replicate data
+  levels(pred$group) <- c("Benthic", "Pelagic")
+  levels(pred$facet) <- c("Strictly protected", "Partly protected", "Not protected")
+  
+  response_type <- c(response)
+  pred['response_type'] <- response_type
+
+  
+  return(pred)
+  
+
+}
+
+
+
+#' marginal plots for categorical co_variates with noextra but with bruvs as facet wrap
+#'
+#' @param pred data
+#' @param var_name variable name
+#' @import fishualize
+#' @import ggplot2 
+#' @return
+#' @export
+#'
+
+marg_plot_bruvs_prot <- function(pred, var_name){
+
+  
+  
+  
+  #levels(pred$response_type) <- c("Small fishes","Large fishes", "Size spectra slope")
+  
+  pred <- transform(pred, group=factor(group, levels =c("Pelagic","Benthic")))
+  pred <- transform(pred, facet=factor(facet, levels =c("Not protected","Partly protected", "Strictly protected")))
+  pred$response_type <- factor(pred$response, levels = c("logSecondmode", "logFirstmode", "beta_slope"))
+ 
+  #split data into first/second mode and betaslope
+  pred1 <- pred[ which(pred$response_type=='logSecondmode' | pred$response_type=='logFirstmode'), ]
+  pred2 <- pred[ which(pred$response_type=='beta_slope'), ]
+  
+  
+marg1 <- ggplot(pred1, aes(x, predicted, fill=group, linetype = response_type)) +
+
+  geom_line(size=0.6, aes(alpha =NULL)) +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha =.45) +
+  scale_fill_manual(name = "", values = c('#077DAA','orange'))+
+  # scale_fill_manual(name = "", values = c('#077DAA','orange'), guide = "none")+
+  #scale_alpha_manual(name = "", values = c("not prot"= 0.12, "part prot"=0.22, "prot"=0.65))+
+  #scale_alpha_manual(name = "", values = c("not prot"= 0.12, "part prot"=0.22, "prot"=0.65))+
+  scale_linetype_manual(name ="", values = c("logSecondmode"="dashed", "logFirstmode" ="dotted"), labels = c("Large fishes","Small fishes"))+
+  theme_light()+ labs(x = "", y = "Body size (kg)") + guides(linetype=guide_legend(keywidth =3))+
+  scale_x_continuous(expand = c(0,0), limits =c(1.3,4)) +
+  #scale_y_continuous(breaks = c(0, 0.301,1.041,2.004, 3.0004), labels=c(0,1,10,100,1000))+
+  #scale_y_continuous(breaks = c(0,1,2,3), labels=c(1,10,100,1000))+
+  scale_y_continuous(breaks = c(-1,0,1,2,3), labels=c(0.1,1,10,100,1000))+
+  
+  #coord_cartesian(ylim = c(-0.3, 4.4)) +
+  coord_cartesian(ylim = c(-1, 3.5)) +
+  
+  #scale_y_break(c(0, -.5))+
+  #geom_hline(yintercept=0, linetype="solid", color = "red", size=2)+
+  theme(
+    legend.box = "horizontal",
+     legend.position= c(.15, .90),
+     strip.text = element_text(size = 12), 
+     axis.text.x=element_blank(),
+        axis.text = element_text(size =12),axis.title = element_text(size =12), 
+        legend.text =element_text(size =10),
+        legend.background = element_rect(fill = "transparent"),
+        panel.spacing = unit(2.2, "lines") , 
+     legend.spacing.x = unit(0.1, 'cm'),
+    legend.spacing.y = unit(0, 'cm'),legend.margin=margin(t = 0, unit='cm'))+
+  #facet_grid(group~facet, scales = "free_y")
+  facet_grid(cols = vars(facet))+
+  guides(linetype = guide_legend(order = 2), fill = guide_legend(order = 1))#+ geom_hline(yintercept=1.66)
+
+
+marg2 <- ggplot(pred2, aes(x, predicted, fill=group)) +
+  
+  geom_line(size=0.6, aes(alpha =NULL), linetype = 'solid') +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha =.45) +
+  scale_fill_manual(name = "", values = c('#077DAA','orange'))+
+  theme_light()+ xlab(bquote(Travel~Time~to~Market(log[10],~minutes))) + 
+  ylab("Size-spectra slope value") + guides(linetype=guide_legend(keywidth =3))+
+  scale_x_continuous(expand = c(0,0), limits =c(1.3,4)) +
+  coord_cartesian(ylim = c(-1.35, -0.5)) +
+  #scale_y_break(c(0, -.5))+
+  #geom_hline(yintercept=0, linetype="solid", color = "red", size=2)+
+  theme(
+    strip.background = element_blank(),
+    strip.text.x = element_blank(),
+    legend.position= "",
+    strip.text = element_text(size = 12), 
+    axis.text = element_text(size =12),axis.title = element_text(size =12), 
+    legend.text =element_text(size =12),
+    #panel.grid.major = element_blank(), 
+    #panel.grid.minor = element_blank(), 
+    legend.background = element_rect(fill = "transparent"),
+    panel.spacing = unit(2.0, "lines") , 
+    legend.spacing.y = unit(0.05, 'cm'))+
+  facet_grid(cols = vars(facet)) 
+
+#slope triangle
+marg3 <- ggplot()+theme_void()+
+  geom_polygon(data=data.frame(x=c(-2.45, -1.9, -2.45), y = c(165, 165, 200)), aes(x=x, y=y), fill=NA, colour = "grey", alpha =.4)+
+  geom_polygon(data=data.frame(x=c(-2.45, -2.1, -2.45), y = c(165, 165, 200)), aes(x=x, y=y), fill=NA, colour = "grey", alpha =.4, linetype ='dotted')
+  
+
+
+marg <- ggdraw() +
+  draw_plot(marg1, 0,  0.4, 0.87, 0.60) +
+  draw_plot(marg2, 0, 0, 0.87,0.42)+
+  draw_plot(marg3, 0.87, 0.2,.08,.08)+
+  draw_plot_label(c("a", "b"), c(0, 0), c(1, .45), size = 16)
+
+
+marg <- marg +
+  #secondmode
+  add_fishape(family = "Scombridae", option = "Thunnus_albacares",  xmin = .93, xmax = .98,ymin = 0.76, ymax = 0.82,  alpha =.4)+
+  add_fishape(family = "Alopiidae", option = "Alopias_vulpinus",  xmin = .88, xmax = .96, ymin = 0.78, ymax = 0.88, alpha =.4)+
+  add_fishape(family = "Rhincodontidae", option = "Rhincodon_typus",  xmin = .88, xmax = .98, ymin = 0.7, ymax = 0.75, alpha =.4)+
+  add_fishape(family = "Mobulidae", option = "Mobula_birostris",  xmin = .88, xmax = .93, ymin = 0.75, ymax = 0.81, alpha =.4)+
+
+  #firstmode
+  add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = .89, xmax = .92, ymin = 0.51, ymax = 0.53, alpha =.4)+
+  add_fishape(family = "Carcharhinidae", option = "Triaenodon_obesus",  xmin = .93, xmax = .99, ymin = 0.51, ymax = 0.56, alpha =.4)+
+  add_fishape(family = "Kyphosidae", option = "Kyphosus_cinerascens",  xmin = .95, xmax = .98, ymin = 0.48, ymax = 0.52, alpha =.4)+
+  add_fishape(family = "Muraenidae", option = "Gymnothorax_javanicus", xmin = .88, xmax = .94, ymin = 0.48, ymax = 0.51, alpha =.4)+
+
+  #slope fish
+  add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = .87, xmax = .89, ymin = 0.3, ymax = 0.28, alpha =.4)+
+  add_fishape(family = "Carangidae", option = "Caranx_melampygus",  xmin = .91, xmax = .95, ymin = 0.27, ymax = 0.24,  alpha =.4)+
+  add_fishape(family = "Scombridae", option = "Thunnus_albacares",  xmin = .94, xmax = 1, ymin = 0.23, ymax = 0.20, alpha =.4)
+
+
+print(marg)
+
+ggsave(marg, filename = here::here("outputs", "model_outputs", paste0("All_model_bruvs_prot", "_", var_name, ".jpeg")), width = 9, height = 8, units = "in", dpi =300)
+
+invisible(marg)
+
+
+}
+
+
+
+#' save marginal predictions
+#' @return
+#' @export
+#'
+
+save_marg_pred_all <- function(pred_all){
+  
+  write.table(pred_all, file = here::here("outputs", "model_outputs", "all_models_marg_pred.txt"), row.names = FALSE)
+  
+}
+
+#'  read marginal predictions
+#' @return
+#' @export
+#'
+read_marg_pred_all<- function(){
+  
+  
+  read.table(here::here("outputs", "model_outputs", "all_models_marg_pred.txt"), header = TRUE)
+  
+  
+}
+
+
+#'  moran's i test
+#' @return
+#' @export
+#' @import ape
+#' @import geosphere
+#' @import raster
+#'
+moran_i_test <- function(mod, data){
+  
+  
+  
+  mod_res <- mod$residuals
+
+  tab_mod_res <- cbind(mod_res, data)
+  
+  df <- data.frame(data$mean_long,data$mean_lat)
+
+  
+  tab_mod_res_dists <- geosphere::distm(df, df, fun = distGeo)
+
+  
+  tab_mod_res_dists_inv <- 1/tab_mod_res_dists
+  diag(tab_mod_res_dists_inv) <- 0
+  
+  tab_mod_res_dists_inv[1:5, 1:5]
+  
+  
+  moran <- ape::Moran.I(tab_mod_res$mod_res, tab_mod_res_dists_inv, alt = "t")
+  
+  
+  return(moran)
+  
+  
+}
+
+
