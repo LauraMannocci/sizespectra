@@ -1502,7 +1502,7 @@ write_meta_opcodes_benthic <- function (dat) {
 
 
 #
-#' Estimate weight from observed length for a taxa using rfishbase using a and b estimates from regression
+#' Estimate weight from observed length for a taxa using rfishbase using a and b estimates from bayesian analysis
 #'
 #' @param data 
 #'
@@ -1510,7 +1510,7 @@ write_meta_opcodes_benthic <- function (dat) {
 #' @export
 #'
 
-estimate_weight_from_length_regression = function(data) {
+estimate_weight_from_length_bayesian = function(data) {
   
   
   if(!all(c("Binomial", "Lengthcm") %in% names(data))) {
@@ -1621,11 +1621,20 @@ estimate_weight_from_length_regression = function(data) {
   
   #----------- Get the a and b estimates for the length to weight equation W = a * L^b
   
-  tryCatch(a_b <- rfishbase::length_weight(unique(data$Binomial), fields = c("Species", "Type", "a", "b")),
-           error=function(e) {})
+  #a and b estimates from regression approach
+  # tryCatch(a_b <- rfishbase::length_weight(unique(data$Binomial), fields = c("Species", "Type", "a", "b")),
+  #          error=function(e) {})
+  # names(a_b)[1] = "Binomial"
   
-  names(a_b)[1] = "Binomial"
+  #a and b estimates from bayesian approach
+  tryCatch(a_b <- rfishbase::estimate(unique(data$Binomial)), error=function(e) {})
   
+  a_b %>% 
+    dplyr::select(c("Species", "LengthType", "a", "b")) %>% 
+    dplyr::rename(Type = "LengthType") %>% 
+    dplyr::rename(Binomial = "Species") -> a_b
+  
+  a_b$Type <- "TL" # as per Deng Palomares response on rfishbase github issue (lenthtype should be assumed as TL if not available in table)
   
   
   
