@@ -6,6 +6,9 @@
 \usage{
 read_maxn_pelagic()
 }
+\value{
+
+}
 \description{
 Read maxn data for pelagic bruvs
 }

@@ -11,6 +11,9 @@ keep_opcode_in_meta(meta_dat, dat)
 
 \item{dat}{}
 }
+\value{
+
+}
 \description{
 keep only opcodes that are available in meta in data (fl or maxn) for pelagic or benthic bruvs
 }

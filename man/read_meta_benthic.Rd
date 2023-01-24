@@ -6,6 +6,9 @@
 \usage{
 read_meta_benthic()
 }
+\value{
+
+}
 \description{
 Read meta data for benthic bruvs
 }

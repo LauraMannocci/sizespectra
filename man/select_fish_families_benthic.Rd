@@ -11,6 +11,9 @@ select_fish_families_benthic(dat, families)
 
 \item{families}{}
 }
+\value{
+
+}
 \description{
 select fish families in benthic bruvs (fl/maxn data)
 }
