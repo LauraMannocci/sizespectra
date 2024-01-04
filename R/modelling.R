@@ -8,15 +8,15 @@
 #'
 
 
-bruvs_var_range <- function(dat, envar_name) { 
+bruvs_var_range <- function(dat, envar_name, axis_name) { 
   
-  envar_plot <- ggplot(data=dat, aes(x=bruvs, y= dat[[envar_name]] )) +
+  envar_plot <- ggplot(data=dat, aes(x=bruvs, y= dat[[envar_name]])) +
   stat_summary(fun = mean, fun.min = min, fun.max = max, colour = c('orange','#077DAA')) +
-  theme(axis.text = element_text(size = 10)) +
-  theme(axis.title = element_text(size = 10)) +
-  #ylim(0, 6000)+
-  coord_flip() +xlab("") +ylab(envar_name)
+  theme(axis.text = element_text(size=16), axis.text.y = element_text(size=20), axis.text.x = element_text(size=20)) +
+  coord_flip()+theme_light() +labs(x="", y=axis_name)
+  
   print(envar_plot)
+  
   invisible(envar_plot)
   
 }
@@ -49,16 +49,16 @@ multi_envar_range <- function() {
   draw_plot(var_logDistSM, 0, .4, .5, .2) +
   draw_plot(var_logDistP, 0, .6, .5, .2) +
   draw_plot(var_logDistC, 0, .8, .5, .2) +
-  draw_plot(var_logTTM, 0.5, .0, .5, .2) +
-  draw_plot(var_logCHL, 0.5, .2, .5, .2) +
-  draw_plot(var_logSST, 0.5, .4, .5, .2) +
-  draw_plot(var_SST_sd, 0.5, .6, .5, .2) +
-  draw_plot(var_SST_GEm, 0.5, .8, .5, .2) +
-  draw_plot_label(c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J"), c(0,.5, .0, 0.5,0,0.5,0,0.5,0, .5), c(1, 1, .8, .8, .6, .6, .4, .4, .2, .2), size = 10)
+  draw_plot(var_logTTM, 0.5, .2, .5, .2) +
+  draw_plot(var_logCHL, 0.5, .4, .5, .2) +
+  draw_plot(var_logSST, 0.5, .6, .5, .2) +
+  draw_plot(var_slope, 0.5, .8, .5, .2) +
+  #draw_plot(var_SST_GEm, 0.5, .8, .5, .2) +
+  draw_plot_label(c("A", "B", "C", "D", "E", "F", "G", "H", "I"), c(0,.5, .0, 0.5,0,0.5,0,0.5,0), c(1, 1, .8, .8, .6, .6, .4, .4, .2), size = 16)
 
   print(multi_envar)
 
-  ggsave(multi_envar, filename = here::here("outputs", "supp_fig_envar_range.jpeg"), width = 10, height = 10, units = "in", dpi =300)
+  ggsave(multi_envar, filename = here::here("outputs", "Extended_data_envar_range.jpeg"), width = 10, height = 10, units = "in", dpi =300)
   
   invisible(multi_envar)
   
@@ -761,10 +761,10 @@ coef_plot_signif_terms <- function(model, model_name, signif_cutoff){
     scale_color_manual(values = cols) +
     ylab("Estimates") +
     xlab("") + ggtitle(model_name)+
-    theme(legend.position="none")
+    theme_light()+theme(legend.position='none', axis.text=element_text(size=12))
   
   print(p)
-  ggsave(p, filename = here::here("outputs", "model_outputs", paste0(model_name, "_coef_plot_signif_terms", ".png")), width = 10, height = 8, units = "in", dpi =300)
+  ggsave(p, filename = here::here("outputs", "model_outputs", paste0(model_name, "_coef_plot_signif_terms", ".png")), width = 8, height = 6, units = "in", dpi =300)
   write.csv(dat, file = here::here("outputs", "model_outputs", paste0(model_name, "_coef_data_signif_terms.csv")), row.names = TRUE)
   
   
@@ -1305,7 +1305,7 @@ fit_gls_sat_cor_betaslope <- function(data){
   print("fitting gls with formula: betaslope ~ bruvs * protection_use * (logTTM +logDistP) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
                                               poly(logSST,2) + poly(logCHL,2)")
   
-  mod <- nlme::gls(betaslope ~ bruvs * protection_use * (logTTM +logDistP) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
+  mod <- nlme::gls(betaslope ~ bruvs * protection_use * (logTTM +logDistP) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope + Year +
                                               poly(logSST,2) + poly(logCHL,2)), data = tab_betaslope,  correlation = nlme::corRatio(form=~1),method='ML') 
   
   
@@ -1485,7 +1485,7 @@ fit_gls_sat_cor_firstmode <- function(data){
   print("fitting gls with formula: logFirstmode ~ bruvs * protection_use * (logDistP+logTTM) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
                                                                                             poly(logSST,2) + poly(logCHL,2)")
   
-  mod <- nlme::gls(logFirstmode ~ bruvs * protection_use * (logDistP+logTTM) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
+  mod <- nlme::gls(logFirstmode ~ bruvs * protection_use * (logDistP+logTTM) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +Year+
                                                                                             poly(logSST,2) + poly(logCHL,2)), data = tab_firstmode,  correlation = nlme::corRatio(form=~1),method='ML') 
   
   
@@ -1566,7 +1566,7 @@ fit_gls_sat_cor_secondmode <- function(data){
   print("fitting gls with formula: bruvs * protection_use * (logDistP+logTTM) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
                                                                                             poly(logSST,2) + poly(logCHL,2)")
   
-  mod <- nlme::gls(logSecondmode ~ bruvs * protection_use * (logDistP+logTTM) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
+  mod <- nlme::gls(logSecondmode ~ bruvs * protection_use * (logDistP+logTTM) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope + Year +
                                                                                              poly(logSST,2) + poly(logCHL,2)), data = tab_secondmode,  correlation = nlme::corRatio(form=~1),method='ML') 
   
   
@@ -1595,24 +1595,20 @@ fit_gls_sim_cor_secondmode <- function(data){
   
   
   #autocorrelation
-  print("fitting gls with formula: logSecondmode ~ bruvs + protection_use + logBathy + logTTM + 
-    logDistC + logDistP + logDistCR + Slope + poly(logSST, 2) + 
-    poly(logCHL, 2) + logDistSM + bruvs:protection_use + bruvs:logBathy + 
-    bruvs:logTTM + bruvs:logDistP + bruvs:logDistCR + bruvs:poly(logSST, 
-    2) + bruvs:poly(logCHL, 2) + bruvs:logDistSM + protection_use:logBathy + 
-    protection_use:logTTM + protection_use:logDistC + protection_use:logDistP + 
-    protection_use:logDistCR + protection_use:Slope + protection_use:poly(logSST, 
-    2) + protection_use:poly(logCHL, 2) + protection_use:logDistSM + 
-    bruvs:protection_use:logBathy + bruvs:protection_use:logTTM + 
-    bruvs:protection_use:logDistP + bruvs:protection_use:poly(logSST, 
-    2) + bruvs:protection_use:poly(logCHL, 2) + bruvs:protection_use:logDistSM")
-  
-  mod <- nlme::gls(logSecondmode ~ bruvs + protection_use + logDistP + logTTM + 
+  print("fitting gls with formula: logSecondmode ~ bruvs + protection_use + logDistP + logTTM + 
                      logDistSM + logDistC + logBathy + logDistCR + Slope + poly(logSST, 
                                                                                 2) + poly(logCHL, 2) + bruvs:protection_use + bruvs:logDistP + 
                      bruvs:logTTM + protection_use:logDistP + protection_use:logTTM + 
                      bruvs:logDistSM + bruvs:logBathy + bruvs:poly(logSST, 2) + 
-                     bruvs:poly(logCHL, 2) + bruvs:protection_use:logDistP + bruvs:protection_use:logTTM, data = tab_secondmode,  correlation = nlme::corRatio(form=~1),method='ML') 
+                     bruvs:poly(logCHL, 2) + bruvs:protection_use:logDistP + bruvs:protection_use:logTTM")
+  
+  mod <- nlme::gls(logSecondmode ~ bruvs + protection_use + logDistP + logTTM + 
+                     logDistSM + logDistC + logBathy + logDistCR + Slope + Year + 
+                     poly(logSST, 2) + poly(logCHL, 2) + bruvs:protection_use + 
+                     bruvs:logDistP + bruvs:logTTM + protection_use:logDistP + 
+                     protection_use:logTTM + bruvs:logDistSM + bruvs:logBathy + 
+                     bruvs:Slope + bruvs:poly(logSST, 2) + bruvs:poly(logCHL, 
+                                                                      2) + bruvs:protection_use:logDistP + bruvs:protection_use:logTTM, data = tab_secondmode,  correlation = nlme::corRatio(form=~1),method='ML') 
   
   
   #get aic
@@ -2635,7 +2631,7 @@ marg_data_bruvs_prot <- function(response, mod_name, dat, mod, var, var_name, gr
   # Replicate data
   levels(pred$group) <- c("Benthic", "Pelagic")
   levels(pred$facet) <- c("Strictly protected", "Partly protected", "Not protected")
-  
+  levels(pred$facet)[levels(pred$facet)=="Strictly protected"] <- "Highly protected"
   response_type <- c(response)
   pred['response_type'] <- response_type
 
@@ -2651,48 +2647,41 @@ marg_data_bruvs_prot <- function(response, mod_name, dat, mod, var, var_name, gr
 #'
 #' @param pred data
 #' @param var_name variable name
+#' @param rug_beta rug name
 #' @import fishualize
 #' @import ggplot2 
 #' @return
 #' @export
 #'
 
-marg_plot_bruvs_prot <- function(pred, var_name){
+marg_plot_bruvs_prot <- function(pred, var_name, rug_beta){
 
   
-  
+  pred<- pred_all
+  var_name <- "logTTM"
   
   #levels(pred$response_type) <- c("Small fishes","Large fishes", "Size spectra slope")
   
   pred <- transform(pred, group=factor(group, levels =c("Pelagic","Benthic")))
   pred <- transform(pred, facet=factor(facet, levels =c("Not protected","Partly protected", "Strictly protected")))
+  levels(pred$facet)[levels(pred$facet)=="Strictly protected"] <- "Highly protected"
   pred$response_type <- factor(pred$response, levels = c("logSecondmode", "logFirstmode", "beta_slope"))
  
   #split data into first/second mode and betaslope
   pred1 <- pred[ which(pred$response_type=='logSecondmode' | pred$response_type=='logFirstmode'), ]
   pred2 <- pred[ which(pred$response_type=='beta_slope'), ]
   
+
   
 marg1 <- ggplot(pred1, aes(x, predicted, fill=group, linetype = response_type)) +
-
   geom_line(size=0.6, aes(alpha =NULL)) +
   geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha =.45) +
   scale_fill_manual(name = "", values = c('#077DAA','orange'))+
-  # scale_fill_manual(name = "", values = c('#077DAA','orange'), guide = "none")+
-  #scale_alpha_manual(name = "", values = c("not prot"= 0.12, "part prot"=0.22, "prot"=0.65))+
-  #scale_alpha_manual(name = "", values = c("not prot"= 0.12, "part prot"=0.22, "prot"=0.65))+
   scale_linetype_manual(name ="", values = c("logSecondmode"="dashed", "logFirstmode" ="dotted"), labels = c("Large fishes","Small fishes"))+
   theme_light()+ labs(x = "", y = "Body size (kg)") + guides(linetype=guide_legend(keywidth =3))+
   scale_x_continuous(expand = c(0,0), limits =c(1.3,4)) +
-  #scale_y_continuous(breaks = c(0, 0.301,1.041,2.004, 3.0004), labels=c(0,1,10,100,1000))+
-  #scale_y_continuous(breaks = c(0,1,2,3), labels=c(1,10,100,1000))+
   scale_y_continuous(breaks = c(-1,0,1,2,3), labels=c(0.1,1,10,100,1000))+
-  
-  #coord_cartesian(ylim = c(-0.3, 4.4)) +
-  coord_cartesian(ylim = c(-1, 3.5)) +
-  
-  #scale_y_break(c(0, -.5))+
-  #geom_hline(yintercept=0, linetype="solid", color = "red", size=2)+
+  coord_cartesian(ylim = c(-1, 3.5), clip = "off") +
   theme(
     legend.box = "horizontal",
      legend.position= c(.15, .90),
@@ -2709,72 +2698,237 @@ marg1 <- ggplot(pred1, aes(x, predicted, fill=group, linetype = response_type)) 
   guides(linetype = guide_legend(order = 2), fill = guide_legend(order = 1))#+ geom_hline(yintercept=1.66)
 
 
+#rugplot for for betaslope
+names(rug_beta)[names(rug_beta) == 'betaslope'] <- 'predicted'
+names(rug_beta)[names(rug_beta) == 'bruvs'] <- 'group'
+names(rug_beta)[names(rug_beta) == 'logTTM'] <- 'x'
+names(rug_beta)[names(rug_beta) == 'protection_use'] <- 'facet'
+levels(rug_beta$facet) =c("Highly protected","Partly protected", "Not protected")
+rug_beta_ben <- rug_beta[ which(rug_beta$group=='benthic'), ]
+rug_beta_pel <- rug_beta[ which(rug_beta$group=='pelagic'), ]
+
+
 marg2 <- ggplot(pred2, aes(x, predicted, fill=group)) +
-  
   geom_line(size=0.6, aes(alpha =NULL), linetype = 'solid') +
   geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha =.45) +
-  scale_fill_manual(name = "", values = c('#077DAA','orange'))+
+  geom_rug(data=rug_beta_ben, aes(x=x),position = "jitter", color = 'orange',sides = "b", length = unit(0.02, "npc"),alpha =.45) +
+  geom_rug(data=rug_beta_pel, aes(x=x),position = "jitter", color = '#077DAA',sides = "b", outside = TRUE, length = unit(0.02, "npc"),alpha =.45) +
   theme_light()+ xlab(bquote(Travel~Time~to~Market(log[10],~minutes))) + 
-  ylab("Size-spectra slope value") + guides(linetype=guide_legend(keywidth =3))+
+  ylab("Size spectra slope value") + guides(linetype=guide_legend(keywidth =3))+
   scale_x_continuous(expand = c(0,0), limits =c(1.3,4)) +
-  coord_cartesian(ylim = c(-1.35, -0.5)) +
+  scale_fill_manual(name = "", values = c('orange','orange','#077DAA','#077DAA'))+
+  scale_color_manual(name =  "", values = c('orange','#077DAA','orange','#077DAA')) +
+  coord_cartesian(ylim = c(-1.35, -0.5), clip = "off") +
+  #coord_cartesian(ylim = c(-1.35, -0.5)) +
   #scale_y_break(c(0, -.5))+
   #geom_hline(yintercept=0, linetype="solid", color = "red", size=2)+
   theme(
     strip.background = element_blank(),
-    strip.text.x = element_blank(),
-    legend.position= "",
-    strip.text = element_text(size = 12), 
+    #strip.text.x = element_blank(size =10),
+    legend.position= 'none',
+    #strip.text = element_text(size = 12), 
     axis.text = element_text(size =12),axis.title = element_text(size =12), 
-    legend.text =element_text(size =12),
-    #panel.grid.major = element_blank(), 
-    #panel.grid.minor = element_blank(), 
+    axis.title.x = element_text(margin = margin(t = 13)),
+    axis.text.x = element_text(margin = margin(t=8)),
+
     legend.background = element_rect(fill = "transparent"),
-    panel.spacing = unit(2.0, "lines") , 
+    panel.spacing = unit(2.2, "lines") , 
     legend.spacing.y = unit(0.05, 'cm'))+
-  facet_grid(cols = vars(facet)) 
+   facet_grid(cols = vars(facet))
+
 
 #slope triangle
-marg3 <- ggplot()+theme_void()+
-  geom_polygon(data=data.frame(x=c(-2.45, -1.9, -2.45), y = c(165, 165, 200)), aes(x=x, y=y), fill=NA, colour = "grey", alpha =.4)+
-  geom_polygon(data=data.frame(x=c(-2.45, -2.1, -2.45), y = c(165, 165, 200)), aes(x=x, y=y), fill=NA, colour = "grey", alpha =.4, linetype ='dotted')
-  
+# marg3 <- ggplot()+theme_void()+
+#   geom_polygon(data=data.frame(x=c(-2.45, -1.9, -2.45), y = c(165, 165, 200)), aes(x=x, y=y), fill=NA, colour = "grey", alpha =.4)+
+#   geom_polygon(data=data.frame(x=c(-2.45, -2.1, -2.45), y = c(165, 165, 200)), aes(x=x, y=y), fill=NA, colour = "grey", alpha =.4, linetype ='dotted')
+#   
 
+fish_sil <- cowplot::ggdraw() + cowplot::draw_image(here::here("photo","fish_fig_4.png"))
+
+# marg <- ggdraw() +
+#   draw_plot(marg1, 0,  0.4, 0.87, 0.60) +
+#   draw_plot(marg2, 0, 0, 0.87,0.42)+
+#   #draw_plot(marg3, 0.87, 0.2,.08,.08)+
+#   draw_plot_label(c("A", "B"), c(0, 0), c(1, .45), size = 16)
 
 marg <- ggdraw() +
-  draw_plot(marg1, 0,  0.4, 0.87, 0.60) +
-  draw_plot(marg2, 0, 0, 0.87,0.42)+
-  draw_plot(marg3, 0.87, 0.2,.08,.08)+
-  draw_plot_label(c("a", "b"), c(0, 0), c(1, .45), size = 16)
+  draw_plot(marg1, 0,  0.39, .845, 0.6) +
+  draw_plot(marg2, 0.005 , 0.00, .84, 0.42)+
+  draw_plot(fish_sil, 0.54, 0.2, .77, .7)+
+  draw_plot_label(c("A", "B"), c(0, 0), c(1, .42), size = 16)
 
 
-marg <- marg +
-  #secondmode
-  add_fishape(family = "Scombridae", option = "Thunnus_albacares",  xmin = .93, xmax = .98,ymin = 0.76, ymax = 0.82,  alpha =.4)+
-  add_fishape(family = "Alopiidae", option = "Alopias_vulpinus",  xmin = .88, xmax = .96, ymin = 0.78, ymax = 0.88, alpha =.4)+
-  add_fishape(family = "Rhincodontidae", option = "Rhincodon_typus",  xmin = .88, xmax = .98, ymin = 0.7, ymax = 0.75, alpha =.4)+
-  add_fishape(family = "Mobulidae", option = "Mobula_birostris",  xmin = .88, xmax = .93, ymin = 0.75, ymax = 0.81, alpha =.4)+
 
-  #firstmode
-  add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = .89, xmax = .92, ymin = 0.51, ymax = 0.53, alpha =.4)+
-  add_fishape(family = "Carcharhinidae", option = "Triaenodon_obesus",  xmin = .93, xmax = .99, ymin = 0.51, ymax = 0.56, alpha =.4)+
-  add_fishape(family = "Kyphosidae", option = "Kyphosus_cinerascens",  xmin = .95, xmax = .98, ymin = 0.48, ymax = 0.52, alpha =.4)+
-  add_fishape(family = "Muraenidae", option = "Gymnothorax_javanicus", xmin = .88, xmax = .94, ymin = 0.48, ymax = 0.51, alpha =.4)+
 
-  #slope fish
-  add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = .87, xmax = .89, ymin = 0.3, ymax = 0.28, alpha =.4)+
-  add_fishape(family = "Carangidae", option = "Caranx_melampygus",  xmin = .91, xmax = .95, ymin = 0.27, ymax = 0.24,  alpha =.4)+
-  add_fishape(family = "Scombridae", option = "Thunnus_albacares",  xmin = .94, xmax = 1, ymin = 0.23, ymax = 0.20, alpha =.4)
+# marg <- marg +
+#   #secondmode
+#   add_fishape(family = "Scombridae", option = "Thunnus_albacares",  xmin = .93, xmax = .98,ymin = 0.76, ymax = 0.82,  alpha =.4)+
+#   add_fishape(family = "Alopiidae", option = "Alopias_vulpinus",  xmin = .88, xmax = .96, ymin = 0.78, ymax = 0.88, alpha =.4)+
+#   add_fishape(family = "Rhincodontidae", option = "Rhincodon_typus",  xmin = .88, xmax = .98, ymin = 0.7, ymax = 0.75, alpha =.4)+
+#   add_fishape(family = "Mobulidae", option = "Mobula_birostris",  xmin = .88, xmax = .93, ymin = 0.75, ymax = 0.81, alpha =.4)+
+# 
+#   #firstmode
+#   add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = .89, xmax = .92, ymin = 0.51, ymax = 0.53, alpha =.4)+
+#   add_fishape(family = "Carcharhinidae", option = "Triaenodon_obesus",  xmin = .93, xmax = .99, ymin = 0.51, ymax = 0.56, alpha =.4)+
+#   add_fishape(family = "Kyphosidae", option = "Kyphosus_cinerascens",  xmin = .95, xmax = .98, ymin = 0.48, ymax = 0.52, alpha =.4)+
+#   add_fishape(family = "Muraenidae", option = "Gymnothorax_javanicus", xmin = .88, xmax = .94, ymin = 0.48, ymax = 0.51, alpha =.4)+
+# 
+#   #slope fish
+#   add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = .87, xmax = .89, ymin = 0.3, ymax = 0.28, alpha =.4)+
+#   add_fishape(family = "Carangidae", option = "Caranx_melampygus",  xmin = .91, xmax = .95, ymin = 0.27, ymax = 0.24,  alpha =.4)+
+#   add_fishape(family = "Scombridae", option = "Thunnus_albacares",  xmin = .94, xmax = 1, ymin = 0.23, ymax = 0.20, alpha =.4)
 
 
 print(marg)
+#ggsave(marg, filename = here::here("outputs", "model_outputs", paste0("All_model_bruvs_prot", "_", var_name, ".jpeg")), width = 9, height = 8, units = "in", dpi =300)
 
-ggsave(marg, filename = here::here("outputs", "model_outputs", paste0("All_model_bruvs_prot", "_", var_name, ".jpeg")), width = 9, height = 8, units = "in", dpi =300)
+ggsave(marg, filename = here::here("outputs", "model_outputs", paste0("All_model_bruvs_prot", "_", var_name, ".jpeg")), width = 9, height = 9, units = "in", dpi =300)
 
 invisible(marg)
 
 
 }
+
+
+#' marginal sensitivity plots for categorical co_variates with noextra but with bruvs as facet wrap
+#'
+#' @param pred data
+#' @param var_name variable name
+#' @import fishualize
+#' @import ggplot2 
+#' @return
+#' @export
+#'
+
+marg_plot_bruvs_prot_sens <- function(pred, var_name){
+  
+
+  
+  #levels(pred$response_type) <- c("Small fishes","Large fishes", "Size spectra slope")
+  #pred <- pred_all_sens
+  #var_name <- "logTTM"
+  
+  pred <- transform(pred, group=factor(group, levels =c("Pelagic","Benthic")))
+  pred <- transform(pred, facet=factor(facet, levels =c("Not protected","Partly protected", "Strictly protected")))
+  levels(pred$facet)[levels(pred$facet)=="Strictly protected"] <- "Highly protected"
+  pred$response_type <- factor(pred$response, levels = c("logSecondmode", "logFirstmode", "beta_slope"))
+  
+  #split data into first/second mode and betaslope
+  pred1 <- pred[ which(pred$response_type=='logSecondmode' | pred$response_type=='logFirstmode'), ]
+  pred2 <- pred[ which(pred$response_type=='beta_slope'), ]
+  
+  pred1_pel_first <- subset(pred1, group=='Pelagic' & response_type=='logFirstmode')
+  pred1_pel_second <- subset(pred1, group=='Pelagic' &  response_type=='logSecondmode')
+  
+  pred1_ben_first <- subset(pred1, group=='Benthic' &  response_type=='logFirstmode')
+  pred1_ben_second <- subset(pred1, group=='Benthic' & response_type=='logSecondmode')
+  
+  colors <- c("Pelagic" = "#077DAA", "Benthic" = "orange")
+  #linetypes - c("logFirstmode" = "dotted", "logSecondmode" = "dashed")
+  
+  marg1 <- ggplot()+
+   geom_line(pred1_pel_first, mapping=aes(x, predicted, group = factor(sens_step), color='Pelagic', linetype = "logFirstmode")) +
+    geom_line(pred1_ben_first, mapping=aes(x, predicted, group = factor(sens_step), color='Benthic', linetype = "logFirstmode")) +
+    geom_line(pred1_pel_second, mapping=aes(x, predicted, group = factor(sens_step), color='Pelagic', linetype ="logSecondmode")) +
+    geom_line(pred1_ben_second, mapping=aes(x, predicted, group = factor(sens_step), color='Benthic', linetype ="logSecondmode")) +
+    theme_light()+ labs(x = "", y = "Body size (kg)") + guides(linetype=guide_legend(keywidth =3))+
+    scale_x_continuous(expand = c(0,0), limits =c(1.3,4)) +
+    scale_y_continuous(breaks = c(-1,0,1,2,3), labels=c(0.1,1,10,100,1000))+
+    coord_cartesian(ylim = c(-1, 3.5))+ 
+    theme(
+      legend.box = "vertical",
+      legend.position= c(.12, .85),
+      strip.text = element_text(size = 12), 
+      axis.text.x=element_blank(),
+      axis.text = element_text(size =12),axis.title = element_text(size =12), 
+      legend.text =element_text(size =10),
+      legend.background = element_rect(fill = "transparent"),
+      panel.spacing = unit(2.2, "lines") , 
+      legend.spacing.x = unit(0.1, 'cm'),
+      legend.spacing.y = unit(0, 'cm'),legend.margin=margin(t = 0, unit='cm'))+
+    #facet_grid(group~facet, scales = "free_y")
+    facet_grid(cols = vars(facet))+
+    guides(linetype = guide_legend(order = 2), fill = guide_legend(order = 1))+
+    scale_color_manual(name=NULL, values = colors)+
+    scale_linetype_manual(name = NULL, values = c("dotted", "dashed"),  labels = c("Small fishes", "Large fishes"))
+  #+ geom_hline(yintercept=1.66)
+  
+
+ # pred2 <- pred2[ which(pred2$sens_step=='1'), ]
+    pred2_pel <- pred2[ which(pred2$group=='Pelagic'), ]
+    pred2_ben <- pred2[ which(pred2$group=='Benthic'), ]
+  
+  marg2 <- ggplot() +
+    geom_line(pred2_pel, mapping=aes(x, predicted, group=factor(sens_step)), colour = '#077DAA') +
+    geom_line(pred2_ben, mapping=aes(x, predicted, group=factor(sens_step)), colour = 'orange') +
+    theme_light()+ xlab(bquote(Travel~Time~to~Market(log[10],~minutes))) + 
+    ylab("Size-spectra slope value") + guides(linetype=guide_legend(keywidth =3))+
+    scale_x_continuous(expand = c(0,0), limits =c(1.3,4)) +
+    coord_cartesian(ylim = c(-1.45, -0.5)) +
+    #scale_y_break(c(0, -.5))+
+    #geom_hline(yintercept=0, linetype="solid", color = "red", size=2)+
+    theme(
+      strip.background = element_blank(),
+      strip.text.x = element_blank(),
+      legend.position= "",
+      strip.text = element_text(size = 12), 
+      axis.text = element_text(size =12),axis.title = element_text(size =12), 
+      legend.text =element_text(size =12),
+      #panel.grid.major = element_blank(), 
+      #panel.grid.minor = element_blank(), 
+      legend.background = element_rect(fill = "transparent"),
+      panel.spacing = unit(2.0, "lines") , 
+      legend.spacing.y = unit(0.05, 'cm'))+
+    facet_grid(cols = vars(facet)) 
+  
+  #slope triangle
+  # marg3 <- ggplot()+theme_void()+
+  #   geom_polygon(data=data.frame(x=c(-2.45, -1.9, -2.45), y = c(165, 165, 200)), aes(x=x, y=y), fill=NA, colour = "grey", alpha =.4)+
+  #   geom_polygon(data=data.frame(x=c(-2.45, -2.1, -2.45), y = c(165, 165, 200)), aes(x=x, y=y), fill=NA, colour = "grey", alpha =.4, linetype ='dotted')
+  # 
+  
+  #fish_sil <- cowplot::ggdraw() + cowplot::draw_image(here::here("photo","fish_fig_4.png"))
+  
+  
+  
+  
+  marg <- ggdraw() +
+    draw_plot(marg1, 0,  0.4, 0.87, 0.60) +
+    draw_plot(marg2, 0, 0, 0.87,0.42)+
+    #draw_plot(marg3, 0.87, 0.2,.08,.08)+
+    #draw_plot(fish_sil, 0.8, 0, 1, 1)+
+    draw_plot_label(c("A", "B"), c(0, 0), c(1, .45), size = 16)
+  
+  
+  # marg <- marg +
+  #   #secondmode
+  #   add_fishape(family = "Scombridae", option = "Thunnus_albacares",  xmin = .93, xmax = .98,ymin = 0.76, ymax = 0.82,  alpha =.4)+
+  #   add_fishape(family = "Alopiidae", option = "Alopias_vulpinus",  xmin = .88, xmax = .96, ymin = 0.78, ymax = 0.88, alpha =.4)+
+  #   add_fishape(family = "Rhincodontidae", option = "Rhincodon_typus",  xmin = .88, xmax = .98, ymin = 0.7, ymax = 0.75, alpha =.4)+
+  #   add_fishape(family = "Mobulidae", option = "Mobula_birostris",  xmin = .88, xmax = .93, ymin = 0.75, ymax = 0.81, alpha =.4)+
+  #   
+  #   #firstmode
+  #   add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = .89, xmax = .92, ymin = 0.51, ymax = 0.53, alpha =.4)+
+  #   add_fishape(family = "Carcharhinidae", option = "Triaenodon_obesus",  xmin = .93, xmax = .99, ymin = 0.51, ymax = 0.56, alpha =.4)+
+  #   add_fishape(family = "Kyphosidae", option = "Kyphosus_cinerascens",  xmin = .95, xmax = .98, ymin = 0.48, ymax = 0.52, alpha =.4)+
+  #   add_fishape(family = "Muraenidae", option = "Gymnothorax_javanicus", xmin = .88, xmax = .94, ymin = 0.48, ymax = 0.51, alpha =.4)+
+  #   
+  #   #slope fish
+  #   add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = .87, xmax = .89, ymin = 0.3, ymax = 0.28, alpha =.4)+
+  #   add_fishape(family = "Carangidae", option = "Caranx_melampygus",  xmin = .91, xmax = .95, ymin = 0.27, ymax = 0.24,  alpha =.4)+
+  #   add_fishape(family = "Scombridae", option = "Thunnus_albacares",  xmin = .94, xmax = 1, ymin = 0.23, ymax = 0.20, alpha =.4)
+  # 
+  # 
+  print(marg)
+  
+  ggsave(marg, filename = here::here("outputs", "model_outputs", paste0("Extended_Data_sens", "_", var_name, ".jpeg")), width = 9, height = 8, units = "in", dpi =300)
+  
+  invisible(marg)
+  
+  
+}
+
+
 
 
 
@@ -2789,6 +2943,19 @@ save_marg_pred_all <- function(pred_all){
   
 }
 
+#' save marginal sensitivity predictions
+#' @return
+#' @export
+#'
+
+save_marg_pred_all_sens <- function(pred_all){
+  
+  write.table(pred_all_sens, file = here::here("outputs", "model_outputs", "sens_all_models_marg_pred.txt"), row.names = FALSE)
+  
+}
+
+
+
 #'  read marginal predictions
 #' @return
 #' @export
@@ -2800,6 +2967,19 @@ read_marg_pred_all<- function(){
   
   
 }
+
+#'  read marginal sensitivity predictions
+#' @return
+#' @export
+#'
+read_marg_pred_all_sens<- function(){
+  
+  
+  read.table(here::here("outputs", "model_outputs", "sens_all_models_marg_pred.txt"), header = TRUE)
+  
+  
+}
+
 
 
 #'  moran's i test
@@ -2837,4 +3017,194 @@ moran_i_test <- function(mod, data){
   
 }
 
+
+#' save marginal sensitivity predictions oceans
+#' @return
+#' @export
+#'
+
+save_marg_pred_all_sens_oceans <- function(pred_all){
+  
+  write.table(pred_all, file = here::here("outputs", "model_outputs", "sens_all_models_marg_pred_oceans.txt"), row.names = FALSE)
+  
+}
+
+
+
+#'  read marginal sensitivity predictions oceans
+#' @return
+#' @export
+#'
+read_marg_pred_all_sens_oceans<- function(){
+  
+  
+  read.table(here::here("outputs", "model_outputs", "sens_all_models_marg_pred_oceans.txt"), header = TRUE)
+  
+  
+}
+
+
+#' marginal sensitivity plots for categorical co_variates with noextra but with bruvs as facet wrap - drop oceans
+#'
+#' @param pred data
+#' @param var_name variable name
+#' @import fishualize
+#' @import ggplot2 
+#' @return
+#' @export
+#'
+
+marg_plot_bruvs_prot_sens_oceans <- function(pred, var_name){
+  
+  #pred = pred_all_sens_oceans_mod
+  #var_name = "logTTM"
+  
+  #levels(pred$response_type) <- c("Small fishes","Large fishes", "Size spectra slope")
+
+  pred <- transform(pred, group=factor(group, levels =c("Benthic", "Pelagic")))
+  
+  pred <- transform(pred, facet=factor(facet, levels =c("Not protected", "Partly protected","Strictly protected")))
+  levels(pred$facet)[levels(pred$facet)=="Strictly protected"] <- "Highly protected"
+  pred <- transform(pred, sens_ocean=factor(sens_ocean, levels =c("drop_atlantic","drop_indian", "drop_pacific")))
+  pred <- transform(pred, response_type=factor(response_type, levels = c("betaslope", "logFirstmode", "logSecondmode")))
+  
+  levels(pred$response_type) <- c("beta_slope", "logFirstmode", "logSecondmode")
+  
+  
+  
+  #split data into first/second mode and betaslope
+  pred1 <- pred[ which(pred$response_type=='logSecondmode' | pred$response_type=='logFirstmode'), ]
+  pred2 <- pred[ which(pred$response_type=='beta_slope'), ]
+  
+  pred1_pel_first <- subset(pred1, group=='Pelagic' & response_type=='logFirstmode')
+  pred1_pel_second <- subset(pred1, group=='Pelagic' &  response_type=='logSecondmode')
+  
+  pred1_pel_first <- subset(pred1_pel_first, facet!='Highly protected' | sens_ocean!='drop_indian')
+  pred1_pel_second <- subset(pred1_pel_second, facet!='Highly protected' | sens_ocean!='drop_indian')
+  
+  pred1_ben_first <- subset(pred1, group=='Benthic' &  response_type=='logFirstmode')
+  pred1_ben_second <- subset(pred1, group=='Benthic' & response_type=='logSecondmode')
+  
+  colors <- c("Pelagic" = "#077DAA", "Benthic" = "orange")
+  #linetypes - c("drop_atlantic" = "dotted", "drop_indian" = "dashed", "drop_pacific" = "solid")
+  
+  marg1 <- ggplot()+
+    geom_line(pred1_pel_first, mapping=aes(x, predicted, linetype = factor(sens_ocean), color='Pelagic')) +
+    geom_ribbon(pred1_pel_first, mapping=aes(x=x, ymin = conf.low, ymax = conf.high, group = factor(sens_ocean), fill ="Pelagic"), alpha =.1) +
+    geom_line(pred1_ben_first, mapping=aes(x, predicted, linetype = factor(sens_ocean), color='Benthic')) +
+    geom_ribbon(pred1_ben_first, mapping=aes(x=x, y=predicted, ymin = conf.low, ymax = conf.high,group = factor(sens_ocean), fill ="Benthic"), alpha =.1) +
+    geom_line(pred1_pel_second, mapping=aes(x, predicted, linetype = factor(sens_ocean), color='Pelagic')) +
+    geom_ribbon(pred1_pel_second, mapping=aes(x=x, ymin = conf.low, ymax = conf.high, group = factor(sens_ocean), fill ="Pelagic"), alpha =.1) +
+    geom_line(pred1_ben_second, mapping=aes(x, predicted, linetype = factor(sens_ocean), color='Benthic')) +
+    geom_ribbon(pred1_ben_second, mapping=aes(x=x, ymin = conf.low, ymax = conf.high, group = factor(sens_ocean), fill ="Benthic"), alpha =.1) +
+    theme_light()+ labs(x = "", y = "Body size (kg)") + guides(linetype=guide_legend(keywidth =3))+
+    scale_x_continuous(expand = c(0,0), limits =c(1.3,4)) +
+    scale_y_continuous(breaks = c(-3,-2,-1,0,1,2,3), labels=c(0.001,0.01, 0.1, 1,10,100,1000))+
+    coord_cartesian(ylim = c(-2, 4))+ 
+    theme(
+      legend.box = "horizontal",
+      legend.position= c(.14, .85),
+      strip.text = element_text(size = 12), 
+      axis.text.x=element_blank(),
+      axis.text = element_text(size =12),axis.title = element_text(size =12), 
+      legend.text =element_text(size = 10),
+      legend.background = element_rect(fill = "transparent"),
+      panel.spacing = unit(2.2, "lines") , 
+      legend.spacing.x = unit(0.1, 'cm'),
+      legend.spacing.y = unit(0, 'cm'),legend.margin=margin(t = 0, unit='cm'))+
+    #facet_grid(group~facet, scales = "free_y")
+    facet_grid(cols = vars(facet))+
+    guides(linetype = guide_legend(order = 1), colour = guide_legend(order = 2), fill="none")+
+    scale_color_manual(name=NULL, values = colors)+
+    scale_linetype_manual(name = NULL, values = c("dotted", "dashed", "solid"),  labels = c("Drop Atlantic", "Drop Indian", "Drop Pacific"))+
+    scale_fill_manual(name=NULL, values = colors)
+    
+  #+ geom_hline(yintercept=1.66)
+  
+  
+  # pred2 <- pred2[ which(pred2$sens_step=='1'), ]
+  pred2_pel <- pred2[ which(pred2$group=='Pelagic'), ]
+  pred2_ben <- pred2[ which(pred2$group=='Benthic'), ]
+  
+  #remove indian ocean drop
+  
+
+  pred3_pel<- subset(pred2_pel, facet!='Highly protected' | sens_ocean!='drop_indian')
+  
+  #recover indian ocean drop and turn into point value with error bar
+  #pred4_pel<- subset(pred2_pel, facet =='Highly protected' & sens_ocean =='drop_indian')
+  
+  #mean= mean(pred4_pel$predicted)
+
+  marg2 <- ggplot() +
+    geom_line(pred3_pel, mapping=aes(x, predicted, linetype=factor(sens_ocean)), colour = '#077DAA') +
+    geom_ribbon(pred3_pel, mapping=aes(x=x, ymin = conf.low, ymax = conf.high, group = factor(sens_ocean), fill ="Pelagic"), alpha =.1) +
+    
+    geom_line(pred2_ben, mapping=aes(x, predicted, linetype=factor(sens_ocean)), colour = 'orange') +
+    geom_ribbon(pred2_ben, mapping=aes(x=x, ymin = conf.low, ymax = conf.high, group = factor(sens_ocean), fill ="Benthic"), alpha =.1) +
+    
+    theme_light()+ xlab(bquote(Travel~Time~to~Market(log[10],~minutes))) + 
+    ylab("Size-spectra slope value") + guides(linetype=guide_legend(keywidth =3))+
+    scale_x_continuous(expand = c(0,0), limits =c(1.3,4)) +
+    coord_cartesian(ylim = c(-1.7, -0.4)) +
+    #scale_y_break(c(0, -.5))+
+    #geom_hline(yintercept=0, linetype="solid", color = "red", size=2)+
+    theme(
+      strip.background = element_blank(),
+      strip.text.x = element_blank(),
+      legend.position= "",
+      strip.text = element_text(size = 12), 
+      axis.text = element_text(size =12),axis.title = element_text(size =12), 
+      legend.text =element_text(size =12),
+      #panel.grid.major = element_blank(), 
+      #panel.grid.minor = element_blank(), 
+      legend.background = element_rect(fill = "transparent"),
+      panel.spacing = unit(2.0, "lines") , 
+      legend.spacing.y = unit(0.05, 'cm'))+
+    facet_grid(cols = vars(facet))+
+    scale_fill_manual(name=NULL, values = colors)+
+    scale_linetype_manual(name = NULL, values = c("dotted", "dashed", "solid"),  labels = c("Drop Atlantic", "Drop Indian", "Drop Pacific"))
+    
+  
+  #slope triangle
+  marg3 <- ggplot()+theme_void()+
+    geom_polygon(data=data.frame(x=c(-2.45, -1.9, -2.45), y = c(165, 165, 200)), aes(x=x, y=y), fill=NA, colour = "grey", alpha =.4)+
+    geom_polygon(data=data.frame(x=c(-2.45, -2.1, -2.45), y = c(165, 165, 200)), aes(x=x, y=y), fill=NA, colour = "grey", alpha =.4, linetype ='dotted')
+  
+  
+  
+  marg <- ggdraw() +
+    draw_plot(marg1, 0,  0.4, 0.87, 0.60) +
+    draw_plot(marg2, 0, 0, 0.87,0.42)+
+    draw_plot(marg3, 0.87, 0.2,.08,.08)+
+    draw_plot_label(c("A", "B"), c(0, 0), c(1, .45), size = 16)
+  
+
+  # marg <- marg +
+  #   #secondmode
+  #   add_fishape(family = "Scombridae", option = "Thunnus_albacares",  xmin = .93, xmax = .98,ymin = 0.76, ymax = 0.82,  alpha =.4)+
+  #   add_fishape(family = "Alopiidae", option = "Alopias_vulpinus",  xmin = .88, xmax = .96, ymin = 0.78, ymax = 0.88, alpha =.4)+
+  #   add_fishape(family = "Rhincodontidae", option = "Rhincodon_typus",  xmin = .88, xmax = .98, ymin = 0.7, ymax = 0.75, alpha =.4)+
+  #   add_fishape(family = "Mobulidae", option = "Mobula_birostris",  xmin = .88, xmax = .93, ymin = 0.75, ymax = 0.81, alpha =.4)+
+  # 
+  #   #firstmode
+  #   add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = .89, xmax = .92, ymin = 0.51, ymax = 0.53, alpha =.4)+
+  #   add_fishape(family = "Carcharhinidae", option = "Triaenodon_obesus",  xmin = .93, xmax = .99, ymin = 0.51, ymax = 0.56, alpha =.4)+
+  #   add_fishape(family = "Kyphosidae", option = "Kyphosus_cinerascens",  xmin = .95, xmax = .98, ymin = 0.48, ymax = 0.52, alpha =.4)+
+  #   add_fishape(family = "Muraenidae", option = "Gymnothorax_javanicus", xmin = .88, xmax = .94, ymin = 0.48, ymax = 0.51, alpha =.4)+
+  # 
+  #   #slope fish
+  #   add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = .87, xmax = .89, ymin = 0.3, ymax = 0.28, alpha =.4)+
+  #   add_fishape(family = "Carangidae", option = "Caranx_melampygus",  xmin = .91, xmax = .95, ymin = 0.27, ymax = 0.24,  alpha =.4)+
+  #   add_fishape(family = "Scombridae", option = "Thunnus_albacares",  xmin = .94, xmax = 1, ymin = 0.23, ymax = 0.20, alpha =.4)
+  # 
+
+  print(marg)
+  
+  ggsave(marg, filename = here::here("outputs", "model_outputs", paste0("Extended_Data_sens_oceans", "_", var_name, ".jpeg")), width = 9, height = 8, units = "in", dpi =300)
+  
+  invisible(marg)
+  
+  
+}
 

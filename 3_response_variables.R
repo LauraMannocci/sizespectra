@@ -23,6 +23,18 @@ data_to_export <- modes_pelagic(SpecLen, data_to_export)
 ##make pelagic beta slopes - this takes a while----
 data_to_export <- beta_slope_pelagic(SpecLen, data_to_export)
 
+
+##make pelagic beta slopes and alternative method- this takes a while----
+
+data_to_export < - beta_slope_pelagic_alt(SpecLen, data_to_export)
+
+ggplot(dat3, aes(x= betaslope, y= alt_slope)) +geom_point()
+
+dat3<- subset_betaslope(dat3, -6, 1)
+
+cor.test(dat3$betaslope, dat3$alt_slope, method = c("pearson", "kendall", "spearman"))
+
+
 #subset sensible betaslope
 data_to_export <- subset_betaslope(data_to_export, -6, 1)
 

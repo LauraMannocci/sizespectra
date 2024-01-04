@@ -26,6 +26,57 @@ read_data_with_port <- function(){
 
 
 
+#' make photo combination
+#'
+#' @return
+#' @export
+#' @import cowplot
+#' @import ggplot2
+#'
+
+draw_screengrab_combo <- function(){
+  
+  white_shark_pel <- cowplot::ggdraw() + cowplot::draw_image(here::here("photo","vlcsnap-2022-12-21-09h20m25s642.png")) 
+  #hammerhead_shark_pel <- cowplot::ggdraw() + cowplot::draw_image(here::here("photo","Sphyrna_mokarran_c.png")) 
+  #mako_shark_pel <- cowplot::ggdraw() + cowplot::draw_image(here::here("photo","RAW19P_103_Isurus_oxyrinchus.jpg")) 
+  silky_shark_pel <- cowplot::ggdraw() + cowplot::draw_image(here::here("photo","vlcsnap-2021-10-22-04h02m24s551.png")) 
+  yft_pel <- cowplot::ggdraw() + cowplot::draw_image(here::here("photo","Malpelo Thunnus albacares.png")) 
+  juv_carang_pel <- cowplot::ggdraw() + cowplot::draw_image(here::here("photo","juvenile jacks  and scads - Carangidae sp.png")) 
+  ad_caranx_pel <- cowplot::ggdraw() + cowplot::draw_image(here::here("photo","Caranx latus b.png")) 
+  caesio_chrys_ben <- cowplot::ggdraw() + cowplot::draw_image(here::here("photo","PCI1_064_CaesioChrysozona.jpg")) 
+  lut_boh_ben <- cowplot::ggdraw() + cowplot::draw_image(here::here("photo","PCI1_213_LutjanusBohar_Schooling.jpg")) 
+  cod_ben <- cowplot::ggdraw() + cowplot::draw_image(here::here("photo","FR07 Rigg 1 Inntian G. morhua.jpg")) 
+  pigha_ben <- cowplot::ggdraw() + cowplot::draw_image(here::here("photo","Sharks and cod.PNG")) 
+  kyph_ben <- cowplot::ggdraw() + cowplot::draw_image(here::here("photo","kyphosus.png")) 
+  crosshatch_ben <- cowplot::ggdraw() + cowplot::draw_image(here::here("photo","cross_hatch.png")) 
+  cod_multi_ben <- cowplot::ggdraw() + cowplot::draw_image(here::here("photo","Screenshot (9).png")) 
+  tiger_multi_ben <- cowplot::ggdraw() + cowplot::draw_image(here::here("photo","Cockburn_Sound_CSN20_088_Galeocerdo_cuvier.png")) 
+  berm_multi_ben <- cowplot::ggdraw() + cowplot::draw_image(here::here("photo","Bermuda_BDA2307_025_Clepticus_parrae-14cm copy.png"))
+  
+    bruvs_screen_grab_combo <- ggdraw() +
+    draw_plot(white_shark_pel,   0,   0.8, 0.55, 0.2) +
+    draw_plot(silky_shark_pel,   0,   0.6, 0.55, 0.2) +
+    draw_plot(yft_pel,           0,   0.4, 0.55, 0.2) +
+    draw_plot(ad_caranx_pel,     0,   0.2, 0.55, 0.2) +
+    draw_plot(juv_carang_pel,    0,     0, 0.55, 0.2) +
+    draw_plot(tiger_multi_ben, 0.5,   0.8, 0.55, 0.2) +
+    draw_plot(lut_boh_ben,     0.5,   0.6, 0.55, 0.2) +
+    draw_plot(pigha_ben,       0.504, 0.4, 0.55, 0.2) +
+    draw_plot(caesio_chrys_ben,0.5,   0.2, 0.55, 0.2) +
+    draw_plot(berm_multi_ben,  0.504,   0.0, 0.55, 0.2) +
+      
+      
+    draw_plot_label(c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J"), c(0.01, 0.01, 0.01, 0.01, 0.01, 0.51, 0.51, 0.51, 0.515, 0.515), c(1, .8, .6, .4, .2, 1, .8, .6, .4, .2), size = 12)
+  
+  print(bruvs_screen_grab_combo)
+  
+  ggsave(bruvs_screen_grab_combo, filename = here::here("outputs", "fig_1_bruvs_screengrab.jpg"), width = 7.5, height = 10, units = "in", dpi =300)
+  
+  invisible(bruvs_screen_grab_combo)
+}
+
+
+
 
 #' read pelagic benthic summary  location
 #'
@@ -103,12 +154,16 @@ globalmap <- function(world, mar, meta_pb){
 
 globalmap_sum <- function(world, mar, meta_pb){
   
+  set.seed(7)
+  
+  
+  
   gplot <- ggplot() +
     geom_map(data = world, map = world,
              aes(x = long, y = lat, group = group, map_id=region),fill="gray60",color="gray60", size=0.2) + 
     geom_path(aes(long, lat, group=group),data=mar, color="gray80")+ coord_fixed(1.3, xlim = c(-170, 170), ylim = c(-53, 77)) + 
     geom_jitter(data= meta_pb, aes(mean_long, mean_lat, fill = as.factor(Type), size = Deployments), shape = 21, alpha = 0.7, width = 2.2, height = 2.2) +
-    scale_size_binned(range =c(4,14))+
+    scale_size_binned(range =c(3,16))+
     theme_light()+ theme(legend.position = "bottom", legend.box = "horizontal", 
                          #legend.margin=margin(t = -.6,b=0.5, unit='cm'),
                          panel.spacing=unit(x=c(0,0,0,0),units="mm"), axis.title.y= element_blank(), axis.title.x = element_blank(),axis.text.y = element_text(size = 16),axis.text.x = element_text(size = 16), 
@@ -118,7 +173,7 @@ globalmap_sum <- function(world, mar, meta_pb){
     scale_y_continuous(breaks = c(-45, -30, -15, 0, 15, 30, 45, 60, 75), labels = c("45° S", "30° S", "15° S", "0", "15° N", "30° N", "45° N", "60° N", "75° N"))+
     scale_x_continuous(breaks = c(-160, -120, -60, 0, 60, 120, 160), labels = c("160° W", "120° W", "60° W", "0", "60° E", "120° E", "160° E"))+
     
-    scale_fill_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'orange'), labels = c("Midwater BRUVS (n=6,701)", "Seabed BRUVS (n=10,710)")) +
+    scale_fill_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'orange'), labels = c("Pelagic BRUVS (n=6,701)", "Benthic BRUVS (n=10,710)")) +
     guides(fill = guide_legend(override.aes = list(size = 5)))
   
   print(gplot)
@@ -256,7 +311,7 @@ response_globalmap <- function(world, mar, meta_pb){
 #' @param data size data
 #' @param min_size minimum size in kg
 #' @param lat_band number of latitudinal bans
-#' @import ggplot2 ggridges ggstance
+#' @import ggplot2 ggridges ggstance ggpp
 #' @import fishualize
 #' @return
 #' @export
@@ -269,15 +324,22 @@ figridges <- function(dat, min_size, lat_band){
   data = dat[dat$weight_kg > min_size, ]# individuals larger than minsize kg
   
   
-  rigplot <- ggplot(data, aes(x=weight_kg, y= lat_in, height = ..ndensity..))+
-    #ggridges::stat_density_ridges(rel_min_height = 0.01, aes(y = cut_width(lat_in, 5), colour = Type, fill = Type), 
-    ggridges::geom_density_ridges(rel_min_height = 0.005, aes(y = cut(abs(lat_in), breaks = c(0, 10, 15, 20, 23, 33, 65)), fill = Type, colour = Type), 
-    #ggridges::geom_density_ridges(rel_min_height = 0.005, aes(y = cut_number(abs(lat_in), n=lat_band), fill = Type, colour = Type), 
-    alpha = 0.5, scale =0.8, jittered_points = TRUE, quantile_lines = TRUE, quantiles = c(0.5, 1), vline_size = 1.5, 
-                                  position = position_points_jitter(height = 0.2, yoffset= 0.2, adjust_vlines = TRUE),
+  #rigplot <- ggplot(data, aes(x=weight_kg, y= lat_in, height = ..ndensity..))+
+  rigplot <- ggplot(data, aes(x=weight_kg, y=cut(abs(lat_in), breaks = c(0, 10, 15, 20, 23, 33, 65))))+
+  
+   #ggridges::stat_density_ridges(rel_min_height = 0.01, aes(y = cut_width(lat_in, 5), colour = Type, fill = Type), 
+    ggridges::stat_density_ridges(aes(colour = Type, fill =Type, height = ..ndensity..), scale = 0.8, alpha = 0.5, jittered_points = TRUE, 
+                                  quantile_lines = TRUE, quantiles = c(0.5, 0.95), 
+                                  #position = position_points_jitter(yoffset= 0.2, adjust_vlines = TRUE),
                                   point_size = 0.01, point_alpha = 0)+
-    scale_x_log10(limits = c(5e-06, 1200), breaks = c(0.0001, 0.1, 100), labels = c(0.0001, 0.1, 100))+
-    xlab('Body size (kg)') +ylab('Latitude')+
+    stat_summaryh(fun.x=median, geom="text", aes(colour=Type, label=sprintf("%1.3f", ..x..)),
+                  position = position_jitternudge(height = 0.22, y = 0.21, seed = 5,  nudge.from ="jittered.y"), size=5,show.legend = FALSE)+
+    stat_summaryh(fun.x=function(z) { quantile(z,0.95) }, geom="text", aes(colour=Type, label=sprintf("%1.1f", ..x..)),
+                  position = position_jitternudge(height = 0.22, y = 0.21, seed = 5,  nudge.from ="jittered.y"), size=5,show.legend = FALSE)+
+  
+    
+    scale_x_log10(limits = c(5e-04, 1200), breaks = c(0.001, 0.1, 100), labels = c(0.001, 0.1, 100))+
+    xlab('Body size (kg)') +ylab('Absolute latitude brackets')+
     scale_fill_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'orange'), labels = c('Pelagic', 'Benthic'))+
     scale_colour_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'darkorange'), labels = c('Pelagic', 'Benthic'))+
     scale_linetype_manual(breaks=c(0.5,1), values =c("dotted", "solid"))+ 
@@ -288,7 +350,6 @@ figridges <- function(dat, min_size, lat_band){
                          axis.text.y = element_text(size=20))+
     theme(plot.margin = margin(1,1,0,0, "cm"))+
     coord_cartesian(clip = "off")
-
   print(rigplot)
   
   ggsave(rigplot, filename = here::here("outputs", "fig_ridges.png"), width = 10, height = 16, units = "in", dpi =300)
@@ -296,6 +357,60 @@ figridges <- function(dat, min_size, lat_band){
   invisible(rigplot)
   
 }
+
+
+#' Title fig ridges sensitivity long 
+#' 
+#' try this to include mode https://rpkgs.datanovia.com/ggpubr/reference/stat_central_tendency.html
+#'
+#' @param data size data
+#' @param min_size minimum size in kg
+#' @param lon_band number of longitudinal bans
+#' @import ggplot2 ggridges ggstance
+#' @import fishualize
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+figridges_lon <- function(dat, min_size, lon_band){
+  options(scipen=7)
+  
+  data = dat[dat$weight_kg > min_size, ]# individuals larger than minsize kg
+  
+
+  rigplot <- ggplot(data, aes(x=weight_kg, y = cut_number(lon_in, lon_band)))+
+    #ggridges::stat_density_ridges(rel_min_height = 0.01, aes(y = cut_width(lat_in, 5), colour = Type, fill = Type), 
+      ggridges::stat_density_ridges(aes(colour = Type, fill =Type, height = ..ndensity..), scale = 0.8, alpha = 0.5, jittered_points = TRUE, 
+                                    quantile_lines = TRUE, quantiles = c(0.5, 1), 
+                                    #position = position_points_jitter(yoffset= 0.2, adjust_vlines = TRUE),
+                                    point_size = 0.01, point_alpha = 0)+
+      stat_summaryh(fun.x=median, geom="text", aes(colour=Type, label=sprintf("%1.3f", ..x..)),
+                    position = position_jitternudge(height = 0.22, y = 0.21, seed = 5,  nudge.from ="jittered.y"), size=5,show.legend = FALSE)+
+    stat_summaryh(fun.x=function(z) { quantile(z,0.95) }, geom="text", aes(colour=Type, label=sprintf("%1.1f", ..x..)),
+                  position = position_jitternudge(height = 0.22, y = 0.21, seed = 5,  nudge.from ="jittered.y"), size=5,show.legend = FALSE)+
+    
+    scale_x_log10(limits = c(5e-04, 1200), breaks = c(0.001, 0.1, 100), labels = c(0.001, 0.1, 100))+
+    xlab('Body size (kg)') +ylab('Longitude bracket')+
+    scale_fill_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'orange'), labels = c('Pelagic', 'Benthic'))+
+    scale_colour_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'darkorange'), labels = c('Pelagic', 'Benthic'))+
+    scale_linetype_manual(breaks=c(0.5,1), values =c("dotted", "solid"))+ 
+    scale_y_discrete(expand = expansion(add = c(0.05, 1)))+
+    theme_light() +theme(legend.position = c(.80,.97),legend.background = element_rect(fill='transparent'), axis.title=element_text(size=22),legend.title = element_blank(),
+                         legend.text = element_text(size =16), 
+                         axis.text.x = element_text(size=16),
+                         axis.text.y = element_text(size=20))+
+    theme(plot.margin = margin(1,1,0,0, "cm"))+
+    coord_cartesian(clip = "off")
+  
+  print(rigplot)
+  
+  ggsave(rigplot, filename = here::here("outputs", "fig_ridges_lon.png"), width = 10, height = 16, units = "in", dpi =300)
+  
+  invisible(rigplot)
+  
+}
+
 
 #' Title fig ridges overlap
 #' 
@@ -354,14 +469,17 @@ figridges_overlap <- function(dat, min_size, lat_band, bandw){
 #' 
 fl_lengthweight <- function(data){
 
+  
+  levels(data$Type) <- c("Pelagic", "Benthic")
+  
   length_weight <- 
     ggExtra::ggMarginal(
     ggplot2::ggplot() +
     geom_point(data = data, aes(x= Lengthcm, y=weight_kg, colour = Type, fill = Type), alpha = 0.01, size = 0.5)+
-    scale_colour_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'orange'))+
-    scale_fill_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'orange')) +
+    scale_colour_manual(values = c("Pelagic" = '#077DAA', 'Benthic' = 'orange'))+
+    scale_fill_manual(values = c("Pelagic" = '#077DAA', 'Benthic' = 'orange')) +
     scale_x_log10() + scale_y_log10(breaks= c(0.1, 1, 10))+ 
-    xlab("length (cm)")+ylab("weight (kg)")+
+    xlab("Fork length (cm)")+ylab("Body size (kg)")+
     theme_light() +theme(legend.position = "bottom", axis.title=element_text(size=22),legend.title = element_blank(),
                        legend.text = element_text(size =22), 
                        axis.text.x = element_text(size=16),
@@ -371,7 +489,7 @@ fl_lengthweight <- function(data){
   
   print(length_weight)
   
-  ggsave(length_weight, filename = here::here("outputs", "length_weight.png"), width = 10, height = 10, units = "in", dpi =300)
+  ggsave(length_weight, filename = here::here("outputs", "Extended_data_length_weight.jpeg"), width = 10, height = 10, units = "in", dpi =300)
 
   invisible(length_weight)
 }
@@ -398,9 +516,9 @@ fl_lengthweight <- function(data){
     #geom_jitter(data= data, aes(x=reorder(Binomial, weight_kg, na.rm = TRUE), y= weight_kg,  colour = Type, alpha= Type), size = 0.5, width = 1.5)|> blend("lighten")+
     geom_jitter(data= data, aes(x=reorder(Binomial, weight_kg, na.rm = TRUE), y=weight_kg,  colour = Type, alpha= Type), size = 0.5)+
           #scale_y_log10(name  = "Bigger individuals (kg, n = 880,242)", breaks= c(0.001, 1, 100), labels= c("0.001", "1", "100"))+
-          scale_y_log10(name  = "Larger individuals (kg, n = 880,242)", limits =c(0.0001,1000),  breaks= c(0.001, 0.1, 10, 1000),labels= c("0.001", "0.1", "10", "1000"))+
+          scale_y_log10(name  = "Body size (kg)", limits =c(0.001,1000),  breaks= c(0.001, 0.01, 0.1, 1, 10, 100),labels= c("0.001","0.01", "0.1","1", "10", "100"))+
     
-    labs(x="Larger species (n = 1,460)")+
+    labs(x="Species identified on BRUVS (n = 1,460)")+
     theme(legend.position = "none", axis.title.y = element_text(size=20, angle = 90),
             legend.text = element_text(size =16),axis.text.x = element_text(size=16),
             axis.text.y = element_text(size=16), axis.title.x = element_text(size=20),
@@ -408,18 +526,35 @@ fl_lengthweight <- function(data){
           axis.line = element_line(arrow = arrow(type='closed', length = unit(10,'pt')))) +
     scale_colour_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'orange'))+ 
     scale_x_discrete(label = NULL)+
-    scale_alpha_discrete(range = c(0.80, 0.05))+ 
-    geom_hline(yintercept=upper.line, na.rm =TRUE, linetype="dotted")+ 
-    geom_hline(yintercept=mid.line, na.rm =TRUE, linetype="dotted")+
-    geom_hline(yintercept=lower.line, na.rm =TRUE, linetype="dotted")+
-    geom_hline(yintercept=0.058, na.rm =TRUE, linetype="solid",colour = "darkorange")+ 
-    geom_hline(yintercept=0.0087, na.rm =TRUE, linetype="solid",colour = "#077DAA")
-  
-  fl_species <- ggExtra::ggMarginal(fl_speciesrank,groupFill= TRUE, groupColour = TRUE, type = "violin", alpha = .6, size = 2, margins = "y", draw_quantiles = c(0.05, 0.5, 0.95)) 
+    scale_alpha_discrete(range = c(0.80, 0.05))
+    
+    #benthic mean of medians
+    #(0.050+0.073+0.090+0.089+0.120+0.027)/6 = 0.74
+    #benthic mean of 0.95 quantiles
+    #(0.355+2.052+2.112+2.189+2.935+1.414)/6 = 1.84
+    
+    #benthic quantiles
+    #geom_hline(yintercept=0.74, na.rm =TRUE, linetype="solid", colour = "darkorange")+
+    #geom_hline(yintercept=1.84, na.rm =TRUE, linetype="dashed",colour = "darkorange")+ 
 
-  print(fl_species)
+    #pelagic mean of medians
+    #(0.014+0.134+0.004+0.006+0.009+0.015)/6 =0.030
+    #pelagic mean of 0.95 quantiles
+    #(0.355+83.342+10.057+32.821+15.303+12.97)/6 = 25.808
+    
+    #pelagic quantiles
+    #geom_hline(yintercept=0.030, na.rm =TRUE, linetype="solid", colour = "#077DAA")+ 
+    #geom_hline(yintercept=25, na.rm =TRUE, linetype="dashed", colour = "#077DAA")
+
+
+  fl_species <- ggExtra::ggMarginal(fl_speciesrank,groupFill= TRUE, groupColour = TRUE, type = "violin", alpha = .6, size = 2, margins = "y")
+
+
   
+  print(fl_species)
   ggsave(fl_species, filename = here::here("outputs", "species_ord_marg.png"), width = 20, height = 12, units = "in", dpi =300)
+  
+  #ggsave(fl_species, filename = here::here("outputs", "species_ord_marg.png"), width = 20, height = 12, units = "in", dpi =300)
   
   invisible(fl_species)
 
@@ -640,14 +775,42 @@ ex_data_lat_cdp <- function(lat, cdp){
   multi <- ggdraw()+
     draw_plot(lat, 0, 0, .5, 1)+
     draw_plot(cdp, 0.5, 0, .5, 0.98)+
-    draw_plot_label(c("a", "b"), c(0, .5), c(1,1), size =22)
+    draw_plot_label(c("A", "B"), c(0, .5), c(1,1), size =22)
   print(multi)
   
-  ggsave(multi, filename = here::here("outputs", "Extended_Data_Fig_lat_lcd.jpeg"), width = 12, height = 12, units = "in", dpi =300)#render cowplots in jpeg less you get seethrough bits
+  ggsave(multi, filename = here::here("outputs", "fig_3_lat_lcd.jpeg"), width = 12, height = 12, units = "in", dpi =300)#render cowplots in jpeg less you get seethrough bits
   
   invisible(multi)
   
 }
+
+#' extended data multiplot 
+#'
+#' @param lat weights lat plot
+#' @param cdp cumulative density plot
+
+#' @import ggplot2 
+#' @import cowplot
+#' @return 
+#' @export
+#'
+
+
+ex_data_lat_cdp_lon <- function(lat, cdp){
+  
+  
+  multi <- ggdraw()+
+    draw_plot(lat, 0, 0, .5, 1)+
+    draw_plot(cdp, 0.5, 0, .5, 0.98)+
+    draw_plot_label(c("A", "B"), c(0, .5), c(1,1), size =22)
+  print(multi)
+  
+  ggsave(multi, filename = here::here("outputs", "Extended_Data_Fig_lat_lcd_lon.jpeg"), width = 12, height = 12, units = "in", dpi =300)#render cowplots in jpeg less you get seethrough bits
+  
+  invisible(multi)
+  
+}
+
 
 #' Title
 #'
@@ -660,95 +823,69 @@ ex_data_lat_cdp <- function(lat, cdp){
 #' @examples
 #' 
 #' 
-bin_global_points_lm <- function(dat, minsize, lat_band){
+bin_global_points_lm <- function(dat2, minsize, lat_band){
 
+ 
+  #dat = fl_pelagic_benthic_meta
+  #minsize = 0.001
+  #lat_band = 6
+  #options(scipen=5)
   
-
-  dat2 = dat[dat$weight_kg >  minsize, ]# individuals larger than 
-  #fl_pelagic_benthic_meta_min = dat[dat$weight_kg <  0.8, ]# select forage fish
-  #fl_pelagic_benthic_meta_min = fl_pelagic_benthic_meta_min[fl_pelagic_benthic_meta_min$weight_kg > 0.002, ]
+  dat2 = dat2[dat2$weight_kg >  minsize, ]# individuals larger than 
+  dat2['log_weight'] <- log10(dat2$weight_kg)
   
+  # generate counts in bin on the log scale
   points_max <- ggplot2::ggplot()+
-    stat_bin(data = dat2, aes(x=weight_kg, group = cut_number(abs(lat_in), n=lat_band)), alpha=.5, position = "identity",fill = NA, colour = 'darkgreen', geom = "point")+
-    stat_bin(data = subset(dat2, Type =="Seabed") , aes(x=weight_kg, group = cut_number(abs(lat_in), n=lat_band)), fill = NA, colour = 'darkorange', alpha = 0.6, position = "identity", boundary=0.33, geom = "point")+
-    stat_bin(data = subset(dat2, Type =="Midwater"), aes(x=weight_kg, group = cut_number(abs(lat_in), n=lat_band)), fill = NA, colour = '#077DAA', alpha = 0.6, position = "identity", boundary=0.33, geom = "point")+
-    scale_y_log10(oob = scales::squish_infinite)+scale_x_log10()+theme_light()
+   ggplot2::stat_bin(data = dat2, aes(x=log_weight, group = cut_number(abs(lat_in), n=lat_band)),binwidth = 1, alpha=.5, position = "identity",fill = NA, colour = 'darkgreen', geom = "point")+
+   ggplot2::stat_bin(data = subset(dat2, Type =="Seabed") , aes(x=log_weight, group = cut_number(abs(lat_in),  n=lat_band)), binwidth = 1, fill = NA, colour = 'darkorange', alpha = 0.6, position = "identity", geom = "point")+
+   ggplot2::stat_bin(data = subset(dat2, Type =="Midwater"), aes(x=log_weight, group = cut_number(abs(lat_in),  n=lat_band)), binwidth = 1, fill = NA, colour = '#077DAA', alpha = 0.6, position = "identity", geom = "point")+
+  theme_light()
+
+
+  # extract counts
+  dat_pelagic_max  <- subset(layer_data(points_max, i = 3))
+  dat_benthic_max  <- subset(layer_data(points_max, i = 2))
   
-  # points_min <- ggplot2::ggplot()+
-  # stat_bin(data = fl_pelagic_benthic_meta_min, aes(x=weight_kg, group = cut_number(abs(lat_in), n=6)), alpha=.5, position = "identity",fill = NA, colour = 'darkgreen', geom = "point")+
-  # stat_bin(data = subset(fl_pelagic_benthic_meta_min, Type =="Midwater"),aes(x=weight_kg, group = cut_number(abs(lat_in), n=6)), fill = NA, colour = '#077DAA', alpha = 0.6, position = "identity", boundary=0.33, geom = "point")+
-  # stat_bin(data = subset(fl_pelagic_benthic_meta_min, Type =="Seabed"), aes(x=weight_kg, group = cut_number(abs(lat_in), n=6)), fill = NA, colour = 'darkorange', alpha = 0.6, position = "identity", boundary=0.33, geom = "point")+
-  # scale_y_log10(oob = scales::squish_infinite)+scale_x_log10()+theme_light()
-  
-  #dat_combined_max <- subset(layer_data(points_max, i = 1), count>0.1)#ignore zeros cause of log scale
-  dat_pelagic_max  <- subset(layer_data(points_max, i = 3), count>0.1)#ignore zeros cause of log scale
-  dat_benthic_max  <- subset(layer_data(points_max, i = 2), count>0.1)#ignore zeros cause of log scale
-  
-  # dat_pelagic_min  <- subset(layer_data(points_min, i = 2), count>0.1)
-  # dat_combined_min <- subset(layer_data(points_min, i = 1), count>0.1)
-  # dat_benthic_min  <- subset(layer_data(points_min, i = 3), count>0.1)
-  
-  
-  #Here we normalise by standardising by diving the abundance (count) by the binwidth see Heather et al (2020, Ecology Letters), and Platt and Denmar (1977)
-  # compute 
-  
+  # visualise size-spectra
+  # heren we normalise by dividing counts by the bin width i.e x weight in kg, then logging
+  #This makes the liner regression coefficient comparable to the exponent b estimate.
+  #see Heather et al (2020, Ecology Letters), and Platt and Denmar (1977)
+    
+  dat_pelagic_max['norm_y'] <- log10(dat_pelagic_max$count/10^dat_pelagic_max$x)
+  dat_benthic_max['norm_y'] <- log10(dat_benthic_max$count/10^dat_benthic_max$x)
+
+    
+   # repeat plots using log units
   
   points_max_min <-ggplot2::ggplot()+
-   # geom_point(data = dat_combined_max, aes(10^x, count), colour = 'darkgreen',alpha = 0.6)+
-    geom_point(data = dat_pelagic_max, aes(10^x, count/(10^x)), colour = '#077DAA',alpha = 0.6)+
-    geom_point(data = dat_benthic_max, aes(10^x, count/(10^x)), colour = 'darkorange',alpha = 0.6)+
-    
-
-    
-    #geom_point(data = dat_combined_min, aes(10^x, count), colour = 'darkgreen',alpha = 0.6)+
-    #geom_point(data = dat_pelagic_min, aes(10^x, count), colour = '#077DAA',alpha = 0.6)+
-    #geom_point(data = dat_benthic_min, aes(10^x, count), colour = 'darkorange',alpha = 0.6)+
-    #max > .8 kg size regressions
-    #stat_smooth(data = dat_combined_max, aes(10^x, count/0.81, group = group), colour = 'darkgreen', method  = "lm", alpha = 0.1, size = 0.1,se=F)+
-    #stat_smooth(data = dat_combined_max, aes(10^x, count/0.81), colour = 'darkgreen', fill = "darkgreen", method  = "lm", alpha = 0.4, size = 1)+
-    stat_smooth(data = dat_pelagic_max, aes(10^x, count/(10^x)), colour ='#077DAA', method  = "lm", alpha = 0.1,size = 0.1,se=F)+
-    stat_smooth(data = dat_pelagic_max, aes(10^x, count/(10^x)), colour ='#077DAA', fill='#077DAA', method  = "lm", alpha = 0.4,size = 1)+
-    stat_smooth(data = dat_benthic_max, aes(10^x, count/(10^x)), colour ='darkorange', method  = "lm", alpha = 0.1,size = 0.1,se=F)+
-    stat_smooth(data = dat_benthic_max, aes(10^x, count/(10^x)), colour ='darkorange',fill ='darkorange', method  = "lm", alpha = 0.4,size = 1)+
-    #min 0.002 > kg < .8 size regressions
-    # stat_smooth(data = subset(dat_combined_min, count>0.001), aes(10^x, count/0.81, group = group), colour = 'darkgreen', method  = "lm", alpha = 0.1, size = 0.1,se=F)+
-    # stat_smooth(data = subset(dat_combined_min, count>0.001), aes(10^x, count/0.81), colour = 'darkgreen', fill = "darkgreen", method  = "lm", alpha = 0.4, size = 1)+
-    # stat_smooth(data = subset(dat_pelagic_min, count>0.001), aes(10^x, count/.62, group=group), colour ='#077DAA', method  = "lm", alpha = 0.1, size = 0.1,se=F)+
-    # stat_smooth(data = subset(dat_pelagic_min, count>0.001), aes(10^x, count/.62), colour ='#077DAA', fill ='#077DAA', method  = "lm", alpha = 0.4, size = 1)+
-    # stat_smooth(data = subset(dat_benthic_min, count>0.001), aes(10^x, count, group=group), colour ='darkorange', method  = "lm", alpha = 0.1, size = 0.1,se=F)+
-    # stat_smooth(data = subset(dat_benthic_min, count>0.001), aes(10^x, count), colour ='darkorange',fill ='darkorange', method  = "lm", alpha = 0.4, size = 1)+
-    scale_y_log10(oob = scales::squish_infinite) + scale_x_log10() + theme_light() + xlab("Body size (kg)")+ ylab("Count")+
+    stat_smooth(data = dat_pelagic_max, aes(x, norm_y), colour ='#077DAA', method  = "lm", alpha = 0.1, size = 0.3,se=F)+
+    #stat_smooth(data = dat_pelagic_max, aes(x, norm_y), colour ='#077DAA', fill='#077DAA', method  = "lm", alpha = 0.2,size = .3)+
+    stat_smooth(data = dat_benthic_max, aes(x, norm_y), colour ='darkorange', method  = "lm", alpha = 0.1, size = 0.3,se=F)+
+    #stat_smooth(data = dat_benthic_max, aes(x, norm_y), colour ='darkorange',fill ='darkorange', method  = "lm", alpha = 0.2, size = .3)+
+    geom_point(data = dat_pelagic_max, aes(x, norm_y), colour = '#077DAA',alpha = 0.6)+
+    geom_point(data = dat_benthic_max, aes(x, norm_y), colour = 'darkorange',alpha = 0.6)+
+    theme_light() + xlab("Body size (kg)")+ ylab(bquote(Log[10](Count)))+
+    scale_x_continuous(breaks= c( -3, -2, -1, 0, 1, 2), labels = c(.001, .01, .1, 1, 10, 100), limits = c(-3.5, 3.5))+
     theme(legend.position = "none", axis.title.x=element_text(size=22),legend.title = element_blank(),
           legend.text = element_text(size =22),axis.text.x = element_text(size=16),
           axis.text.y = element_text(size=16), axis.title.y=element_text(size=22), strip.background = element_blank())+facet_grid(-group ~ .)
 
+ 
+  #linear regression model
+  lm_pelagic_max_sub1 <- lm(norm_y ~ x, data = subset(dat_pelagic_max, group == "1"))
+  lm_benthic_max_sub1 <- lm(norm_y ~ x, data = subset(dat_benthic_max, group == "1"))
+  lm_pelagic_max_sub2 <- lm(norm_y ~ x, data = subset(dat_pelagic_max, group == "2"))
+  lm_benthic_max_sub2 <- lm(norm_y ~ x, data = subset(dat_benthic_max, group == "2"))
+  lm_pelagic_max_sub3 <- lm(norm_y ~ x, data = subset(dat_pelagic_max, group == "3"))
+  lm_benthic_max_sub3 <- lm(norm_y ~ x, data = subset(dat_benthic_max, group == "3"))
+  lm_pelagic_max_sub4 <- lm(norm_y ~ x, data = subset(dat_pelagic_max, group == "4"))
+  lm_benthic_max_sub4 <- lm(norm_y ~ x, data = subset(dat_benthic_max, group == "4"))
+  lm_pelagic_max_sub5 <- lm(norm_y ~ x, data = subset(dat_pelagic_max, group == "5"))
+  lm_benthic_max_sub5 <- lm(norm_y ~ x, data = subset(dat_benthic_max, group == "5"))
+  lm_pelagic_max_sub6 <- lm(norm_y ~ x, data = subset(dat_pelagic_max, group == "6"))
+  lm_benthic_max_sub6 <- lm(norm_y ~ x, data = subset(dat_benthic_max, group == "6"))
   
-  #linear model for coefficient - account for different in number bruvs between pelagic and benthic (and then adjusting the combined)
-  #lm_combined_max <- lm(log(count/0.81) ~ x, data = dat_combined_max)
-  lm_pelagic_max_sub1 <- lm(log(count) ~ x, data = subset(dat_pelagic_max, group == "1"))
-  lm_benthic_max_sub1 <- lm(log(count) ~ x, data = subset(dat_benthic_max, group == "1"))
-  
-  lm_pelagic_max_sub2 <- lm(log(count) ~ x, data = subset(dat_pelagic_max, group == "2"))
-  lm_benthic_max_sub2 <- lm(log(count) ~ x, data = subset(dat_benthic_max, group == "2"))
-  
-  lm_pelagic_max_sub3 <- lm(log(count) ~ x, data = subset(dat_pelagic_max, group == "3"))
-  lm_benthic_max_sub3 <- lm(log(count) ~ x, data = subset(dat_benthic_max, group == "3"))
-  
-  lm_pelagic_max_sub4 <- lm(log(count) ~ x, data = subset(dat_pelagic_max, group == "4"))
-  lm_benthic_max_sub4 <- lm(log(count) ~ x, data = subset(dat_benthic_max, group == "4"))
-  
-  lm_pelagic_max_sub5 <- lm(log(count) ~ x, data = subset(dat_pelagic_max, group == "5"))
-  lm_benthic_max_sub5 <- lm(log(count) ~ x, data = subset(dat_benthic_max, group == "5"))
-  
-  lm_pelagic_max_sub6 <- lm(log(count) ~ x, data = subset(dat_pelagic_max, group == "6"))
-  lm_benthic_max_sub6 <- lm(log(count) ~ x, data = subset(dat_benthic_max, group == "6"))
-
-  
-  # lm_combined_min <- lm(log(count/0.81) ~ x, data = dat_combined_min)
-  # lm_pelagic_min <- lm(log(count/.62) ~ x, data = dat_pelagic_min)
-  # lm_benthic_min <- lm(log(count) ~ x, data = dat_benthic_min)
-  
-  #lm_combined_max_cf <-  cbind(coef(lm_combined_max), confint(lm_combined_max))
+#combined coefficients
   lm_pelagic_max_cf_sub1  <-  cbind(coef(lm_pelagic_max_sub1), confint(lm_pelagic_max_sub1))
   lm_pelagic_max_cf_sub2  <-  cbind(coef(lm_pelagic_max_sub2), confint(lm_pelagic_max_sub2))
   lm_pelagic_max_cf_sub3  <-  cbind(coef(lm_pelagic_max_sub3), confint(lm_pelagic_max_sub3))
@@ -764,23 +901,154 @@ bin_global_points_lm <- function(dat, minsize, lat_band){
   lm_benthic_max_cf_sub6  <-  cbind(coef(lm_benthic_max_sub6), confint(lm_benthic_max_sub6))
   
   lm_pelagic_cf <- rbind(lm_pelagic_max_cf_sub1,lm_pelagic_max_cf_sub2,lm_pelagic_max_cf_sub3,lm_pelagic_max_cf_sub4,lm_pelagic_max_cf_sub5,lm_pelagic_max_cf_sub6)
-  lm_benthic_cf  <-  rbind(lm_benthic_max_cf_sub1, lm_benthic_max_cf_sub2, lm_benthic_max_cf_sub3, lm_benthic_max_cf_sub4, lm_benthic_max_cf_sub5, lm_benthic_max_cf_sub6)
-    
-  # lm_pelagic_min_cf  <-  cbind(coef(lm_pelagic_min), confint(lm_pelagic_min))
-  # lm_benthic_min_cf  <-  cbind(coef(lm_benthic_min), confint(lm_benthic_min))
+  lm_benthic_cf <- rbind(lm_benthic_max_cf_sub1, lm_benthic_max_cf_sub2, lm_benthic_max_cf_sub3, lm_benthic_max_cf_sub4, lm_benthic_max_cf_sub5, lm_benthic_max_cf_sub6)
+   
+  #turn to dataframe
+  lm_pelagic_cf <- as.data.frame(lm_pelagic_cf) 
+  lm_benthic_cf <- as.data.frame(lm_benthic_cf) 
 
+ #rename
+ lm_pelagic_cf$type <-  c('pelagic', 'pelagic', 'pelagic', 'pelagic', 'pelagic', 'pelagic', 'pelagic', 'pelagic', 'pelagic', 'pelagic', 'pelagic', 'pelagic')
+ lm_pelagic_cf$lat_bracket <- c('(33, 65]','(33, 65]', '(23, 33]','(23, 33]','(20, 23]', '(20, 23]','(15, 20]','(15, 20]', '(10,15]', '(10,15]','(0,10]','(0,10]')
+ lm_pelagic_cf$parameter <- c('intercept', 'slope estimate')
+ colnames(lm_pelagic_cf)[1] ="estimate"
+ 
+ lm_benthic_cf$type <-  c('benthic', 'benthic','benthic','benthic','benthic','benthic','benthic','benthic','benthic','benthic','benthic','benthic') 
+ lm_benthic_cf$lat_bracket <- c('(33, 65]','(33, 65]', '(23, 33]','(23, 33]','(20, 23]', '(20, 23]','(15, 20]','(15, 20]', '(10,15]', '(10,15]','(0,10]','(0,10]')
+ lm_benthic_cf$parameter <- c('intercept', 'slope estimate')
+ colnames(lm_benthic_cf)[1] ="estimate"
+ both <- rbind(lm_pelagic_cf, lm_benthic_cf)
 
   write.csv(lm_pelagic_cf, file=here::here("outputs", "table", "bin_pelagic_lm_coefs.csv"))
   write.csv(lm_benthic_cf, file=here::here("outputs", "table", "bin_benthic_lm_coefs.csv"))
+  write.csv(both, file=here::here("outputs", "table", "Extended_table_lat_slopes.csv"))
   
   
   print(points_max_min)
   
   ggsave(points_max_min, filename = here::here("outputs", "bin_global_lm.jpeg"), width = 16, height = 10, units = "in", dpi =300)#render cowplots in jpeg less you get seethrough bits
-  
   invisible(points_max_min)
   
 
+}
+
+
+#' Title
+#'
+#' @param dat 
+#' @param minsize 
+#'
+#' @return plot of bing_global and lm coefs
+#' @export
+#'
+#' @examples
+#' 
+#' 
+bin_global_points_lm_lon <- function(dat, minsize, lon_band){
+  
+  
+  dat2 = dat[dat$weight_kg >  minsize, ]# individuals larger than 
+  dat2['log_weight'] <- log10(dat2$weight_kg)
+  
+  # generate counts in bin on the log scale
+  points_max <- ggplot2::ggplot()+
+    ggplot2::stat_bin(data = dat2, aes(x=log_weight, group = cut_number(lon_in, n=lon_band)),binwidth = 1, alpha=.5, position = "identity",fill = NA, colour = 'darkgreen', geom = "point")+
+    ggplot2::stat_bin(data = subset(dat2, Type =="Seabed") , aes(x=log_weight, group = cut_number(lon_in,  n=lon_band)), binwidth = 1, fill = NA, colour = 'darkorange', alpha = 0.6, position = "identity", geom = "point")+
+    ggplot2::stat_bin(data = subset(dat2, Type =="Midwater"), aes(x=log_weight, group = cut_number(lon_in,  n=lon_band)), binwidth = 1, fill = NA, colour = '#077DAA', alpha = 0.6, position = "identity", geom = "point")+
+    theme_light()
+  
+  
+  # extract counts
+  dat_pelagic_max  <- subset(layer_data(points_max, i = 3))
+  dat_benthic_max  <- subset(layer_data(points_max, i = 2))
+  
+  # visualise size-spectra
+  # heren we normalise by dividing counts by the bin width i.e x weight in kg, then logging
+  #This makes the liner regression coefficient comparable to the exponent b estimate.
+  #see Heather et al (2020, Ecology Letters), and Platt and Denmar (1977)
+  
+  dat_pelagic_max['norm_y'] <- log10(dat_pelagic_max$count/10^dat_pelagic_max$x)
+  dat_benthic_max['norm_y'] <- log10(dat_benthic_max$count/10^dat_benthic_max$x)
+  
+  
+  # repeat plots using log units
+  
+  points_max_min <-ggplot2::ggplot()+
+    stat_smooth(data = dat_pelagic_max, aes(x, norm_y), colour ='#077DAA', method  = "lm", alpha = 0.1, size = 0.3,se=F)+
+    #stat_smooth(data = dat_pelagic_max, aes(x, norm_y), colour ='#077DAA', fill='#077DAA', method  = "lm", alpha = 0.2,size = .3)+
+    stat_smooth(data = dat_benthic_max, aes(x, norm_y), colour ='darkorange', method  = "lm", alpha = 0.1, size = 0.3,se=F)+
+    #stat_smooth(data = dat_benthic_max, aes(x, norm_y), colour ='darkorange',fill ='darkorange', method  = "lm", alpha = 0.2, size = .3)+
+    geom_point(data = dat_pelagic_max, aes(x, norm_y), colour = '#077DAA',alpha = 0.6)+
+    geom_point(data = dat_benthic_max, aes(x, norm_y), colour = 'darkorange',alpha = 0.6)+
+    theme_light() + xlab("Body size (kg)")+ ylab(bquote(log[10](Count)))+
+    scale_x_continuous(breaks= c( -3, -2, -1, 0, 1, 2), labels = c(.001, .01, .1, 1, 10, 100), limits = c(-3.5, 3.5))+
+    theme(legend.position = "none", axis.title.x=element_text(size=22),legend.title = element_blank(),
+          legend.text = element_text(size =22),axis.text.x = element_text(size=16),
+          axis.text.y = element_text(size=16), axis.title.y=element_text(size=22), strip.background = element_blank())+facet_grid(-group ~ .)
+  
+  
+  #linear regression model
+  lm_pelagic_max_sub1 <- lm(norm_y ~ x, data = subset(dat_pelagic_max, group == "1"))
+  lm_benthic_max_sub1 <- lm(norm_y ~ x, data = subset(dat_benthic_max, group == "1"))
+  lm_pelagic_max_sub2 <- lm(norm_y ~ x, data = subset(dat_pelagic_max, group == "2"))
+  lm_benthic_max_sub2 <- lm(norm_y ~ x, data = subset(dat_benthic_max, group == "2"))
+  lm_pelagic_max_sub3 <- lm(norm_y ~ x, data = subset(dat_pelagic_max, group == "3"))
+  lm_benthic_max_sub3 <- lm(norm_y ~ x, data = subset(dat_benthic_max, group == "3"))
+  lm_pelagic_max_sub4 <- lm(norm_y ~ x, data = subset(dat_pelagic_max, group == "4"))
+  lm_benthic_max_sub4 <- lm(norm_y ~ x, data = subset(dat_benthic_max, group == "4"))
+  lm_pelagic_max_sub5 <- lm(norm_y ~ x, data = subset(dat_pelagic_max, group == "5"))
+  lm_benthic_max_sub5 <- lm(norm_y ~ x, data = subset(dat_benthic_max, group == "5"))
+  lm_pelagic_max_sub6 <- lm(norm_y ~ x, data = subset(dat_pelagic_max, group == "6"))
+  lm_benthic_max_sub6 <- lm(norm_y ~ x, data = subset(dat_benthic_max, group == "6"))
+  
+  #combined coefficients
+  lm_pelagic_max_cf_sub1  <-  cbind(coef(lm_pelagic_max_sub1), confint(lm_pelagic_max_sub1))
+  lm_pelagic_max_cf_sub2  <-  cbind(coef(lm_pelagic_max_sub2), confint(lm_pelagic_max_sub2))
+  lm_pelagic_max_cf_sub3  <-  cbind(coef(lm_pelagic_max_sub3), confint(lm_pelagic_max_sub3))
+  lm_pelagic_max_cf_sub4  <-  cbind(coef(lm_pelagic_max_sub4), confint(lm_pelagic_max_sub4))
+  lm_pelagic_max_cf_sub5  <-  cbind(coef(lm_pelagic_max_sub5), confint(lm_pelagic_max_sub5))
+  lm_pelagic_max_cf_sub6  <-  cbind(coef(lm_pelagic_max_sub6), confint(lm_pelagic_max_sub6))
+  
+  lm_benthic_max_cf_sub1  <-  cbind(coef(lm_benthic_max_sub1), confint(lm_benthic_max_sub1))
+  lm_benthic_max_cf_sub2  <-  cbind(coef(lm_benthic_max_sub2), confint(lm_benthic_max_sub2))
+  lm_benthic_max_cf_sub3  <-  cbind(coef(lm_benthic_max_sub3), confint(lm_benthic_max_sub3))
+  lm_benthic_max_cf_sub4  <-  cbind(coef(lm_benthic_max_sub4), confint(lm_benthic_max_sub4))
+  lm_benthic_max_cf_sub5  <-  cbind(coef(lm_benthic_max_sub5), confint(lm_benthic_max_sub5))
+  lm_benthic_max_cf_sub6  <-  cbind(coef(lm_benthic_max_sub6), confint(lm_benthic_max_sub6))
+  
+  lm_pelagic_cf <- rbind(lm_pelagic_max_cf_sub1,lm_pelagic_max_cf_sub2,lm_pelagic_max_cf_sub3,lm_pelagic_max_cf_sub4,lm_pelagic_max_cf_sub5,lm_pelagic_max_cf_sub6)
+  lm_benthic_cf <- rbind(lm_benthic_max_cf_sub1, lm_benthic_max_cf_sub2, lm_benthic_max_cf_sub3, lm_benthic_max_cf_sub4, lm_benthic_max_cf_sub5, lm_benthic_max_cf_sub6)
+  
+  #turn to dataframe
+  lm_pelagic_cf <- as.data.frame(lm_pelagic_cf) 
+  lm_benthic_cf <- as.data.frame(lm_benthic_cf) 
+  
+  #rename
+  lm_pelagic_cf$type <-  c('pelagic', 'pelagic', 'pelagic', 'pelagic', 'pelagic', 'pelagic', 'pelagic', 'pelagic', 'pelagic', 'pelagic', 'pelagic', 'pelagic')
+  lm_pelagic_cf$lon_bracket <- c('(123, 167]','(123, 167]','(117, 124]','(117, 124]', '(115, 117]', '(115, 117]','(114, 115]','(114, 115]','(72, 114]','(72, 114]', '(-179, 72]','(-179, 72]')
+  lm_pelagic_cf$parameter <- c('intercept', 'slope estimate')
+  colnames(lm_pelagic_cf)[1] ="estimate"
+  
+  lm_benthic_cf$type <-  c('benthic', 'benthic','benthic','benthic','benthic','benthic','benthic','benthic','benthic','benthic','benthic','benthic') 
+  lm_benthic_cf$lon_bracket <- c('(123, 167]','(123, 167]','(117, 124]','(117, 124]', '(115, 117]', '(115, 117]','(114, 115]','(114, 115]','(72, 114]','(72, 114]', '(-179, 72]','(-179, 72]')
+  lm_benthic_cf$parameter <- c('intercept', 'slope estimate')
+  colnames(lm_benthic_cf)[1] ="estimate"
+  both <- rbind(lm_pelagic_cf, lm_benthic_cf)
+  
+
+  write.csv(lm_pelagic_cf, file=here::here("outputs", "table", "bin_pelagic_lm_coefs_lon.csv"))
+  write.csv(lm_benthic_cf, file=here::here("outputs", "table", "bin_benthic_lm_coefs_lon.csv"))
+  
+  write.csv(both, file=here::here("outputs", "table", "Extended_table_lon_slopes.csv"))
+  
+  
+  print(points_max_min)
+  
+  ggsave(points_max_min, filename = here::here("outputs", "bin_global_lm_lon.jpeg"), width = 16, height = 10, units = "in", dpi =300)#render cowplots in jpeg less you get seethrough bits
+  
+  invisible(points_max_min)
+  
+  
 }
 
 
@@ -1027,24 +1295,34 @@ hist_spectra_nonstack <- function(data){
 
 
 
-response_fig <- function(dat2, dat, min_size, lat_band, bandw, scale, alpha){
-  options(scipen=4)
-  dat2 = dat2[dat2$weight_kg > min_size, ]# select predatory fish - individuals larger than minsize kg
-  dat2 <- tidyr::drop_na(dat2, weight_kg)
+response_fig <- function(dat2, dat, tab_first, tab_second, min_size, lat_band, bandw, scale, alpha){
+  # dat2 =fl_pelagic_benthic_meta
+  # dat = tab_betaslope 
+  # tab_first = tab_firstmode
+  # tab_second = tab_secondmode
+  # min_size=0.001
+  # lat_band =15
+  # bandw = 0.2
+  # scale= 30
+  # alpha=0.3
   
+  dat2 <- dat2[which(dat2$weight_kg > min_size),]
+  
+  
+  options(scipen=4)
+  levels(dat2$Type) <- c("Pelagic", "Benthic")
   
   fig_ridges_exped <- ggplot(dat2, aes(x=weight_kg, height = ..ndensity..))+
     ggridges::geom_density_ridges(bandwidth = bandw, rel_min_height = 0.005, aes(y = cut_number(abs(lat_in), n=lat_band), fill = Type), alpha = alpha, colour = "#FFFFFF", 
                                    scale = scale)+
     scale_x_log10(limits = c(0.0001, 1400), breaks = c(0.01, 1, 100), labels = c(0.01, 1, 100))+
     xlab('Body size (kg)') +ylab('Probability density')+
-    scale_fill_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'orange'))+
-    scale_colour_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'darkorange'))+
-    #scale_linetype_manual(breaks=c(0.5,1), values =c("dotted", "solid"))+ 
+    scale_fill_manual(values = c("Pelagic" = '#077DAA', 'Benthic' = 'orange'))+
+    scale_colour_manual(values = c("Pelagic" = '#077DAA', 'Benthic' = 'darkorange'))+
     scale_y_discrete(expand = c(0.1, 0))+
     theme_light() +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), strip.background = element_blank(),strip.text.x = element_blank(),panel.grid.major.y = element_blank(),
-          legend.position = c(.88,.9),
+          legend.position = c(.88,.9), 
           axis.title=element_text(size=16),legend.title = element_blank(),
           legend.text = element_text(size =14), 
           axis.text.x = element_text(size=16),
@@ -1056,8 +1334,8 @@ response_fig <- function(dat2, dat, min_size, lat_band, bandw, scale, alpha){
 
   qplot <- ggplot(dat2, aes(weight_kg, group = cut_number(abs(lat_in), n=lat_band), colour = Type))+
     stat_ecdf(geom="smooth", aes(y = 1 - ..y..), pad= FALSE, size=.4, alpha=.3) +
-    scale_y_log10(breaks = c(0.0001, 0.01, 1), labels =c('0.01%','1%','100%'))+ scale_x_log10()+theme_light() +
-    scale_colour_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'orange'))+
+    scale_y_log10(breaks = c(0.0001, 0.01, 1), labels =c('0.01%','1%','100%'))+ scale_x_log10(breaks = c(0.01, 1, 100), labels = c(0.01, 1, 100))+theme_light() +
+    scale_colour_manual(values = c("Pelagic" = '#077DAA', 'Benthic' = 'orange'))+
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
           strip.background = element_blank(),legend.position = "none", legend.title = element_blank(), axis.title.x=element_text(size=16),
           legend.text = element_text(size =16),axis.text.x = element_text(size=16),
@@ -1069,9 +1347,9 @@ response_fig <- function(dat2, dat, min_size, lat_band, bandw, scale, alpha){
   #long format
   df = bind_rows(
     #first_mode
-    data.frame(mode = dat$first_mode, mode_type ="Small fishes", bruvs_type = dat$bruvs_type, stringsAsFactors = T),
+    data.frame(mode = tab_first$logFirstmode, mode_type ="Small fishes", bruvs_type = tab_first$bruvs_type, stringsAsFactors = T),
     #second_mode
-    data.frame(mode = dat$second_mode, mode_type = "Large fishes", bruvs_type =dat$bruvs_type, stringsAsFactors = T)
+    data.frame(mode = tab_second$logSecondmode, mode_type = "Large fishes", bruvs_type =tab_second$bruvs_type, stringsAsFactors = T)
   )
 
   df$bruvs_mode <- paste(df$bruvs_type, df$mode_type, sep = "_")
@@ -1082,14 +1360,14 @@ response_fig <- function(dat2, dat, min_size, lat_band, bandw, scale, alpha){
 # if you want to include mean values. Doesn't work for some reason
   df %>%
     dplyr::group_by(bruvs_type, mode_type) %>%
-    dplyr::summarise(Mean.mode = mean(mode)) -> df2
+    dplyr::summarise(Mean.mode = mean(10^mode)) -> df2
 
   fig_modes_hist <- ggplot()+
-    geom_histogram(data=df, aes(x=mode, colour = bruvs_type, fill =bruvs_type), alpha =.4) + 
+    geom_histogram(data=df, aes(x=10^mode, colour = bruvs_type, fill =bruvs_type), alpha=.4) + 
     scale_colour_manual(name = "", values = c("pelagic" = "#077DAA", "benthic"="darkorange"))+
     scale_fill_manual(name = "",  values = c("pelagic" = "#077DAA","benthic"="orange"))+
     xlab("Body size (kg)") +theme_light()+ylim(0,220)+ylab("count")+
-    theme(panel.border = element_rect(linetype = "dashed", size=.8, fill = NA), panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+    theme(panel.border = element_rect(linetype = "dashed", size=1.5, fill = NA), panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
           legend.position = "none",  axis.text.x = element_text(size=16),
           strip.background =element_rect(fill="white"),
           strip.placement = "inside",
@@ -1129,9 +1407,9 @@ response_fig <- function(dat2, dat, min_size, lat_band, bandw, scale, alpha){
   fig_response <- ggdraw()+
     draw_plot(fig_ridges_exped,     0.01, .5,    .49,   .5)+
     draw_plot(qplot,             0.5, .5,   .5,   .52)+
-    draw_plot(fig_modes_hist, 0.02, 0, 0.48, 0.5)+
+    draw_plot(fig_modes_hist, 0, 0, 0.5, 0.5)+
     draw_plot(fig_betaslope,     0.5, 0,   .5,   .5)+
-    draw_plot_label(c("a", "b", "c", "d"), c(0, 0,  0.5,.5 ), c(1, .52,  1, .52), size = 22, fontface = "bold")
+    draw_plot_label(c("A", "B", "C", "D"), c(0, 0,  0.5,.5 ), c(1, .52,  1, .52), size = 22, fontface = "bold")
   
   
   fig_response <- fig_response + 
@@ -1148,7 +1426,7 @@ response_fig <- function(dat2, dat, min_size, lat_band, bandw, scale, alpha){
     width = unit(1.5, "in"),
     height = unit(4.9, "in"),
     hjust = 0, vjust = 1,
-    gp = gpar(col =  "black", alpha = 0.7, lty = "dashed")
+    gp = gpar(col =  "black", alpha = 0.7, lty = "dashed", lwd = 1.5)
   ) 
   
   
@@ -1158,15 +1436,15 @@ response_fig <- function(dat2, dat, min_size, lat_band, bandw, scale, alpha){
     width = unit(1.65, "in"),
     height = unit(4.9, "in"),
     hjust = 0, vjust = 1,
-    gp = gpar(col =  "black", alpha = 0.7, lty = "dashed")
+    gp = gpar(col =  "black", alpha = 0.7, lty = "dashed", lwd = 1.5)
   ) 
   
   
   fig_response <- fig_response + draw_grob(rect_mode1) + draw_grob(rect_mode3)#+
     
   
-  fig_response <- fig_response + 
-    #firstmode 
+  fig_response <- fig_response +
+    #firstmode
     add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = .35, xmax = .38, ymin = 0.46, ymax = 0.48, alpha =.4)+
     add_fishape(family = "Carcharhinidae", option = "Triaenodon_obesus",  xmin = .38, xmax = .43, ymin = 0.44, ymax = 0.49, alpha =.4)+
     add_fishape(family = "Kyphosidae", option = "Kyphosus_cinerascens",  xmin = .36, xmax = .39, ymin = 0.43, ymax = 0.46, alpha =.4)+
@@ -1178,10 +1456,122 @@ response_fig <- function(dat2, dat, min_size, lat_band, bandw, scale, alpha){
     add_fishape(family = "Rhincodontidae", option = "Rhincodon_typus",  xmin = .24, xmax = .34, ymin = 0.13, ymax = 0.23, alpha =.4)+
     add_fishape(family = "Mobulidae", option = "Mobula_birostris",  xmin = .25, xmax = .33, ymin = 0.2, ymax = 0.25, alpha =.4)#+
     #annotate("text", x=0.22, y=.155, label= "n = 919", size = 6)
-  
+
   print(fig_response)
   ggsave(fig_response, filename = here::here("outputs", "fig_2_response.jpeg"), width = 12, height = 12, units = "in", dpi =300)#render cowplots in jpeg less you get seethrough bits
     
+}
+
+#' response variable multiplot 
+#'
+#' @param dat 
+#'
+#' @import ggplot2 
+#' @import cowplot
+#' @import dplyr
+#' @import grid
+#' @import purrr
+#' @import fishualize
+#' 
+#' @return
+#' @export
+#'
+#' 
+
+
+
+response_fig_new <- function(dat, tab_first, tab_second, min_size){
+
+  
+  #dat2 <- dat2[which(dat2$weight_kg > min_size),]
+  
+  options(scipen=4)
+  #levels(dat2$Type) <- c("Pelagic", "Benthic")
+  
+  #modal histogramme
+  #long format
+  df = bind_rows(
+    #first_mode
+    data.frame(mode = tab_first$logFirstmode, mode_type ="Small fishes", bruvs_type = tab_first$bruvs_type, stringsAsFactors = T),
+    #second_mode
+    data.frame(mode = tab_second$logSecondmode, mode_type = "Large fishes", bruvs_type =tab_second$bruvs_type, stringsAsFactors = T)
+  )
+  
+  df$bruvs_mode <- paste(df$bruvs_type, df$mode_type, sep = "_")
+  df$bruvs_mode <- factor(df$bruvs_mode, levels = c("benthic_second", "pelagic_second","benthic_first","pelagic_first"))
+  
+  df <- tidyr::drop_na(df, mode)
+  
+  # if you want to include mean values. Doesn't work for some reason
+  df %>%
+    dplyr::group_by(bruvs_type, mode_type) %>%
+    dplyr::summarise(Mean.mode = mean(10^mode)) -> df2
+  
+  fig_modes_hist <- ggplot()+
+    geom_histogram(data=df, aes(x=10^mode, colour = bruvs_type, fill =bruvs_type), alpha=.4) + 
+    scale_colour_manual(name = "", values = c("pelagic" = "#077DAA", "benthic"="darkorange"))+
+    scale_fill_manual(name = "",  values = c("pelagic" = "#077DAA","benthic"="orange"))+
+    xlab("Body size (kg)") +theme_light()+ylim(0,220)+ylab("count")+
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+          legend.position = "none",  axis.text.x = element_text(size=16),
+          strip.background =element_rect(fill="white"),
+          strip.placement = "inside",
+          strip.text = element_text(size=16, colour ="black"),
+          axis.title.x = element_text(size=16),
+          axis.title.y = element_text(size=16), axis.text.y = element_text(size=12))+
+    geom_vline(data=df2, aes(xintercept = Mean.mode, colour = bruvs_type)) +
+    scale_x_log10(limits = c(0.001, 1400), breaks = c(0.01, 1, 100), labels = c(0.01, 1, 100))+
+    facet_wrap(~mode_type, nrow=2, strip.position = "bottom")
+  
+  
+  dat <- tidyr::drop_na(dat, betaslope)
+  
+  dat %>%
+    dplyr::group_by(bruvs_type) %>%
+    dplyr::summarise(Mean.beta = mean(betaslope)) -> df3
+  
+  fig_betaslope <- ggplot() +
+    geom_histogram(data = dat, aes(x= betaslope, fill = bruvs_type, colour = bruvs_type), alpha =.4)+
+    scale_colour_manual(values = c("pelagic" = "#077DAA", "benthic"="darkorange"))+
+    scale_fill_manual(values = c("pelagic" = '#077DAA', 'benthic' = 'orange')) + xlim(c(-2.5, 0))+xlab("Size spectra slope value")+ylab("count")+
+    theme_light() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.position = "none", 
+                          axis.title=element_text(size=16),
+                          legend.title = element_blank(),
+                          legend.text = element_text(size =16), 
+                          axis.text.x = element_text(size=16),
+                          axis.text.y = element_text(size=16))+ 
+    geom_vline(data=df3, aes(xintercept = Mean.beta, colour = bruvs_type))
+    # add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = .0, xmax = .05, ymin = 0.87, ymax = 0.92, scaled = TRUE, xlim = c(-2.5, 0), ylim =c(0, 230), alpha =.4)+
+    # add_fishape(family = "Carangidae", option = "Caranx_melampygus",  xmin = .1, xmax = .23, ymin = 0.8, ymax = 0.88, scaled = TRUE, xlim = c(-2.5, 0), ylim =c(0, 230), alpha =.4)+
+    # add_fishape(family = "Scombridae", option = "Thunnus_albacares",  xmin = .23, xmax = .43, ymin = 0.67, ymax = 0.87, scaled = TRUE, xlim = c(-2.5, 0), ylim =c(0, 230), alpha =.4)
+  #   geom_polygon(data=data.frame(x=c(-2.45, -1.9, -2.45), y = c(165, 165, 200)), aes(x=x, y=y), fill=NA, colour = "grey", alpha =.4)+
+  #   geom_polygon(data=data.frame(x=c(-2.45, -2.1, -2.45), y = c(165, 165, 200)), aes(x=x, y=y), fill=NA, colour = "grey", alpha =.4, linetype ='dotted')
+  # #annotate("text", x=-2, y=155, label= "n = 1041", size = 6)
+  
+  
+  fig_response <- ggdraw()+
+    draw_plot(fig_modes_hist, 0.01, 0, 0.48, 1)+
+    draw_plot(fig_betaslope,     0.5, 0,   .5,   1)+
+    draw_plot_label(c("A", "B"), c(0, 0.51), c(1, 1), size = 22, fontface = "bold")
+  
+  
+  # fig_response <- fig_response +
+  #   #firstmode
+  #   add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = .35, xmax = .38, ymin = 0.86, ymax = 0.88, alpha =.4)+
+  #   add_fishape(family = "Carcharhinidae", option = "Triaenodon_obesus",  xmin = .38, xmax = .43, ymin = 0.84, ymax = 0.89, alpha =.4)+
+  #   add_fishape(family = "Kyphosidae", option = "Kyphosus_cinerascens",  xmin = .36, xmax = .39, ymin = 0.83, ymax = 0.86, alpha =.4)+
+  #   add_fishape(family = "Muraenidae", option = "Gymnothorax_javanicus",  xmin = .3, xmax = .36, ymin = 0.83, ymax = 0.87, alpha =.4)+
+  #   #annotate("text", x=0.35, y=.42, label= "n = 919", size = 6)+
+  #   #secondmode
+  #   add_fishape(family = "Scombridae", option = "Thunnus_albacares",  xmin = .17, xmax = .24, ymin = 0.35, ymax = 0.4, alpha =.4)+
+  #   add_fishape(family = "Alopiidae", option = "Alopias_vulpinus",  xmin = .17, xmax = .25, ymin = 0.41, ymax = 0.46, alpha =.4)+
+  #   add_fishape(family = "Rhincodontidae", option = "Rhincodon_typus",  xmin = .24, xmax = .34, ymin = 0.33, ymax = 0.41, alpha =.4)+
+  #   add_fishape(family = "Mobulidae", option = "Mobula_birostris",  xmin = .25, xmax = .33, ymin = 0.4, ymax = 0.48, alpha =.4)#+
+  # #annotate("text", x=0.22, y=.155, label= "n = 919", size = 6)
+  # 
+  print(fig_response)
+  ggsave(fig_response, filename = here::here("outputs", "fig_S2_response_new.jpeg"), width = 12, height = 6, units = "in", dpi =300)#render cowplots in jpeg less you get seethrough bits
+  
 }
 
 
@@ -1471,24 +1861,29 @@ figridges_overlap_exped <- function(dat, min_size, bandw, scale, alpha){
 
 multi_fig_sample <- function(fig_map, fig_sp_rank){
   
-  fig_1_sample <- cowplot::ggdraw() +
+  fish_sil <- cowplot::ggdraw() + cowplot::draw_image(here::here("photo","fish_fig_2.jpeg"))
+  
+  
+  
+  fig_2_sample <- cowplot::ggdraw() +
     cowplot::draw_plot(fig_map, 0, .39, 1, .63) +
     cowplot::draw_plot(fig_sp_rank,  0, 0,  1,  .4)+
-    draw_plot_label(c("a", "b", "c"), c(0, 0, .7), c(1, .43, .43), size = 26, fontface = "bold")
+    cowplot::draw_plot( fish_sil,  0.08, 0.24,  .60,  .3)+
+    draw_plot_label(c("A", "B", "C"), c(0, 0, .7), c(1, .43, .43), size = 26, fontface = "bold")
   
   
-  fig_1_sample <- fig_1_sample +
-    add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = .09, xmax = .115, ymin = 0.37, ymax = 0.42, alpha=.4)+
-    add_fishape(family = "Kyphosidae", option = "Kyphosus_cinerascens",  xmin = .2, xmax = .25, ymin = 0.37, ymax = 0.42, alpha=.4)+
-    add_fishape(family = "Muraenidae", option = "Gymnothorax_javanicus",  xmin = .31, xmax = .4, ymin = 0.35, ymax = 0.44, alpha =.4)+
-    add_fishape(family = "Scombridae", option = "Thunnus_albacares",  xmin = .435, xmax = .52, ymin = 0.37, ymax = 0.42, alpha=.4)+
-    add_fishape(family = "Rhincodontidae", option = "Rhincodon_typus",  xmin = .56, xmax = .69, ymin = 0.35, ymax = 0.44, alpha =.4)
+  # fig_2_sample <- fig_2_sample +
+  #   fishualize::add_fishape(family = "Pomacanthidae", option = "Centropyge_loricula",  xmin = .09, xmax = .115, ymin = 0.37, ymax = 0.42, alpha=.4)+
+  #   fishualize::add_fishape(family = "Kyphosidae", option = "Kyphosus_cinerascens",  xmin = .2, xmax = .25, ymin = 0.37, ymax = 0.42, alpha=.4)+
+  #   fishualize::add_fishape(family = "Muraenidae", option = "Gymnothorax_javanicus",  xmin = .31, xmax = .4, ymin = 0.35, ymax = 0.44, alpha =.4)+
+  #   fishualize::add_fishape(family = "Scombridae", option = "Thunnus_albacares",  xmin = .435, xmax = .52, ymin = 0.37, ymax = 0.42, alpha=.4)+
+  #   fishualize::add_fishape(family = "Rhincodontidae", option = "Rhincodon_typus",  xmin = .56, xmax = .69, ymin = 0.35, ymax = 0.44, alpha =.4)
 
-  print(fig_1_sample)
+  print(fig_2_sample)
   
-  invisible(fig_1_sample)
+  invisible(fig_2_sample)
   
-  ggsave(fig_1_sample, filename = here::here("outputs", "fig_1_sample.jpeg"), width = 16, height = 16, units = "in", dpi =300)#render cowplots in jpeg less you get seethrough bits
+  ggsave(fig_2_sample, filename = here::here("outputs", "fig_2_sample.jpeg"), width = 16, height = 16, units = "in", dpi =300)#render cowplots in jpeg less you get seethrough bits
   
   
   

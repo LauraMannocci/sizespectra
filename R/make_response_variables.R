@@ -378,6 +378,99 @@ return(dat3)
 
 }#end of function
 
+#' Make beta slope and alternative slope method
+#' @param dat mean median and max responses
+#' @return dat3
+#' @import tidyr
+#' @export
+#'
+#' @examples
+#' 
+#' 
+#' 
+beta_slope_pelagic_alt <- function(dat, dat2){
+  
+  
+  dat = SpecLen
+  
+  dat2 = data_to_export
+  
+  day=unique(dat$Date)
+  
+  taille <- 0
+  
+  res=as.data.frame(matrix(NA,nrow=taille,ncol=12))
+  
+  colnames(res)=c('Exped', 'Date', "mean_lat","mean_long","betaslope","inf CI","sup CI", "alt_slope","alt_slope_infCI", "alt_slope_supCI", "String Number", "key")
+  
+  # sub=dat[dat$String=="AIG_01",]
+  
+  # eightMethodsMEE(sub$weight_kg,b.only = T)
+  
+  exp <- unique(dat$Exped)
+  
+  j=0
+  
+  for (i in exp)
+  {
+    sub=dat[dat$Exped==i,]
+    
+    day=unique(sub$Date)
+    
+    for (l in day)
+    {
+      
+      sub2=sub[sub$Date==l,]
+      
+      j=j+1
+      
+      if(dim(sub2)[[1]]>=20)
+      {
+        mod = eightMethodsMEE_mod(sub2$weight_kg,b.only = TRUE)
+        slope = mod$hMLE
+        slope_alt = mod$hLCD
+        
+        
+        
+        res[j,1] <- i
+        res[j,2] <- l
+        res[j,3]=mean(sub2$lat_in)
+        res[j,4]=mean(sub2$lon_in)
+        res[j,5]=slope[1]
+        res[j,6]=slope[2]
+        res[j,7]=slope[3]
+        res[j,8]=slope_alt[1]
+        res[j,9]=slope_alt[2]
+        res[j,10]=slope_alt[3]
+        
+        
+        
+        
+        strn=unique(sub2$string)
+        res[j,11]=length(strn)
+      }
+    }
+  }
+  
+  #res = na.omit(res)
+  
+  
+  res$Date <- as.character(as.Date(as.character(res$Date), format = "%Y-%m-%d"))
+  res$key <- paste(res$Exped, res$Date, sep = "__")
+  
+  res <- res[ , c(5:12)]
+  
+  colnames(res) = c('betaslope', 'betaslope_ci_inf', 'betaslope_ci_sup', 'alt_slope','alt_slope_ci_inf','alt_slope_ci_sup','string_number', 'key')
+  
+  dat3 <- merge(dat2, res, by = "key", all = TRUE)
+  
+  dat3 <- dat3 %>% drop_na(Date)
+  
+  return(dat3)
+  
+}#end of function
+
+
 
 #' subset sensible betaslope
 #'

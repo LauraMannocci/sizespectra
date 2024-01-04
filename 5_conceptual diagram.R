@@ -168,3 +168,134 @@ fig_cptual <-     cowplot::ggdraw()+
 fig_cptual 
 
 ggsave(fig_cptual, filename = here::here("outputs", "fig_cptual.jpeg"), width = 16, height = 14, units = "in", dpi =300)#render cowplots in jpeg less you get seethrough bits
+
+
+
+
+###### NERC bentho-pelagic coupling
+# Conceptual diagram of the hypotheses. Made using simulated data
+set.seed(2)
+# setting parameters for normal distribution plots (for steepening effect)
+first_mode <-  rlnorm(n = 1, meanlog = 0.25, sdlog = 0.1) + 10
+second_mode <- rlnorm(n = 1, meanlog = 2.5, sdlog = 0.1) + 55
+second_b_mode <- rlnorm(n = 1, meanlog = 2, sdlog = 0.1) + 15
+third_mode <- rlnorm(n = 1, meanlog = 1, sdlog = 0.1) + 35
+
+first_sd   <-   rnorm(n = 1, mean = 5, sd = 1)
+second_sd   <-  rnorm(n = 1, mean = 8, sd = 1)
+second_b_sd   <-  rnorm(n = 1, mean = 8, sd = 1)
+third_sd   <-  rnorm(n = 1, mean = 10, sd = 10)
+
+#modal distribution of sizes
+pb <-
+  tibble(type = "first", spp =1:2, mean = first_mode, sd = first_sd) %>% 
+  bind_rows(tibble(type = "second", spp =1:2, mean = second_mode, sd = second_sd)) %>% 
+  bind_rows(tibble(type = "third", spp =1:2, mean = third_mode, sd = third_sd)) %>% 
+  bind_rows(tibble(type = "second_b", spp =1:2, mean = second_b_mode, sd = second_b_sd)) %>% 
+  mutate(vals = map2(mean, sd, .f=~dnorm(0:100, mean=.x, sd=.y))) %>% 
+  unnest(cols = "vals") %>% 
+  mutate(id = paste0(type, spp)) %>% 
+  mutate(x = rep(0:100, 8)) %>% 
+  ggplot2::ggplot(aes(x, vals, fill=type, group=id)) +
+  ggplot2::geom_area(position = 'identity', alpha=0.1, aes(colour=type)) +
+  theme_light() +
+  theme(legend.position = c(0.8, 0.8),
+        legend.background = element_rect(fill = "transparent"), axis.title.y= element_text(size=16), axis.title.x = element_text(size=16),axis.text.y = element_text(size = 16),axis.text.x = element_text(size = 16), legend.text = element_text(size = 16), legend.title = element_blank()) + labs(x = "Body size (kg)",y = "Probability density") +
+  scale_fill_manual(name="Mode", labels = c("Pelagic", "", "Benthic"), values =  c("#077DAA", "#077DAA", "orange","orange"))+ 
+  scale_colour_manual(name="Mode", labels = c("Pelagic", "","Benthic"), values =  c("#077DAA","#077DAA", "orange","orange"))+
+  scale_x_continuous(breaks = c(0, 40, 70), labels = c("0.001", "1", "100"))+xlab("Body size (kg")+ylab("")+ theme(legend.position = "none")
+pb
+
+
+# benthic erosion due to habitat structure loss
+
+set.seed(2)
+
+first_mode <-  rlnorm(n = 1, meanlog = 2.25, sdlog = 0.1) + 35
+second_mode <- rlnorm(n = 1, meanlog = 0.5, sdlog = 0.1) + 15
+
+
+first_sd   <-   rnorm(n = 1, mean = 5, sd = 1)
+second_sd   <-  rnorm(n = 1, mean = 8, sd = 1)
+
+#modal distribution of sizes
+pb <-
+  tibble(type = "first", spp =1:2, mean = first_mode, sd = first_sd) %>% 
+  bind_rows(tibble(type = "second", spp =1:2, mean = second_mode, sd = second_sd)) %>% 
+  #bind_rows(tibble(type = "third", spp =1:2, mean = third_mode, sd = third_sd)) %>% 
+  mutate(vals = map2(mean, sd, .f=~dnorm(0:100, mean=.x, sd=.y))) %>% 
+  unnest(cols = "vals") %>% 
+  mutate(id = paste0(type, spp)) %>% 
+  mutate(x = rep(0:100, 4)) %>% 
+  ggplot2::ggplot(aes(x, vals, fill=type, group=id)) +
+  ggplot2::geom_area(position = 'identity', alpha=0.1, aes(colour=type)) +
+  theme_light() +
+  theme(legend.position = c(0.8, 0.8),
+        legend.background = element_rect(fill = "transparent"), axis.title.y= element_text(size=16), axis.title.x = element_text(size=16),axis.text.y = element_text(size = 16),axis.text.x = element_text(size = 16), legend.text = element_text(size = 16), legend.title = element_blank()) + labs(x = "Body size (kg)",y = "Probability density") +
+  scale_fill_manual(name="Mode", labels = c("Benthic",  "Benthic"), values =  c("orange","orange"))+ 
+  scale_colour_manual(name="Mode", labels = c("Benthic", "Benthic"), values =  c("orange","orange"))+
+  scale_x_continuous(breaks = c(0, 40, 70), labels = c("0.001", "1", "100"))+xlab("Body size (kg")+ylab("")+ theme(legend.position = "none")
+pb
+
+# pelagic fisheries due to fisheries
+
+# Conceptual diagram of the hypotheses. Made using simulated data
+set.seed(2)
+# setting parameters for normal distribution plots (for steepening effect)
+first_mode <-  rlnorm(n = 1, meanlog = 0.25, sdlog = 0.1) + 10
+second_mode <- rlnorm(n = 1, meanlog = 2.5, sdlog = 0.1) + 40
+
+first_sd   <-   rnorm(n = 1, mean = 5, sd = 1)
+second_sd   <-  rnorm(n = 1, mean = 8, sd = 1)
+
+#modal distribution of sizes
+pb <-
+  tibble(type = "first", spp =1:2, mean = first_mode, sd = first_sd) %>% 
+  bind_rows(tibble(type = "second", spp =1:2, mean = second_mode, sd = second_sd)) %>% 
+  mutate(vals = map2(mean, sd, .f=~dnorm(0:100, mean=.x, sd=.y))) %>% 
+  unnest(cols = "vals") %>% 
+  mutate(id = paste0(type, spp)) %>% 
+  mutate(x = rep(0:100, 4)) %>% 
+  ggplot2::ggplot(aes(x, vals, fill=type, group=id)) +
+  ggplot2::geom_area(position = 'identity', alpha=0.1, aes(colour=type)) +
+  theme_light() +
+  theme(legend.position = c(0.8, 0.8),
+        legend.background = element_rect(fill = "transparent"), axis.title.y= element_text(size=16), axis.title.x = element_text(size=16),axis.text.y = element_text(size = 16),axis.text.x = element_text(size = 16), legend.text = element_text(size = 16), legend.title = element_blank()) + labs(x = "Body size (kg)",y = "Probability density") +
+  scale_fill_manual(name="Mode", labels = c("Pelagic", "", "Benthic"), values =  c("#077DAA", "#077DAA", "orange","orange"))+ 
+  scale_colour_manual(name="Mode", labels = c("Pelagic", "","Benthic"), values =  c("#077DAA","#077DAA", "orange","orange"))+
+  scale_x_continuous(breaks = c(0, 40, 70), labels = c("0.001", "1", "100"))+xlab("Body size (kg")+ylab("")+ theme(legend.position = "none")
+pb
+
+#decoupled
+
+set.seed(2)
+# setting parameters for normal distribution plots (for steepening effect)
+first_mode <-  rlnorm(n = 1, meanlog = 0.25, sdlog = 0.1) + 10
+second_mode <- rlnorm(n = 1, meanlog = .5, sdlog = 0.1) + 55
+second_b_mode <- rlnorm(n = 1, meanlog = .5, sdlog = 0.1) + 15
+third_mode <- rlnorm(n = 1, meanlog = 3, sdlog = 0.1) + 35
+
+first_sd   <-   rnorm(n = 1, mean = 5, sd = 1)
+second_sd   <-  rnorm(n = 1, mean = 8, sd = 1)
+second_b_sd   <-  rnorm(n = 1, mean = 8, sd = 1)
+third_sd   <-  rnorm(n = 1, mean = 10, sd = 10)
+
+#modal distribution of sizes
+pb1 <-
+  tibble(type = "first", spp =1:2, mean = first_mode, sd = first_sd) %>% 
+  bind_rows(tibble(type = "second", spp =1:2, mean = second_mode, sd = second_sd)) %>% 
+  bind_rows(tibble(type = "third", spp =1:2, mean = third_mode, sd = third_sd)) %>% 
+  bind_rows(tibble(type = "second_b", spp =1:2, mean = second_b_mode, sd = second_b_sd)) %>% 
+  mutate(vals = map2(mean, sd, .f=~dnorm(0:100, mean=.x, sd=.y))) %>% 
+  unnest(cols = "vals") %>% 
+  mutate(id = paste0(type, spp)) %>% 
+  mutate(x = rep(0:100, 8)) %>% 
+  ggplot2::ggplot(aes(x, vals, fill=type, group=id)) +
+  ggplot2::geom_area(position = 'identity', alpha=0.1, aes(colour=type)) +
+  theme_light() +
+  theme(legend.position = c(0.8, 0.8),
+        legend.background = element_rect(fill = "transparent"), axis.title.y= element_text(size=16), axis.title.x = element_text(size=16),axis.text.y = element_text(size = 16),axis.text.x = element_text(size = 16), legend.text = element_text(size = 16), legend.title = element_blank()) + labs(x = "Body size (kg)",y = "Probability density") +
+  scale_fill_manual(name="Mode", labels = c("Pelagic", "", "Benthic"), values =  c("#077DAA", "#077DAA", "orange","orange"))+ 
+  scale_colour_manual(name="Mode", labels = c("Pelagic", "","Benthic"), values =  c("#077DAA","#077DAA", "orange","orange"))+
+  scale_x_continuous(breaks = c(0, 40, 70), labels = c("0.001", "1", "100"))+xlab("Body size (kg")+ylab("")+ theme(legend.position = "none")
+pb1

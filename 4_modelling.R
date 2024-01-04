@@ -3,7 +3,7 @@ devtools::document()
 devtools::load_all()
 
 
-# read and clean data ----------------------------
+# read and clean response variables ----------------------------
 
 
 # read data with predictor variables
@@ -12,32 +12,53 @@ tab <- read_data_with_vars()
 
 #ggplot2::ggplot(tab_betaslope, aes(exped, CHL, fill=bruvs)) + ggplot2::geom_boxplot()
 
-
-###DEFINE CONDITION----
-#original model
-#condition = c(logBathy = 1.7, logDistCR = 5, logSST = 1.4, logDistSM = 4.5, logDistP = 1.2, logCHL=.10, logDistC = 4, SST_sd = 0.7, logTTM = 3, GovernmentEffectiveness_mean = 1.5, Slope =88)
-
-condition = c(logBathy = 1.7, logDistCR = 5, logSST = 1.45, logDistSM = 4.5, logDistP = 1.2, logCHL=.08, logDistC = 4, logTTM = 3, Slope =88)
-
-###BETASLOPE MODEL -----
 # clean data with predictor variables for betaslope
 tab_betaslope <- clean_data_with_vars(tab, "betaslope")
 
 #truncate to three standard deviation
 tab_betaslope <- truncate_data(tab_betaslope, "betaslope", 3)
 
+
+ggplot()+geom_jitter(data = tab_betaslope, aes(logTTM, GovernmentEffectiveness_mean, colour = bruvs, size =betaslope), alpha = .4)+
+  scale_colour_manual(values = c("pelagic" = '#077DAA', 'benthic' = 'orange'))+theme_light()
+
+# clean data with predictor variables for first mode
+tab_firstmode <- clean_data_with_vars(tab, "logFirstmode")
+
+#truncate to three standard deviation
+tab_firstmode <- truncate_data(tab_firstmode, "logFirstmode", 3)
+
+
+# clean data with predictor variables for second mode
+tab_secondmode <- clean_data_with_vars(tab, "logSecondmode")
+
+#truncate to three standard deviation
+tab_secondmode <- truncate_data(tab_secondmode, "logSecondmode", 3)
+
+
+###Fig S4 response variable  ----
+response_fig_new(dat=tab_betaslope, tab_first=tab_firstmode, tab_second=tab_secondmode, min_size= 0.001)
+
+#response_fig(fl_pelagic_benthic_meta, tab_betaslope,tab_firstmode, 
+             #tab_secondmode, min_size= 0.001, lat_band =15, bandw = 0.2, scale= 30, alpha=0.3)
+
+
+###Fig S5 environmental variables range  ----
+
 #envar range to set for marg----
 
-var_logBathy <-  bruvs_var_range(tab_firstmode, "logBathy")
-var_logDistCR <- bruvs_var_range(tab_firstmode, "logDistCR")
-var_logDistSM <- bruvs_var_range(tab_firstmode, "logDistSM")
-var_logDistP <-  bruvs_var_range(tab_firstmode, "logDistP")
-var_logDistC <-  bruvs_var_range(tab_firstmode, "logDistC")
-var_logTTM <-    bruvs_var_range(tab_firstmode, "logTTM")
-var_logCHL <-    bruvs_var_range(tab_firstmode, "logCHL")
-var_logSST <-    bruvs_var_range(tab_firstmode, "logSST")
-var_SST_sd <-    bruvs_var_range(tab_firstmode, "SST_sd")
-var_SST_GEm <-   bruvs_var_range(tab_firstmode, "GovernmentEffectiveness_mean")
+var_logBathy <-  bruvs_var_range(tab_firstmode, "logBathy", "Seabed depth, log10(m)")
+var_logDistCR <- bruvs_var_range(tab_firstmode, "logDistCR", "Distance to coral reef, log10(m)")
+var_logDistSM <- bruvs_var_range(tab_firstmode, "logDistSM", "Distance to seamount, log10(m)")
+var_logDistP <-  bruvs_var_range(tab_firstmode, "logDistP", "Distance to port, log10(m)")
+var_logDistC <-  bruvs_var_range(tab_firstmode, "logDistC", "Distance to coast, log10(m)")
+var_logTTM <-    bruvs_var_range(tab_firstmode, "logTTM", "Travel time to market, log10(min)")
+var_logCHL <-    bruvs_var_range(tab_firstmode, "logCHL", "Chlorophyll-a concenctration, log10(mg.m-3)")
+var_logSST <-    bruvs_var_range(tab_firstmode, "logSST", "Sea-surface temperature, log10(°C)")
+var_slope <-     bruvs_var_range(tab_firstmode, "Slope", "Slope, (°)")
+
+#var_SST_sd <-    bruvs_var_range(tab_firstmode, "SST_sd")
+#var_SST_GEm <-   bruvs_var_range(tab_firstmode, "GovernmentEffectiveness_mean")
 
 #make multiplot
 envar_multiplot <- multi_envar_range() 
@@ -53,7 +74,12 @@ prot_var_logTTM <-    bruvs_protect_var(tab_betaslope, "logTTM", 3)    # logTTM 
 prot_var_logCHL <-    bruvs_protect_var(tab_betaslope, "logCHL",.06)    # logCHL = 0.10 
 prot_var_logSST <-    bruvs_protect_var(tab_betaslope, "logSST", 1.4)    # logSST = 1.4
 prot_var_Slope  <-    bruvs_protect_var(tab_betaslope, "Slope", 88) # Slbetaslope#make multiplot
+prot_var_SST_sd  <-    bruvs_protect_var(tab_betaslope, "SST_sd", 88) # Slbetaslope#make multiplot
+
+
 envar_multiplot_cat <- multi_envar_range_cat() 
+
+###BETASLOPE MODEL -----
 
 #make correlogram of predictors
 cor <- make_correlogram_vars(tab_betaslope)
@@ -99,9 +125,9 @@ get_gls_diagnostics(tab_betaslope, mod_sim_betaslope, "mod_sim_betaslope")
 coef_plot(mod_sim_betaslope, "mod_sim_betaslope")
 
 #standardized effect plot with significant terms of interest
-coef_plot_signif_terms(mod_sim_betaslope, "GLS size-spectra slope", 0.05)
+coef_plot_signif_terms(mod_sim_betaslope, "GLS size spectra slope", 0.05)
 
- #betaslope marginal plot of simplified model----
+ #Fig. S6 betaslope marginal plot of simplified model----
 #mod_sim_betaslope <- mod_sat_betaslope
 
 
@@ -150,12 +176,6 @@ distPBetaslope <- marg_plot_cat_covar_noextra(response = "beta_slope", mod_name 
 
 ##### FIRST MODE MODEL -----
 
-# clean data with predictor variables for first mode
-
-tab_firstmode <- clean_data_with_vars(tab, "logFirstmode")
-
-#truncate to three standard deviation
-tab_firstmode <- truncate_data(tab_firstmode, "logFirstmode", 3)
 
 
 #firstmode fully saturated model with basic autocorrelation structure----
@@ -202,7 +222,7 @@ coef_plot(mod_sim_firstmode, "mod_sim_firstmode")
 #standardized effect plot with significant terms of interest
 coef_plot_signif_terms(mod_sim_firstmode, "GLS body size of relatively small fishes ", 0.05)
 
-#firstmode marginal plot of simplified model----
+#Fig. S7 firstmode marginal plot of simplified model----
 #mod_sim_firstmode <- mod_sat_firstmode
 
 
@@ -234,17 +254,11 @@ ProtFirstmode <- marg_plot_cat_catvar(response= "logFirstmode", mod_name = "mod_
 
 ##### SECOND MODE MODEL -----
 
-# clean data with predictor variables for second mode
-
-tab_secondmode <- clean_data_with_vars(tab, "logSecondmode")
-
-#truncate to three standard deviation
-
-tab_secondmode <- truncate_data(tab_secondmode, "logSecondmode", 3)
 
 #secondmode fully saturated model with basic autocorrelation structure----
 
 mod_sat_secondmode <- fit_gls_sat_cor_secondmode(tab_secondmode)
+
 
 #variance inflation factor
 vif(mod_sat_secondmode) #suggest government effectiveness and SST_sd are problematic at VIF >10
@@ -261,6 +275,7 @@ coef_plot(mod_sat_secondmode, "mod_sat_secondmode")
 #get model diagnostics
 get_gls_diagnostics(tab_secondmode, mod_sat_secondmode, "mod_sat_secondmode")
 
+coef_plot_signif_terms(mod_sat_secondmode, "mod_sat_secondmode ", 0.05)
 
 
 #secondmode simplified model----
@@ -288,7 +303,7 @@ get_gls_diagnostics(tab_secondmode, mod_sim_secondmode, "mod_sim_secondmode")
 #adjusted r2
 get_adj_r2(mod_sim_secondmode)
 
-#secondmode marginal plot of simplified model----
+#Fig. S8 secondmode marginal plot of simplified model----
 #mod_sim_secondmode <- mod_sat_secondmode
 
 #define conditions
@@ -328,7 +343,7 @@ TTMSecondmode <- marg_plot_cat_covar_noextra(response = "logSecondmode", mod_nam
 #multiple categorical terms
 ProtSecondmode <- marg_plot_cat_catvar(response= "logSecondmode", mod_name = "mod_sim_secondmode", tab_secondmode, mod_sim_secondmode, "protection_use [all]", "protection_use", "bruvs", condition = condition)
 
-### ALL MODEL COMBINED-----
+### Fig. 4  ALL MODEL COMBINED----
 #TTM
 multi_covariate_marg(TTMFirstmode, TTMSecondmode,TTMBetaslope, "TTM")
 multi_covariate_marg_bruvs(TTMFirstmode_bruvs, TTMSecondmode_bruvs,TTMBetaslope_bruvs, "TTM")
@@ -376,29 +391,16 @@ pred_all <- rbind(pred_firstmode_pel,pred_firstmode_ben, pred_secondmode_pel,pre
 
 save_marg_pred_all(pred_all) # save marginal predictions
 
-###plot marginal plot combined by protection level - works really well!
+###plot marginal plot combined by protection level -
 
 pred_all <- read_marg_pred_all() # read marginal predictions - saves rerunning models
-marg_plot_bruvs_prot(pred=pred_all, var_name = "logTTM")
+marg_plot_bruvs_prot(pred=pred_all, var_name = "logTTM", rug_beta = tab_betaslope)
 
 
 
 
 
-
-# #distPort
-# multi_covariate_marg(distPFirstmode, distPSecondmode, distPBetaslope, "distP")
-# #protection
-# multi_covariate_marg_cat(ProtFirstmode, ProtSecondmode, ProtBetaslope, "Prot")
-# #SST
-# multi_covariate_marg(SSTFirstmode+coord_cartesian(xlim =c(1.2, 1.5)), SSTSecondmode+coord_cartesian(xlim=c(1.2, 1.5)), SSTBetaslope+coord_cartesian(xlim=c(1.2, 1.5)), "SST")
-# #SST_sd
-# multi_covariate_marg_SST_sd(SST_sdFirstmode, SST_sdBetaslope, "SST_sd")
-# 
-
-
-
-## LINEAR REGRESSION RESPONSE-----
+    ## LINEAR REGRESSION RESPONSE-----
 
 response_vs_response(tab_firstmode)
 mode_vs_mode_lm(tab_firstmode)
@@ -432,128 +434,445 @@ moran_i_test(mod_sim_firstmode, tab_firstmode)
 moran_i_test(mod_sim_secondmode, tab_secondmode)
 
 
-#################### SENSIVITY ANALYSIS (ie sub-sampling historical occurrences to sample size of modern occurrences)  -------------------------------------
+## SENSIVITY ANALYSIS 90% sub-sampling data----
 
-his_coef_sens_all <- list()
-his_metrics_sens_all <- list()
-his_pred_all <- raster::stack()
+
+#betaslope sensitivity analysis 90%  -------------------------------------
+
+mod_pred_sens_all <- list()
+
+
 
 for (i in 1:10){
   
   print(paste("sensitivity step", i))
   
-  ######  Random sample of historical occurrences
+
+  #tab_clean = data to test cleaned for size-based indicator
+  tab_clean = tab_betaslope
+  #var = size-based indicator
+  #var_res = betaslope
+  var_res_name = "beta_slope"
   
-  #tab = data to test
-  
-  indices <- sample(1:nrow(mod), size = (nrow(tab)*.9), replace = F)
-  tab.z <- tab[indices,]
-  
-  
-  
-  ######  PREPARATION OF 
+  ######  Random sample of data
   
 
+  indices <- sample(1:nrow(tab_clean), size = (nrow(tab_clean)*.9), replace = F)
+  tab_z <- tab_clean[indices,]
   
   
-  ######  MODEL EVALUATION
   
+  ######  PREPARATION OF MODELS
+
 
   # saturated model fitting
-  mod_sat_betaslope.x <- fit_gls_sat_cor_betaslope(tab_betaslope)
+  mod_sat.x <- nlme::gls(betaslope ~ bruvs * protection_use * (logTTM +logDistP) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
+                                                                                        poly(logSST,2) + poly(logCHL,2)), data = tab_z,  correlation = nlme::corRatio(form=~1),method='ML') 
+
+  ######  MODEL MARGINAL PREDICTIONS
+  # make marginal plot predictions from selected model
+  # with means specified 
   
+  pel <- subset(tab_z, bruvs=="pelagic")#&protection_use=="not_protected")
+  ben <- subset(tab_z, bruvs=="benthic")#&protection_use=="not_protected")
   
-  ######  MODEL SELECTION AND OPTIMISATION
+  condition_pel = c(logBathy = mean(pel$logBathy), logDistCR = mean(pel$logDistCR), logSST = mean(pel$logSST), logDistSM = mean(pel$logDistSM), logDistP =  1.2, logCHL= mean(pel$logCHL), logDistC = mean(pel$logDistC), Slope =mean(pel$Slope))
+  condition_ben = c(logBathy = mean(ben$logBathy), logDistCR = mean(ben$logDistCR), logSST = mean(ben$logSST), logDistSM = mean(ben$logDistSM), logDistP =  1.2, logCHL= mean(ben$logCHL), logDistC = mean(ben$logDistC), Slope =mean(ben$Slope))
   
-  # select best model
-  mod_sim_betaslope.x <- MASS::stepAIC(mod_sat_betaslope)
+  pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_z, mod=mod_sat.x, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_pel)
+  pred_mod_sens_pel <- subset(pred_mod_sens, group=="Pelagic")# subset pelagic predictions
+  pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_z, mod=mod_sat.x, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_ben)
+  pred_mod_sens_ben <- subset(pred_mod_sens, group=="Benthic")# subset benthic predictions
   
-  # fill in metrics list
-  his_metrics_sens_all[[i]] <- his_metrics_sens
+  pred_mod_sens <- rbind(pred_mod_sens_pel, pred_mod_sens_ben)
+  pred_mod_sens$sens_step <- i
   
-  # We can select a single model from the ENMevaluation object using the tune.args of our optimal model
-  his_mod_sens <- eval.models(SPHis_sens.x)[[his_metrics_sens$tune.args]]
+  # fill in predictions
   
-  
-  
-  ######  MODEL COEFFICIENTS AND PARTIAL PLOTS
-  
-  # Here are the non-zero coefficients in our model.
-  his_coef_sens <- tibble::enframe(his_mod_sens$betas)
-  his_coef_sens$type <- factor('Historical')
-  his_coef_sens$step <- factor(i)
-  
-  # fill in coef list
-  his_coef_sens_all[[i]] <- his_coef_sens
-  
-  
-  
-  ######  MODEL PREDICTIONS
-  
-  # make predictions from selected model
-  predHis_sens <- eval.predictions(SPHis_sens.x)[[his_metrics_sens$tune.args]]
-  
-  # stack prediction rasters
-  his_pred_all <- raster::stack(his_pred_all, predHis_sens)
-  
+  mod_pred_sens_all[[i]] <- pred_mod_sens[,1:9]
 }
 
+#### convert lists to dataframes and write csv
+mod_pred_sens_betaslope <- do.call(rbind.data.frame, mod_pred_sens_all)
+write.csv(mod_pred_sens_betaslope, here::here("outputs", "model_outputs", "sensitivity_betaslope.csv"))
 
 
+
+
+#################### logfirstmode sensitivity analysis 90%  -------------------------------------
+
+mod_pred_sens_all <- list()
+
+
+
+for (i in 1:10){
+  
+  print(paste("sensitivity step", i))
+  
+  
+  #tab_clean = data to test cleaned for size-based indicator
+  tab_clean <- tab_firstmode
+  #var = size-based indicator
+  #var_res = betaslope
+  var_res_name = "logFirstmode"
+  
+  ######  Random sample of data
+  
+  indices <- sample(1:nrow(tab_clean), size = (nrow(tab_clean)*.9), replace = F)
+  tab_z <- tab_clean[indices,]
+  
+  
+  
+  ######  PREPARATION OF MODELS
+  
+  
+  # saturated model fitting
+  mod_sat.x <- nlme::gls(logFirstmode ~ bruvs * protection_use * (logTTM +logDistP) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
+                                                                                              poly(logSST,2) + poly(logCHL,2)), data = tab_z,  correlation = nlme::corRatio(form=~1),method='ML') 
+  
+  ######  MODEL MARGINAL PREDICTIONS
+  # make marginal plot predictions from selected model
+  # with means specified 
+  
+  pel <- subset(tab_z, bruvs=="pelagic")#&protection_use=="not_protected")
+  ben <- subset(tab_z, bruvs=="benthic")#&protection_use=="not_protected")
+  
+  condition_pel = c(logBathy = mean(pel$logBathy), logDistCR = mean(pel$logDistCR), logSST = mean(pel$logSST), logDistSM = mean(pel$logDistSM), logDistP =  1.2, logCHL= mean(pel$logCHL), logDistC = mean(pel$logDistC), Slope =mean(pel$Slope))
+  condition_ben = c(logBathy = mean(ben$logBathy), logDistCR = mean(ben$logDistCR), logSST = mean(ben$logSST), logDistSM = mean(ben$logDistSM), logDistP =  1.2, logCHL= mean(ben$logCHL), logDistC = mean(ben$logDistC), Slope =mean(ben$Slope))
+  
+  pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_z, mod=mod_sat.x, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_pel)
+  pred_mod_sens_pel <- subset(pred_mod_sens, group=="Pelagic")# subset pelagic predictions
+  pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_z, mod=mod_sat.x, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_ben)
+  pred_mod_sens_ben <- subset(pred_mod_sens, group=="Benthic")# subset benthic predictions
+  
+  pred_mod_sens <- rbind(pred_mod_sens_pel, pred_mod_sens_ben)
+  pred_mod_sens$sens_step <- i
+  
+  # fill in predictions
+  
+  mod_pred_sens_all[[i]] <- pred_mod_sens[,1:9]
+}
 
 #### convert lists to dataframes and write csv
-
-his_coef_sens_all <- do.call(rbind.data.frame, his_coef_sens_all)
-write.csv(his_coef_sens_all, here::here("outputs", "historical_coefficients_sensitivity.csv"))
-
-his_metrics_sens_all <- do.call(rbind.data.frame, his_metrics_sens_all)
-write.csv(his_metrics_sens_all, here::here("outputs", "historical_metrics_best_models_sensitivity.csv"))
-
-mean(his_metrics_sens_all$auc.val.avg) #0.6508068
-sd(his_metrics_sens_all$auc.val.avg) #0.009309328
+mod_pred_sens_firstmode <- do.call(rbind.data.frame, mod_pred_sens_all)
+write.csv(mod_pred_sens_firstmode, here::here("outputs", "model_outputs", "sensitivity_firstmode.csv"))
 
 
 
+#################### logsecondmode sensitivity analysis 90%  -------------------------------------
 
-### make coefficient barplot
-
-# preprocessing
-
-his_coef_sens_all %>%
-  dplyr::mutate(name = as.factor(name)) %>%
-  dplyr::group_by(name) %>%
-  dplyr::summarise(mean_value = mean(value),
-                   sd = sd(value)) %>%
-  dplyr::mutate(type = 'Historical') %>%
-  dplyr::mutate(type = as.factor(type)) %>%
-  dplyr::rename('value' = mean_value) -> his_coef_sens_all2
-
-coefMod %>%
-  dplyr::mutate(name = as.factor(name)) %>%
-  dplyr::mutate(sd = 0) %>%
-  dplyr::select(-type) %>%
-  dplyr::mutate(type = 'Modern') %>%
-  dplyr::mutate(type = as.factor(type)) -> coefMod2
-
-coefs <- rbind(his_coef_sens_all2, coefMod2)
-
-make_coefficients_barplot_sensitivity(coefs, c(-0.004, 0.002))
+mod_pred_sens_all <- list()
 
 
 
+for (i in 1:10){
+  
+  print(paste("sensitivity step", i))
+  
+  
+  #tab_clean = data to test cleaned for size-based indicator
+  tab_clean <- tab_secondmode
+  #var = size-based indicator
+  var_res_name = "logSecondmode"
+  
+  ######  Random sample of data
+  
+
+  indices <- sample(1:nrow(tab_clean), size = (nrow(tab_clean)*.9), replace = F)
+  tab_z <- tab_clean[indices,]
+  
+  
+  
+  ######  PREPARATION OF MODELS
+  
+  
+  # saturated model fitting
+  mod_sat.x <- nlme::gls(logSecondmode ~ bruvs * protection_use * (logTTM +logDistP) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
+                                                                                                 poly(logSST,2) + poly(logCHL,2)), data = tab_z,  correlation = nlme::corRatio(form=~1),method='ML') 
+  
+  ######  MODEL MARGINAL PREDICTIONS
+  # make marginal plot predictions from selected model
+  # with means specified 
+  
+  pel <- subset(tab_z, bruvs=="pelagic")#&protection_use=="not_protected")
+  ben <- subset(tab_z, bruvs=="benthic")#&protection_use=="not_protected")
+  
+  condition_pel = c(logBathy = mean(pel$logBathy), logDistCR = mean(pel$logDistCR), logSST = mean(pel$logSST), logDistSM = mean(pel$logDistSM), logDistP =  1.2, logCHL= mean(pel$logCHL), logDistC = mean(pel$logDistC), Slope =mean(pel$Slope))
+  condition_ben = c(logBathy = mean(ben$logBathy), logDistCR = mean(ben$logDistCR), logSST = mean(ben$logSST), logDistSM = mean(ben$logDistSM), logDistP =  1.2, logCHL= mean(ben$logCHL), logDistC = mean(ben$logDistC), Slope =mean(ben$Slope))
+  
+  pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_z, mod=mod_sat.x, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_pel)
+  pred_mod_sens_pel <- subset(pred_mod_sens, group=="Pelagic")# subset pelagic predictions
+  pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_z, mod=mod_sat.x, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_ben)
+  pred_mod_sens_ben <- subset(pred_mod_sens, group=="Benthic")# subset benthic predictions
+  
+  pred_mod_sens <- rbind(pred_mod_sens_pel, pred_mod_sens_ben)
+  pred_mod_sens$sens_step <- i
+  
+  # fill in predictions
+  
+  mod_pred_sens_all[[i]] <- pred_mod_sens[,1:9]
+}
+
+#### convert lists to dataframes and write csv
+mod_pred_sens_secondmode <- do.call(rbind.data.frame, mod_pred_sens_all)
+write.csv(mod_pred_sens_secondmode, here::here("outputs", "model_outputs", "sensitivity_secondmode.csv"))
 
 
 
-### plot mean and sd historical predictions with mpa and extrap extent
+################## Fig. S9 marginal plot sensitivity  90% -------
 
-# calculate mean and sd predictions
+#merge
+pred_all_sens <- rbind(mod_pred_sens_firstmode,mod_pred_sens_secondmode,mod_pred_sens_betaslope)
 
-his_pred_mean <- raster::calc(his_pred_all, fun = mean)
-his_pred_sd <- raster::calc(his_pred_all, fun = sd)
+save_marg_pred_all_sens(pred_all_sens) # save marginal predictions
 
-# plot
+###plot marginal plot combined by protection level 
 
-plot_mean_sd_historical_predictions_with_extra_mpas(wio, his_pred_mean, his_pred_sd, df_extraHis, mpa_sf)
+pred_all_sens <- read_marg_pred_all_sens() # read marginal predictions
+
+
+marg_plot_bruvs_prot_sens(pred=pred_all_sens, var_name = "logTTM")
+
+
+## SENSIVITY ANALYSIS drop ocean----
+
+
+#betaslope sensitivity drop ocean -------------------------------------
+
+
+
+  ######  PREPARATION OF MODELS
+  
+  
+  # saturated model fitting
+
+###drop atlantic ocean samples------
+var_res_name = "betaslope"
+
+  tab_betaslope_atlantic <- subset(tab_betaslope, TERRITORY1!="Ascension" & TERRITORY1!="Azores" & TERRITORY1!="Tristan" & TERRITORY1!="Norway" & TERRITORY1!="Tristan da Cunha")
+  mod_sat.atlantic <- nlme::gls(betaslope ~ bruvs * protection_use * (logTTM +logDistP) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
+                                                                                             poly(logSST,2) + poly(logCHL,2)), data = tab_betaslope_atlantic,  correlation = nlme::corRatio(form=~1),method='ML') 
+
+  ######  MODEL MARGINAL PREDICTIONS
+  # make marginal plot predictions from selected model with means specified 
+  pel <- subset(tab_betaslope_atlantic, bruvs=="pelagic")#&protection_use=="not_protected")
+  ben <- subset(tab_betaslope_atlantic, bruvs=="benthic")#&protection_use=="not_protected")
+  condition_pel = c(logBathy = mean(pel$logBathy), logDistCR = mean(pel$logDistCR), logSST = mean(pel$logSST), logDistSM = mean(pel$logDistSM), logDistP =  1.2, logCHL= mean(pel$logCHL), logDistC = mean(pel$logDistC), Slope =mean(pel$Slope))
+  condition_ben = c(logBathy = mean(ben$logBathy), logDistCR = mean(ben$logDistCR), logSST = mean(ben$logSST), logDistSM = mean(ben$logDistSM), logDistP =  1.2, logCHL= mean(ben$logCHL), logDistC = mean(ben$logDistC), Slope =mean(ben$Slope))
+  pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_betaslope_atlantic, mod=mod_sat.atlantic, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_pel)
+  pred_mod_sens_pel <- subset(pred_mod_sens, group=="Pelagic")# subset pelagic predictions
+  pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_betaslope_atlantic, mod=mod_sat.atlantic, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_ben)
+  pred_mod_sens_ben <- subset(pred_mod_sens, group=="Benthic")# subset benthic predictions
+  pred_mod_sens_atlantic <- rbind(pred_mod_sens_pel, pred_mod_sens_ben)
+  pred_mod_sens_atlantic$sens_ocean <- 'drop_atlantic'
+  
+###  drop indian ocean samples-----
+  
+  tab_betaslope_indian_aus <- subset(tab_betaslope, TERRITORY1!="Chagos Archipelago" & TERRITORY1!="Sudan" & TERRITORY1!="Cocos Islands" & TERRITORY1!="Maldives" & TERRITORY1!= "Australia")
+  tab_betaslope_indian_FNQ <- subset(tab_betaslope, Exped.=="FNQ_2018" | Exped.=="FNQ_2017_11" | Exped.=="FNQ_2017_06" | Exped.=="FNQ Nov 2017" | Exped.=="FNQ Jun 2017")
+  tab_betaslope_indian <- rbind(tab_betaslope_indian_aus, tab_betaslope_indian_FNQ)
+  mod_sat.indian <- nlme::gls(betaslope ~ bruvs * protection_use * (logTTM +logDistP) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
+                                                                                                     poly(logSST,2) + poly(logCHL,2)), data = tab_betaslope_indian,  correlation = nlme::corRatio(form=~1),method='ML') 
+  ######  MODEL MARGINAL PREDICTIONS
+  # make marginal plot predictions from selected model with means specified 
+  pel <- subset(tab_betaslope_indian, bruvs=="pelagic")
+  ben <- subset(tab_betaslope_indian, bruvs=="benthic")
+  condition_pel = c(logBathy = mean(pel$logBathy), logDistCR = mean(pel$logDistCR), logSST = mean(pel$logSST), logDistSM = mean(pel$logDistSM), logDistP =  1.2, logCHL= mean(pel$logCHL), logDistC = mean(pel$logDistC), Slope =mean(pel$Slope))
+  condition_ben = c(logBathy = mean(ben$logBathy), logDistCR = mean(ben$logDistCR), logSST = mean(ben$logSST), logDistSM = mean(ben$logDistSM), logDistP =  1.2, logCHL= mean(ben$logCHL), logDistC = mean(ben$logDistC), Slope =mean(ben$Slope))
+  pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_betaslope_indian, mod=mod_sat.indian, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_pel)
+  pred_mod_sens_pel <- subset(pred_mod_sens, group=="Pelagic")# subset pelagic predictions
+  pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_betaslope_indian, mod=mod_sat.indian, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_ben)
+  pred_mod_sens_ben <- subset(pred_mod_sens, group=="Benthic")# subset benthic predictions
+  pred_mod_sens_indian <- rbind(pred_mod_sens_pel, pred_mod_sens_ben)
+  pred_mod_sens_indian$sens_ocean <- 'drop_indian'
+  
+###  drop pacific ocean samples----
+   
+  tab_betaslope_pacific_aus <- subset(tab_betaslope, TERRITORY1!="Clipperton Island" & TERRITORY1!="Costa Rica" & TERRITORY1!="Clipperton Island" & TERRITORY1!="Palau" & TERRITORY1!= "French Polynesia" & TERRITORY1!="Fiji" & TERRITORY1!="Niue" & TERRITORY1!= "New Caledonia" & TERRITORY1!= "Galapagos" & TERRITORY1!= "Mexico" & TERRITORY1!= "Columbia")
+  tab_betaslope_pacific <- subset(tab_betaslope_pacific_aus, Exped.!="FNQ_2018" & Exped.!="FNQ_2017_11" & Exped.!="FNQ_2017_06" & Exped.!="FNQ Nov 2017" & Exped.!="FNQ Jun 2017")
+  mod_sat.pacific <- nlme::gls(betaslope ~ bruvs * protection_use * (logTTM +logDistP) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
+                                                                                                     poly(logSST,2) + poly(logCHL,2)), data = tab_betaslope_pacific,  correlation = nlme::corRatio(form=~1),method='ML') 
+  
+  ######  MODEL MARGINAL PREDICTIONS
+  # make marginal plot predictions from selected model with means specified 
+  pel <- subset(tab_betaslope_pacific, bruvs=="pelagic")#&protection_use=="not_protected")
+  ben <- subset(tab_betaslope_pacific, bruvs=="benthic")#&protection_use=="not_protected")
+  condition_pel = c(logBathy = mean(pel$logBathy), logDistCR = mean(pel$logDistCR), logSST = mean(pel$logSST), logDistSM = mean(pel$logDistSM), logDistP =  1.2, logCHL= mean(pel$logCHL), logDistC = mean(pel$logDistC), Slope =mean(pel$Slope))
+  condition_ben = c(logBathy = mean(ben$logBathy), logDistCR = mean(ben$logDistCR), logSST = mean(ben$logSST), logDistSM = mean(ben$logDistSM), logDistP =  1.2, logCHL= mean(ben$logCHL), logDistC = mean(ben$logDistC), Slope =mean(ben$Slope))
+  pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_betaslope_pacific, mod=mod_sat.pacific, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_pel)
+  pred_mod_sens_pel <- subset(pred_mod_sens, group=="Pelagic")# subset pelagic predictions
+  pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_betaslope_pacific, mod=mod_sat.pacific, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_ben)
+  pred_mod_sens_ben <- subset(pred_mod_sens, group=="Benthic")# subset benthic predictions
+  pred_mod_sens_pacific <- rbind(pred_mod_sens_pel, pred_mod_sens_ben)
+  pred_mod_sens_pacific$sens_ocean <- 'drop_pacific'
+  
+
+#combined all predictions with dropped oceans
+  
+  pred_sens_betaslope_oceans <- rbind(pred_mod_sens_indian, pred_mod_sens_atlantic, pred_mod_sens_pacific)
+  
+
+
+
+# logfirstmode sensitivity drop ocean -------------------------------------
+
+
+######  PREPARATION OF MODELS
+
+
+# saturated model fitting
+###drop atlantic ocean samples------
+var_res_name = "logFirstmode"
+
+tab_firstmode_atlantic <- subset(tab_firstmode, TERRITORY1!="Ascension" & TERRITORY1!="Azores" & TERRITORY1!="Tristan" & TERRITORY1!="Norway" & TERRITORY1!="Tristan da Cunha")
+mod_sat.atlantic <- nlme::gls(logFirstmode ~ bruvs * protection_use * (logTTM +logDistP) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
+                                                                                                   poly(logSST,2) + poly(logCHL,2)), data = tab_firstmode_atlantic,  correlation = nlme::corRatio(form=~1),method='ML') 
+
+######  MODEL MARGINAL PREDICTIONS
+# make marginal plot predictions from selected model with means specified 
+pel <- subset(tab_firstmode_atlantic, bruvs=="pelagic")
+ben <- subset(tab_firstmode_atlantic, bruvs=="benthic")
+condition_pel = c(logBathy = mean(pel$logBathy), logDistCR = mean(pel$logDistCR), logSST = mean(pel$logSST), logDistSM = mean(pel$logDistSM), logDistP =  1.2, logCHL= mean(pel$logCHL), logDistC = mean(pel$logDistC), Slope =mean(pel$Slope))
+condition_ben = c(logBathy = mean(ben$logBathy), logDistCR = mean(ben$logDistCR), logSST = mean(ben$logSST), logDistSM = mean(ben$logDistSM), logDistP =  1.2, logCHL= mean(ben$logCHL), logDistC = mean(ben$logDistC), Slope =mean(ben$Slope))
+pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_firstmode_atlantic, mod=mod_sat.atlantic, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_pel)
+pred_mod_sens_pel <- subset(pred_mod_sens, group=="Pelagic")# subset pelagic predictions
+pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_betaslope_atlantic, mod=mod_sat.atlantic, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_ben)
+pred_mod_sens_ben <- subset(pred_mod_sens, group=="Benthic")# subset benthic predictions
+pred_mod_sens_atlantic <- rbind(pred_mod_sens_pel, pred_mod_sens_ben)
+pred_mod_sens_atlantic$sens_ocean <- 'drop_atlantic'
+
+###  drop indian ocean samples-----
+
+tab_firstmode_indian_aus <- subset(tab_firstmode, TERRITORY1!="Chagos Archipelago" & TERRITORY1!="Sudan" & TERRITORY1!="Cocos Islands" & TERRITORY1!="Maldives" & TERRITORY1!= "Australia")
+tab_firstmode_indian_FNQ <- subset(tab_firstmode, Exped.=="FNQ_2018" | Exped.=="FNQ_2017_11" | Exped.=="FNQ_2017_06" | Exped.=="FNQ Nov 2017" | Exped.=="FNQ Jun 2017")
+tab_firstmode_indian <- rbind(tab_firstmode_indian_aus, tab_firstmode_indian_FNQ)
+mod_sat.indian <- nlme::gls(logFirstmode ~ bruvs * protection_use * (logTTM +logDistP) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
+                                                                                                 poly(logSST,2) + poly(logCHL,2)), data = tab_firstmode_indian,  correlation = nlme::corRatio(form=~1),method='ML') 
+######  MODEL MARGINAL PREDICTIONS
+# make marginal plot predictions from selected model with means specified 
+pel <- subset(tab_firstmode_indian, bruvs=="pelagic")#&protection_use=="not_protected")
+ben <- subset(tab_firstmode_indian, bruvs=="benthic")#&protection_use=="not_protected")
+condition_pel = c(logBathy = mean(pel$logBathy), logDistCR = mean(pel$logDistCR), logSST = mean(pel$logSST), logDistSM = mean(pel$logDistSM), logDistP =  1.2, logCHL= mean(pel$logCHL), logDistC = mean(pel$logDistC), Slope =mean(pel$Slope))
+condition_ben = c(logBathy = mean(ben$logBathy), logDistCR = mean(ben$logDistCR), logSST = mean(ben$logSST), logDistSM = mean(ben$logDistSM), logDistP =  1.2, logCHL= mean(ben$logCHL), logDistC = mean(ben$logDistC), Slope =mean(ben$Slope))
+pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_firstmode_indian, mod=mod_sat.indian, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_pel)
+pred_mod_sens_pel <- subset(pred_mod_sens, group=="Pelagic")# subset pelagic predictions
+pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_firstmode_indian, mod=mod_sat.indian, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_ben)
+pred_mod_sens_ben <- subset(pred_mod_sens, group=="Benthic")# subset benthic predictions
+pred_mod_sens_indian <- rbind(pred_mod_sens_pel, pred_mod_sens_ben)
+pred_mod_sens_indian$sens_ocean <- 'drop_indian'
+
+###  drop pacific ocean samples----
+
+tab_firstmode_pacific_aus <- subset(tab_firstmode, TERRITORY1!="Clipperton Island" & TERRITORY1!="Costa Rica" & TERRITORY1!="Clipperton Island" & TERRITORY1!="Palau" & TERRITORY1!= "French Polynesia" & TERRITORY1!="Fiji" & TERRITORY1!="Niue" & TERRITORY1!= "New Caledonia" & TERRITORY1!= "Galapagos" & TERRITORY1!= "Mexico" & TERRITORY1!= "Columbia")
+tab_firstmode_pacific <- subset(tab_firstmode_pacific_aus, Exped.!="FNQ_2018" & Exped.!="FNQ_2017_11" & Exped.!="FNQ_2017_06" & Exped.!="FNQ Nov 2017" & Exped.!="FNQ Jun 2017")
+mod_sat.pacific <- nlme::gls(logFirstmode ~ bruvs * protection_use * (logTTM +logDistP) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
+                                                                                                  poly(logSST,2) + poly(logCHL,2)), data = tab_firstmode_pacific,  correlation = nlme::corRatio(form=~1),method='ML') 
+
+######  MODEL MARGINAL PREDICTIONS
+# make marginal plot predictions from selected model with means specified 
+pel <- subset(tab_firstmode_pacific, bruvs=="pelagic")#&protection_use=="not_protected")
+ben <- subset(tab_firstmode_pacific, bruvs=="benthic")#&protection_use=="not_protected")
+condition_pel = c(logBathy = mean(pel$logBathy), logDistCR = mean(pel$logDistCR), logSST = mean(pel$logSST), logDistSM = mean(pel$logDistSM), logDistP =  1.2, logCHL= mean(pel$logCHL), logDistC = mean(pel$logDistC), Slope =mean(pel$Slope))
+condition_ben = c(logBathy = mean(ben$logBathy), logDistCR = mean(ben$logDistCR), logSST = mean(ben$logSST), logDistSM = mean(ben$logDistSM), logDistP =  1.2, logCHL= mean(ben$logCHL), logDistC = mean(ben$logDistC), Slope =mean(ben$Slope))
+pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_firstmode_pacific, mod=mod_sat.pacific, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_pel)
+pred_mod_sens_pel <- subset(pred_mod_sens, group=="Pelagic")# subset pelagic predictions
+pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_firstmode_pacific, mod=mod_sat.pacific, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_ben)
+pred_mod_sens_ben <- subset(pred_mod_sens, group=="Benthic")# subset benthic predictions
+pred_mod_sens_pacific <- rbind(pred_mod_sens_pel, pred_mod_sens_ben)
+pred_mod_sens_pacific$sens_ocean <- 'drop_pacific'
+
+
+#combined all predictions with dropped oceans
+
+pred_sens_firstmode_oceans <- rbind(pred_mod_sens_indian, pred_mod_sens_atlantic, pred_mod_sens_pacific)
+
+
+
+
+
+# logsecond mode sensitivity drop ocean  -------------------------------------
+######  PREPARATION OF MODELS
+# saturated model fitting
+
+###drop atlantic ocean samples------
+var_res_name = "logSecondmode"
+
+tab_secondmode_atlantic <- subset(tab_secondmode, TERRITORY1!="Ascension" & TERRITORY1!="Azores" & TERRITORY1!="Tristan" & TERRITORY1!="Norway" & TERRITORY1!="Tristan da Cunha")
+mod_sat.atlantic <- nlme::gls(logSecondmode ~ bruvs * protection_use * (logTTM +logDistP) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
+                                                                                                      poly(logSST,2) + poly(logCHL,2)), data = tab_secondmode_atlantic,  correlation = nlme::corRatio(form=~1),method='ML') 
+
+######  MODEL MARGINAL PREDICTIONS
+# make marginal plot predictions from selected model with means specified 
+pel <- subset(tab_secondmode_atlantic, bruvs=="pelagic")
+ben <- subset(tab_secondmode_atlantic, bruvs=="benthic")
+condition_pel = c(logBathy = mean(pel$logBathy), logDistCR = mean(pel$logDistCR), logSST = mean(pel$logSST), logDistSM = mean(pel$logDistSM), logDistP =  1.2, logCHL= mean(pel$logCHL), logDistC = mean(pel$logDistC), Slope =mean(pel$Slope))
+condition_ben = c(logBathy = mean(ben$logBathy), logDistCR = mean(ben$logDistCR), logSST = mean(ben$logSST), logDistSM = mean(ben$logDistSM), logDistP =  1.2, logCHL= mean(ben$logCHL), logDistC = mean(ben$logDistC), Slope =mean(ben$Slope))
+pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_secondmode_atlantic, mod=mod_sat.atlantic, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_pel)
+pred_mod_sens_pel <- subset(pred_mod_sens, group=="Pelagic")# subset pelagic predictions
+pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_secondmode_atlantic, mod=mod_sat.atlantic, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_ben)
+pred_mod_sens_ben <- subset(pred_mod_sens, group=="Benthic")# subset benthic predictions
+pred_mod_sens_atlantic <- rbind(pred_mod_sens_pel, pred_mod_sens_ben)
+pred_mod_sens_atlantic$sens_ocean <- 'drop_atlantic'
+
+###  drop indian ocean samples-----
+
+tab_secondmode_indian_aus <- subset(tab_secondmode, TERRITORY1!="Chagos Archipelago" & TERRITORY1!="Sudan" & TERRITORY1!="Cocos Islands" & TERRITORY1!="Maldives" & TERRITORY1!= "Australia")
+tab_secondmode_indian_FNQ <- subset(tab_secondmode, Exped.=="FNQ_2018" | Exped.=="FNQ_2017_11" | Exped.=="FNQ_2017_06" | Exped.=="FNQ Nov 2017" | Exped.=="FNQ Jun 2017")
+tab_secondmode_indian <- rbind(tab_secondmode_indian_aus, tab_secondmode_indian_FNQ)
+mod_sat.indian <- nlme::gls(logSecondmode ~ bruvs * protection_use * (logTTM +logDistP) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
+                                                                                                    poly(logSST,2) + poly(logCHL,2)), data = tab_secondmode_indian,  correlation = nlme::corRatio(form=~1),method='ML') 
+######  MODEL MARGINAL PREDICTIONS
+# make marginal plot predictions from selected model with means specified 
+pel <- subset(tab_secondmode_indian, bruvs=="pelagic")#&protection_use=="not_protected")
+ben <- subset(tab_secondmode_indian, bruvs=="benthic")#&protection_use=="not_protected")
+condition_pel = c(logBathy = mean(pel$logBathy), logDistCR = mean(pel$logDistCR), logSST = mean(pel$logSST), logDistSM = mean(pel$logDistSM), logDistP =  1.2, logCHL= mean(pel$logCHL), logDistC = mean(pel$logDistC), Slope =mean(pel$Slope))
+condition_ben = c(logBathy = mean(ben$logBathy), logDistCR = mean(ben$logDistCR), logSST = mean(ben$logSST), logDistSM = mean(ben$logDistSM), logDistP =  1.2, logCHL= mean(ben$logCHL), logDistC = mean(ben$logDistC), Slope =mean(ben$Slope))
+pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_secondmode_indian, mod=mod_sat.indian, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_pel)
+pred_mod_sens_pel <- subset(pred_mod_sens, group=="Pelagic")# subset pelagic predictions
+pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_secondmode_indian, mod=mod_sat.indian, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_ben)
+pred_mod_sens_ben <- subset(pred_mod_sens, group=="Benthic")# subset benthic predictions
+pred_mod_sens_indian <- rbind(pred_mod_sens_pel, pred_mod_sens_ben)
+pred_mod_sens_indian$sens_ocean <- 'drop_indian'
+
+###  drop pacific ocean samples----
+
+tab_secondmode_pacific_aus <- subset(tab_secondmode, TERRITORY1!="Clipperton Island" & TERRITORY1!="Costa Rica" & TERRITORY1!="Clipperton Island" & TERRITORY1!="Palau" & TERRITORY1!= "French Polynesia" & TERRITORY1!="Fiji" & TERRITORY1!="Niue" & TERRITORY1!= "New Caledonia" & TERRITORY1!= "Galapagos" & TERRITORY1!= "Mexico" & TERRITORY1!= "Columbia")
+tab_secondmode_pacific <- subset(tab_secondmode_pacific_aus, Exped.!="FNQ_2018" & Exped.!="FNQ_2017_11" & Exped.!="FNQ_2017_06" & Exped.!="FNQ Nov 2017" & Exped.!="FNQ Jun 2017")
+mod_sat.pacific <- nlme::gls(logSecondmode ~ bruvs * protection_use * (logTTM +logDistP) + bruvs * (logDistSM+logDistC +logBathy+ logDistCR + Slope +
+                                                                                                     poly(logSST,2) + poly(logCHL,2)), data = tab_secondmode_pacific,  correlation = nlme::corRatio(form=~1),method='ML') 
+
+######  MODEL MARGINAL PREDICTIONS
+# make marginal plot predictions from selected model with means specified 
+pel <- subset(tab_secondmode_pacific, bruvs=="pelagic")#&protection_use=="not_protected")
+ben <- subset(tab_secondmode_pacific, bruvs=="benthic")#&protection_use=="not_protected")
+condition_pel = c(logBathy = mean(pel$logBathy), logDistCR = mean(pel$logDistCR), logSST = mean(pel$logSST), logDistSM = mean(pel$logDistSM), logDistP =  1.2, logCHL= mean(pel$logCHL), logDistC = mean(pel$logDistC), Slope =mean(pel$Slope))
+condition_ben = c(logBathy = mean(ben$logBathy), logDistCR = mean(ben$logDistCR), logSST = mean(ben$logSST), logDistSM = mean(ben$logDistSM), logDistP =  1.2, logCHL= mean(ben$logCHL), logDistC = mean(ben$logDistC), Slope =mean(ben$Slope))
+pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_betaslope_pacific, mod=mod_sat.pacific, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_pel)
+pred_mod_sens_pel <- subset(pred_mod_sens, group=="Pelagic")# subset pelagic predictions
+pred_mod_sens <- marg_data_bruvs_prot(response = var_res_name, dat = tab_betaslope_pacific, mod=mod_sat.pacific, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_ben)
+pred_mod_sens_ben <- subset(pred_mod_sens, group=="Benthic")# subset benthic predictions
+pred_mod_sens_pacific <- rbind(pred_mod_sens_pel, pred_mod_sens_ben)
+pred_mod_sens_pacific$sens_ocean <- 'drop_pacific'
+
+
+#combined all predictions with dropped oceans
+
+pred_sens_secondmode_oceans <- rbind(pred_mod_sens_indian, pred_mod_sens_atlantic, pred_mod_sens_pacific)
+
+
+#Fig. S10 marginal plot drop ocean -------
+
+#merge
+pred_all_sens_oceans <- rbind(pred_sens_firstmode_oceans,pred_sens_secondmode_oceans,pred_sens_betaslope_oceans)
+
+save_marg_pred_all_sens_oceans(pred_all_sens_oceans) # save marginal predictions
+
+###plot marginal plot combined by protection level
+
+pred_all_sens_oceans_mod <- read_marg_pred_all_sens_oceans() # read marginal predictions
+#summary(pred_all_sens_oceans_mod)
+
+marg_plot_bruvs_prot_sens_oceans(pred=pred_all_sens_oceans_mod, var_name = "logTTM")
 
 
 
