@@ -339,7 +339,7 @@ figridges <- function(dat, min_size, lat_band){
   
     
     scale_x_log10(limits = c(5e-04, 1200), breaks = c(0.001, 0.1, 100), labels = c(0.001, 0.1, 100))+
-    xlab('Body size (kg)') +ylab('Absolute latitude brackets')+
+    xlab('Body size (kg)') +ylab('Frequency density')+
     scale_fill_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'orange'), labels = c('Pelagic', 'Benthic'))+
     scale_colour_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'darkorange'), labels = c('Pelagic', 'Benthic'))+
     scale_linetype_manual(breaks=c(0.5,1), values =c("dotted", "solid"))+ 
