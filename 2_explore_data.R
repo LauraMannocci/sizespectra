@@ -87,7 +87,7 @@ ex_data_lat_cdp(fig_ridges, bin_global_lm)
 
 #### Fig S7 weight against longitudinal band with regression ----
 
-#sensitivity analysis
+#
 fig_ridges_lon <- figridges_lon(dat = fl_pelagic_benthic_meta, min_size = 0.001, lon_band = 6)  
 
 

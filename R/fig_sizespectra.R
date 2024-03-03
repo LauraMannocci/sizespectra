@@ -391,7 +391,7 @@ figridges_lon <- function(dat, min_size, lon_band){
                   position = position_jitternudge(height = 0.22, y = 0.21, seed = 5,  nudge.from ="jittered.y"), size=5,show.legend = FALSE)+
     
     scale_x_log10(limits = c(5e-04, 1200), breaks = c(0.001, 0.1, 100), labels = c(0.001, 0.1, 100))+
-    xlab('Body size (kg)') +ylab('Longitude bracket')+
+    xlab('Body size (kg)') +ylab('Frequency density')+
     scale_fill_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'orange'), labels = c('Pelagic', 'Benthic'))+
     scale_colour_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'darkorange'), labels = c('Pelagic', 'Benthic'))+
     scale_linetype_manual(breaks=c(0.5,1), values =c("dotted", "solid"))+ 
@@ -980,7 +980,7 @@ bin_global_points_lm_lon <- function(dat, minsize, lon_band){
     #stat_smooth(data = dat_benthic_max, aes(x, norm_y), colour ='darkorange',fill ='darkorange', method  = "lm", alpha = 0.2, size = .3)+
     geom_point(data = dat_pelagic_max, aes(x, norm_y), colour = '#077DAA',alpha = 0.6)+
     geom_point(data = dat_benthic_max, aes(x, norm_y), colour = 'darkorange',alpha = 0.6)+
-    theme_light() + xlab("Body size (kg)")+ ylab(bquote(log[10](Count)))+
+    theme_light() + xlab("Body size (kg)")+ ylab(bquote(Log[10](Count)))+
     scale_x_continuous(breaks= c( -3, -2, -1, 0, 1, 2), labels = c(.001, .01, .1, 1, 10, 100), limits = c(-3.5, 3.5))+
     theme(legend.position = "none", axis.title.x=element_text(size=22),legend.title = element_blank(),
           legend.text = element_text(size =22),axis.text.x = element_text(size=16),
