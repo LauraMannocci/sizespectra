@@ -26,8 +26,7 @@ maxn2 <- get_missing_maxn_pelagic()
 fl2 <- get_missing_fl_pelagic()
 
 
-### get additionnal pelagic bruvs data (meta, maxn, fl) from Zenodo repository
-#### IMPORTANT ****** add zenodo url and code to download zenodo data, load zenodo data and merge it with current data ******
+
 
 
 ### clean data
@@ -159,9 +158,6 @@ maxn <- read_maxn_benthic()
 meta <- read_meta_benthic()
 
 
-### get additionnal benthic bruvs data (meta, maxn, fl) from Zenodo repository
-#### IMPORTANT ****** add zenodo url and code to download zenodo data, load zenodo data and merge it with current data ******
-
 
 ### clean data
 
@@ -286,7 +282,7 @@ sum(maxn$MaxN) - nrow(fl) # 17171 supplementary row numbers in fl due to error i
 
 
 ### Estimate weight from observed length for a taxa using rfishbase
-fl <- estimate_weight_from_length(fl)
+fl <- estimate_weight_from_length_regression(fl)
 
 
 

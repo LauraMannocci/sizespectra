@@ -53,11 +53,16 @@ draw_screengrab_combo()
 ################# Fig 2 sampling effort  ###################----
 #map shapefiles
 WorldData <- ggplot2::map_data("world") #%>% filter(region != "Antarctica") %>% fortify
-dsn_mar_layer <- "/Users/tomletessier/Documents/R stuff/Rcourse_graphics_Nov2011/"
-mar <- rgdal::readOGR(dsn = dsn_mar_layer, layer = "World_Maritime_Boundaries_v8") #maritime boundary
+#dsn_mar_layer <- "/Users/tomletessier/Documents/R stuff/Rcourse_graphics_Nov2011/"
+#mar <- rgdal::readOGR(dsn = dsn_mar_layer, layer = "World_Maritime_Boundaries_v8") #maritime boundary
 
-#map with expedition location
-fig_map_sum <- globalmap_sum(world = WorldData, mar = mar, meta_pb = pelagic_benthic_sum)
+#map with expedition location with eez
+#fig_map_sum <- globalmap_sum_eez(world = WorldData, mar = mar, meta_pb = pelagic_benthic_sum)
+
+#map with expedition location with eez
+fig_map_sum <- globalmap_sum(world = WorldData, meta_pb = pelagic_benthic_sum)
+
+
 
 ##### species rank order weights with marginal violin  MAIN BODY
 fig_sp_rank <- fl_species_ord_marg(data = fl_pelagic_benthic_meta,lower.line=0.001, mid.line = 0.1, upper.line=10, minsize =0.001)# define quantiles for lines

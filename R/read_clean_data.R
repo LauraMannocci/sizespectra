@@ -1512,7 +1512,7 @@ write_meta_opcodes_benthic <- function (dat) {
 
 estimate_weight_from_length_regression = function(data) {
   
-  
+  #data=fl
   if(!all(c("Binomial", "Lengthcm") %in% names(data))) {
     print("Data must contain species name (Binomial) and observed length (Lengthcm)")
     break
@@ -1629,10 +1629,13 @@ estimate_weight_from_length_regression = function(data) {
   #a and b estimates from bayesian approach
   # tryCatch(a_b <- rfishbase::estimate(unique(data$Binomial)), error=function(e) {})
   
+  #a_b %>% 
+   # dplyr::select(c("Species", "LengthType", "a", "b")) %>% 
+   # dplyr::rename(Type = "LengthType") %>% 
+   # dplyr::rename(Binomial = "Species") -> a_b
+  
   a_b %>% 
-    dplyr::select(c("Species", "LengthType", "a", "b")) %>% 
-    dplyr::rename(Type = "LengthType") %>% 
-    dplyr::rename(Binomial = "Species") -> a_b
+    dplyr::select(c("Binomial", "Type", "a", "b")) -> a_b
   
   a_b$Type <- "TL" # as per Deng Palomares response on rfishbase github issue (lenthtype should be assumed as TL if not available in table)
   
