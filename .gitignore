@@ -2,12 +2,8 @@
 .Rhistory
 .RData
 .DS_Store
-man/
 outputs/
 manuscript/
-NAMESPACE
-*.Rproj
-data/
 data_old/
 papers/
 model.RData
