@@ -19,9 +19,6 @@ tab_betaslope <- clean_data_with_vars(tab, "betaslope")
 tab_betaslope <- truncate_data(tab_betaslope, "betaslope", 3)
 
 
-ggplot()+geom_jitter(data = tab_betaslope, aes(logTTM, GovernmentEffectiveness_mean, colour = bruvs, size =betaslope), alpha = .4)+
-  scale_colour_manual(values = c("pelagic" = '#077DAA', 'benthic' = 'orange'))+theme_light()
-
 # clean data with predictor variables for first mode
 tab_firstmode <- clean_data_with_vars(tab, "logFirstmode")
 
@@ -349,8 +346,8 @@ multi_covariate_marg(TTMFirstmode, TTMSecondmode,TTMBetaslope, "TTM")
 multi_covariate_marg_bruvs(TTMFirstmode_bruvs, TTMSecondmode_bruvs,TTMBetaslope_bruvs, "TTM")
 
 #TTM with conceptual 
-conceptual_marg_mod(TTMFirstmode, TTMSecondmode,TTMBetaslope, "TTM")
-conceptual_marg_bruvs(TTMFirstmode_bruvs, TTMSecondmode_bruvs,TTMBetaslope_bruvs, "TTM")
+#conceptual_marg_mod(TTMFirstmode, TTMSecondmode,TTMBetaslope, "TTM")
+#conceptual_marg_bruvs(TTMFirstmode_bruvs, TTMSecondmode_bruvs,TTMBetaslope_bruvs, "TTM")
 
 
 
@@ -402,28 +399,6 @@ marg_plot_bruvs_prot(pred=pred_all, var_name = "logTTM", rug_beta = tab_betaslop
 
     ## LINEAR REGRESSION RESPONSE-----
 
-response_vs_response(tab_firstmode)
-mode_vs_mode_lm(tab_firstmode)
-mode_lm_res_beta(tab_firstmode)
-
-tab_firstmode2 <- subset(tab_firstmode, betaslope > -4,)
-
-tapply(tab_firstmode$logFirstmode, tab_firstmode$bruvs, summary)
-
-mode_lm_res_beta_Secondmode(tab_firstmode2)
-
-
-ggplot(tab_firstmode)+ geom_point(aes(x =logTTM, y=logDistP, colour = bruvs))+ facet_wrap(~protection_use)
-
-
-  geom_smooth(aes(x = betaslope, y=logSecondmode), method='lm')#+ 
-  #geom_point(aes(x = betaslope, y=logSecondmode), colour = "BLUE")
-
-
-
-ggplot(tab_firstmode)+ geom_point(aes(x = logSecondmode, y=logFirstmode))#+
-  #geom_smooth(aes(x = betaslope, y=logSecondmode), method='lm')#+ 
-#geom_point(aes(x = betaslope, y=logSecondmode), colour = "BLUE")
 
 
 

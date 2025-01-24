@@ -136,7 +136,7 @@ globalmap <- function(world, mar, meta_pb){
 }
 
 
-#' Global map of BRUVS sampling effort SUMMARY
+#' Global map of BRUVS sampling effort with eez SUMMARY
 #'
 #' Pelagic in blue and benthic in yellow
 #'
@@ -152,7 +152,7 @@ globalmap <- function(world, mar, meta_pb){
 #' @examples
 #' ## ...
 
-globalmap_sum <- function(world, mar, meta_pb){
+globalmap_sum_eez <- function(world, mar, meta_pb){
   
   set.seed(7)
   
@@ -161,7 +161,7 @@ globalmap_sum <- function(world, mar, meta_pb){
   gplot <- ggplot() +
     geom_map(data = world, map = world,
              aes(x = long, y = lat, group = group, map_id=region),fill="gray60",color="gray60", size=0.2) + 
-    geom_path(aes(long, lat, group=group),data=mar, color="gray80")+ coord_fixed(1.3, xlim = c(-170, 170), ylim = c(-53, 77)) + 
+    #geom_path(aes(long, lat, group=group),data=mar, color="gray80")+ coord_fixed(1.3, xlim = c(-170, 170), ylim = c(-53, 77)) + 
     geom_jitter(data= meta_pb, aes(mean_long, mean_lat, fill = as.factor(Type), size = Deployments), shape = 21, alpha = 0.7, width = 2.2, height = 2.2) +
     scale_size_binned(range =c(3,16))+
     theme_light()+ theme(legend.position = "bottom", legend.box = "horizontal", 
@@ -183,6 +183,51 @@ globalmap_sum <- function(world, mar, meta_pb){
   invisible(gplot)
 }
 
+#' Global map of BRUVS sampling effort without eez SUMMARY
+#'
+#' Pelagic in blue and benthic in yellow
+#'
+#' @param world the output of `ggplot2::map_data()`
+#' @param meta_pb coordinates of...
+#'
+#' @return A ggplot2 object
+#' 
+#' @export
+#' @import ggplot2
+#' 
+#' @examples
+#' ## ...
+
+globalmap_sum <- function(world, meta_pb){
+  
+  set.seed(7)
+  
+  
+  
+  gplot <- ggplot() +
+    geom_map(data = world, map = world,
+             aes(x = long, y = lat, group = group, map_id=region),fill="gray60",color="gray60", size=0.2) + 
+    #geom_path(aes(long, lat, group=group),data=mar, color="gray80")+ coord_fixed(1.3, xlim = c(-170, 170), ylim = c(-53, 77)) + 
+    geom_jitter(data= meta_pb, aes(mean_long, mean_lat, fill = as.factor(Type), size = Deployments), shape = 21, alpha = 0.7, width = 2.2, height = 2.2) +
+    scale_size_binned(range =c(3,16))+
+    theme_light()+ theme(legend.position = "bottom", legend.box = "horizontal", 
+                         #legend.margin=margin(t = -.6,b=0.5, unit='cm'),
+                         panel.spacing=unit(x=c(0,0,0,0),units="mm"), axis.title.y= element_blank(), axis.title.x = element_blank(),axis.text.y = element_text(size = 16),axis.text.x = element_text(size = 16), 
+                         legend.text = element_text(size =18),  legend.title = element_blank())+
+    #plot.margin = margin(t = 0,  r = 0,b = 0,  l = 0)) +
+    # scale_size_manual(values = c("Midwater" =  7, 'Seabed' = 4))+
+    scale_y_continuous(breaks = c(-45, -30, -15, 0, 15, 30, 45, 60, 75), labels = c("45° S", "30° S", "15° S", "0", "15° N", "30° N", "45° N", "60° N", "75° N"))+
+    scale_x_continuous(breaks = c(-160, -120, -60, 0, 60, 120, 160), labels = c("160° W", "120° W", "60° W", "0", "60° E", "120° E", "160° E"))+
+    
+    scale_fill_manual(values = c("Midwater" = '#077DAA', 'Seabed' = 'orange'), labels = c("Pelagic BRUVS (n=6,701)", "Benthic BRUVS (n=10,710)")) +
+    guides(fill = guide_legend(override.aes = list(size = 5)))
+  
+  print(gplot)
+  
+  ggsave(gplot, filename = here::here("outputs", "globalmap_sum.png"), width = 20, height = 10, units = "in", dpi =300)
+  
+  invisible(gplot)
+}
 
 
 

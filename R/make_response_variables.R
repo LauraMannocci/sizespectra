@@ -9,7 +9,7 @@
 #' 
 read_size_pelagic <- function(){
   
-  dat <- read.csv(here::here("outputs", "merged_fl_pelagic_meta.csv"), row.names = 1, header = TRUE)
+  dat <- read.csv(here::here("outputs","pelagic","merged_fl_pelagic_meta.csv"), row.names = 1, header = TRUE)
   dat <- na.omit(dat)
   
   #return(dat)
@@ -500,7 +500,7 @@ dat = dat[dat$betaslope > min, ]
 #' 
 read_size_benthic <- function(dat){
 
-dat <- read.csv(here::here("outputs", "merged_fl_benthic_meta.csv"),header=TRUE,row.names=1)
+dat <- read.csv(here::here("outputs", "benthic", "merged_fl_benthic_meta.csv"),header=TRUE,row.names=1)
 
 dat=na.omit(dat)
 

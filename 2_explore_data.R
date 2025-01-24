@@ -2,13 +2,6 @@
 devtools::document()
 devtools::load_all() ### load packages and functions in R folder
 
-#read port and markets data
-#market <-read_data_with_market()
-#port <-read_data_with_port()
-
-# port and market maps
-#map_port <- globalmap_port(world = WorldData, mar = mar, dat = port)
-#map_market <- globalmap_market(world = WorldData, mar = mar, dat = market)
 
 
 # explore bruvs data
@@ -17,7 +10,7 @@ devtools::load_all() ### load packages and functions in R folder
 
 # load pelagic data-- 
 
-load("1_read_clean_pelagic.RData")
+load("1_read_clean_pelagic_old.RData")
 fl_pelagic <- tidyr::drop_na(fl_pelagic, weight_kg)
 
 ########### BENTHIC bruvs----
@@ -25,19 +18,15 @@ fl_pelagic <- tidyr::drop_na(fl_pelagic, weight_kg)
 
 # load benthic data---
 
-load("1_read_clean_benthic.RData")
+load("1_read_clean_benthic_old.RData")
 fl_benthic <- tidyr::drop_na(fl_benthic, weight_kg)
-
-
-### make map meta
-#make_map_meta(meta_benthic, "benthic")
 
 
 ### load pelagic benthic meta and merged fork lengths data
 
-load("1_read_clean_pelagic_benthic.RData")
+load("1_read_clean_pelagic_benthic_old.RData")
 fl_pelagic_benthic_meta <- tidyr::drop_na(fl_pelagic_benthic_meta, weight_kg)
-data = fl_pelagic_benthic_meta[fl_pelagic_benthic_meta$weight_kg > 0.001, ]# select predatory fish - individuals larger than minsize kg
+data = fl_pelagic_benthic_meta[fl_pelagic_benthic_meta$weight_kg > 0.001, ]# select individuals larger than minsize kg
 
 
 ### load pelagic benthic meta summary
@@ -46,18 +35,22 @@ pelagic_benthic_sum <- read_data_pelagic_benthic_sum()
 
 ################# Fig 1 data bruvs screen grab ################### ----
 
-
 draw_screengrab_combo()
 
 
 ################# Fig 2 sampling effort  ###################----
 #map shapefiles
 WorldData <- ggplot2::map_data("world") #%>% filter(region != "Antarctica") %>% fortify
-dsn_mar_layer <- "/Users/tomletessier/Documents/R stuff/Rcourse_graphics_Nov2011/"
-mar <- rgdal::readOGR(dsn = dsn_mar_layer, layer = "World_Maritime_Boundaries_v8") #maritime boundary
+#dsn_mar_layer <- "/Users/tomletessier/Documents/R stuff/Rcourse_graphics_Nov2011/"
+#mar <- rgdal::readOGR(dsn = dsn_mar_layer, layer = "World_Maritime_Boundaries_v8") #maritime boundary
 
-#map with expedition location
-fig_map_sum <- globalmap_sum(world = WorldData, mar = mar, meta_pb = pelagic_benthic_sum)
+#map with expedition location with eez
+#fig_map_sum <- globalmap_sum_eez(world = WorldData, mar = mar, meta_pb = pelagic_benthic_sum)
+
+#map with expedition location with eez
+fig_map_sum <- globalmap_sum(world = WorldData, meta_pb = pelagic_benthic_sum)
+
+
 
 ##### species rank order weights with marginal violin  MAIN BODY
 fig_sp_rank <- fl_species_ord_marg(data = fl_pelagic_benthic_meta,lower.line=0.001, mid.line = 0.1, upper.line=10, minsize =0.001)# define quantiles for lines
@@ -87,7 +80,7 @@ ex_data_lat_cdp(fig_ridges, bin_global_lm)
 
 #### Fig S7 weight against longitudinal band with regression ----
 
-#
+
 fig_ridges_lon <- figridges_lon(dat = fl_pelagic_benthic_meta, min_size = 0.001, lon_band = 6)  
 
 
@@ -98,49 +91,12 @@ bin_global_lm_lon <- bin_global_points_lm_lon(fl_pelagic_benthic_meta,0.001, 6)#
 ex_data_lat_cdp_lon(fig_ridges_lon, bin_global_lm_lon)
 
 
-
-#####TEMPORAL EFFORT - supplementary figure
-
-meta_benthic2 <-meta_benthic[!(meta_benthic$NewOpCode=="BRUV3_30102016" | meta_benthic$NewOpCode=="BRUV2_03112016" | meta_benthic$NewOpCode=="BRUV5_01122016"| meta_benthic$NewOpCode=="BRUV5_22102016" | meta_benthic$NewOpCode=="BRUV6_22102016"),]
-
-hist(meta_benthic2$Date, breaks = "years")
-
-
-date_hist <- ggplot(data = meta_benthic2, aes(x=Date))+
-  geom_histogram(fill = 'orange', alpha=.5) +
-  # Change the fill colour to differentiate it
-  geom_histogram(data=meta_pelagic, fill='#077DAA', alpha=.5) +
-  labs(title = "Temporal distribution of BRUVS effort")+
-  labs(y="Yearly BRUVS deployments")+
-  labs(x="Year")+
-  date_hist
-
 #### data exploration
-
-
-fl_pelagic_benthic_meta2 <- subset(fl_pelagic_benthic_meta, weight_kg >45)
-nrow(fl_pelagic_benthic_meta2)
-sort(table(fl_pelagic_benthic_meta2$Type))
-
-
-
-nrow(unique(fl_pelagic_benthic_meta$Binomial))
-
-sort(table(fl_pelagic_benthic_meta$Binomial))
-
-nlevels(as.factor(fl_pelagic_benthic_meta$Binomial))
-
-# median(fl_pelagic$weight_kg)
+#median values
+median(fl_pelagic$weight_kg)
 # [1] 0.008759282
-# median(fl_benthic$weight_kg)
+median(fl_benthic$weight_kg)
 # [1] 0.0585
-
-### count unique locations
-
-levels(meta_pelagic$Location)
-
-levels(as.factor(rbind(meta_pelagic$Location, meta_benthic$Location)))
-levels(as.factor(rbind(meta_pelagic$exped, meta_benthic$Exped)))
 
 #sum of weights 
 sum(fl_pelagic_benthic_meta$weight_kg,na.rm=TRUE)
@@ -149,26 +105,26 @@ aggregate(fl_pelagic_benthic_meta$weight_kg, by=list(Category=fl_pelagic_benthic
 
 
 
-
-tab_betaslope %>%
-  #select columns
-  select_at(vars("bruvs", "Bathymetry", "distSeamounts", "conflicts", "RuleofLaw_mean", "GovernmentEffectiveness_mean", "Voice_mean", "Corruption_mean", "HDI_mean", "MarineEcosystemDependency", "TravelTime_market")) %>% 
-  gather(key = "key", value = "value", -bruvs) %>%
-  group_by(bruvs, key) %>%
-  summarise(mean = mean(value), min = min(value), max =max(value)) -> envar_table_ms
-write.csv(envar_table_ms, here::here("outputs", "table", file="envar_table_ms_benthic_pelagic.csv"))
-
-#calculate range and means for a table
-
-tab %>%
-  #select columns
-  select_at(vars("Bathymetry", "distSeamounts", "distCoralReef","Slope","distCoast", "PP","CHL","SST_mean",'SST_sd','sst_week',"SAU","FE_PurseSeine", "FE_DriftingLongline", "FE_FixedGear", "conflicts", "RuleofLaw_mean", "NoViolence_mean", "GovernmentEffectiveness_mean", "Voice_mean", "Corruption_mean", "HDI_mean", "NGO", "MarineEcosystemDependency", "TravelTime_market", "LinearDistcities", "TravelTime_pop", "LinearDistpop", "distPort")) %>% 
-  #gather(value = "value") %>%
-  summarise_if(is.numeric, list(mean, min, max), na.rm = TRUE) -> envar_table_ms
- 
-tab -> envar_table_ms
-write.csv(envar_table_ms, here::here("outputs", "table", file="envar_table_ms.csv"))
-
+# 
+# tab_betaslope %>%
+#   #select columns
+#   select_at(vars("bruvs", "Bathymetry", "distSeamounts", "conflicts", "RuleofLaw_mean", "GovernmentEffectiveness_mean", "Voice_mean", "Corruption_mean", "HDI_mean", "MarineEcosystemDependency", "TravelTime_market")) %>% 
+#   gather(key = "key", value = "value", -bruvs) %>%
+#   group_by(bruvs, key) %>%
+#   summarise(mean = mean(value), min = min(value), max =max(value)) -> envar_table_ms
+# write.csv(envar_table_ms, here::here("outputs", "table", file="envar_table_ms_benthic_pelagic.csv"))
+# 
+# #calculate range and means for a table
+# 
+# tab %>%
+#   #select columns
+#   select_at(vars("Bathymetry", "distSeamounts", "distCoralReef","Slope","distCoast", "PP","CHL","SST_mean",'SST_sd','sst_week',"SAU","FE_PurseSeine", "FE_DriftingLongline", "FE_FixedGear", "conflicts", "RuleofLaw_mean", "NoViolence_mean", "GovernmentEffectiveness_mean", "Voice_mean", "Corruption_mean", "HDI_mean", "NGO", "MarineEcosystemDependency", "TravelTime_market", "LinearDistcities", "TravelTime_pop", "LinearDistpop", "distPort")) %>% 
+#   #gather(value = "value") %>%
+#   summarise_if(is.numeric, list(mean, min, max), na.rm = TRUE) -> envar_table_ms
+#  
+# tab -> envar_table_ms
+# write.csv(envar_table_ms, here::here("outputs", "table", file="envar_table_ms.csv"))
+# 
 
 
 

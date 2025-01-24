@@ -24,15 +24,9 @@ data_to_export <- modes_pelagic(SpecLen, data_to_export)
 data_to_export <- beta_slope_pelagic(SpecLen, data_to_export)
 
 
-##make pelagic beta slopes and alternative method- this takes a while----
+#dat3<- subset_betaslope(dat3, -6, 1)
 
-data_to_export < - beta_slope_pelagic_alt(SpecLen, data_to_export)
-
-ggplot(dat3, aes(x= betaslope, y= alt_slope)) +geom_point()
-
-dat3<- subset_betaslope(dat3, -6, 1)
-
-cor.test(dat3$betaslope, dat3$alt_slope, method = c("pearson", "kendall", "spearman"))
+#cor.test(dat3$betaslope, dat3$alt_slope, method = c("pearson", "kendall", "spearman"))
 
 
 #subset sensible betaslope
@@ -75,11 +69,8 @@ write.table(data_to_export,file=here::here("data", "response", "size_response_be
 # MERGE PELAGIC ENVAR WITH META ------
 
 
-#envar_pelagic <- readr::read_csv(here::here("data", "envar", "PelagicData_dec2021.csv"), col_names = TRUE)
 envar_pelagic <- readRDS(here::here("data", "envar", "pelagicdata_020622.rds"))
 
-#ggplot2::ggplot(envar_pelagic, aes(x=distPort, y=LinearDistpop)) + geom_point()
-  
 
 ### compute average pelagic environmental variable by date/exped----
 
@@ -150,7 +141,6 @@ envar_benthic %>% dplyr::mutate(distMarket = as.numeric(distMarket)) %>%
 
 #merge benthic envar and meta 
 #envar_meta_newopcode <- merge(meta_benthic, envar_benthic, by.x = "NewOpCode", by.y = "NewOpCode")
-#ggplot2::ggplot(envar_benthic, aes(x=distMarket, y=distPort)) + geom_point()
 
 
 # join measured depth to benthic bruvs data with environmental variables
