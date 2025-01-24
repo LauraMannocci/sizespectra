@@ -26,6 +26,7 @@ maxn2 <- get_missing_maxn_pelagic()
 fl2 <- get_missing_fl_pelagic()
 
 
+
 ### clean data
 
 # clean maxn
@@ -124,7 +125,9 @@ sum(maxn$MaxN) - nrow(fl) # 1175 supplementary row numbers in fl due to error in
 
 
 ### Estimate weight from observed length for a taxa using rfishbase with regression method
+
 fl <- estimate_weight_from_length(fl)
+
 
 
 
@@ -279,6 +282,7 @@ sum(maxn$MaxN) - nrow(fl) # 17171 supplementary row numbers in fl due to error i
 
 
 ### Estimate weight from observed length for a taxa using rfishbase
+
 fl <- estimate_weight_from_length(fl)
 
 
