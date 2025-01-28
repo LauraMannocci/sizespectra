@@ -65,7 +65,6 @@ fig_fl_length_weight <- fl_lengthweight(data = fl_pelagic_benthic_meta)
 
 
 
-
 #### Fig 3 weight against latitudinal band  ----
 
 # ggridges weight against lat bad

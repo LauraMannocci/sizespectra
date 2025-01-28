@@ -54,57 +54,54 @@ var_logCHL <-    bruvs_var_range(tab_firstmode, "logCHL", "Chlorophyll-a concenc
 var_logSST <-    bruvs_var_range(tab_firstmode, "logSST", "Sea-surface temperature, log10(°C)")
 var_slope <-     bruvs_var_range(tab_firstmode, "Slope", "Slope, (°)")
 
-#var_SST_sd <-    bruvs_var_range(tab_firstmode, "SST_sd")
-#var_SST_GEm <-   bruvs_var_range(tab_firstmode, "GovernmentEffectiveness_mean")
-
 #make multiplot
 envar_multiplot <- multi_envar_range() 
 
-#envar range interaction to set for marg----
-
-prot_var_logBathy <-  bruvs_protect_var(tab_betaslope, "logBathy", 1.7)  # logBathy = 1.5
-prot_var_logDistCR <- bruvs_protect_var(tab_betaslope, "logDistCR", 5) # logDistCR = 4.5
-prot_var_logDistSM <- bruvs_protect_var(tab_betaslope, "logDistSM", 4.5) # logDistSM = 5
-prot_var_logDistP <-  bruvs_protect_var(tab_betaslope, "logDistP", 1.2)  # logDistP = 1.7
-prot_var_logDistC <-  bruvs_protect_var(tab_betaslope, "logDistC", 4)  # logDistC = 4
-prot_var_logTTM <-    bruvs_protect_var(tab_betaslope, "logTTM", 3)    # logTTM  = 3
-prot_var_logCHL <-    bruvs_protect_var(tab_betaslope, "logCHL",.06)    # logCHL = 0.10 
-prot_var_logSST <-    bruvs_protect_var(tab_betaslope, "logSST", 1.4)    # logSST = 1.4
-prot_var_Slope  <-    bruvs_protect_var(tab_betaslope, "Slope", 88) # Slbetaslope#make multiplot
-prot_var_SST_sd  <-    bruvs_protect_var(tab_betaslope, "SST_sd", 88) # Slbetaslope#make multiplot
-
-
-envar_multiplot_cat <- multi_envar_range_cat() 
+# #envar range interaction to set for marg----
+# 
+# prot_var_logBathy <-  bruvs_protect_var(tab_betaslope, "logBathy", 1.7)  # logBathy = 1.5
+# prot_var_logDistCR <- bruvs_protect_var(tab_betaslope, "logDistCR", 5) # logDistCR = 4.5
+# prot_var_logDistSM <- bruvs_protect_var(tab_betaslope, "logDistSM", 4.5) # logDistSM = 5
+# prot_var_logDistP <-  bruvs_protect_var(tab_betaslope, "logDistP", 1.2)  # logDistP = 1.7
+# prot_var_logDistC <-  bruvs_protect_var(tab_betaslope, "logDistC", 4)  # logDistC = 4
+# prot_var_logTTM <-    bruvs_protect_var(tab_betaslope, "logTTM", 3)    # logTTM  = 3
+# prot_var_logCHL <-    bruvs_protect_var(tab_betaslope, "logCHL",.06)    # logCHL = 0.10 
+# prot_var_logSST <-    bruvs_protect_var(tab_betaslope, "logSST", 1.4)    # logSST = 1.4
+# prot_var_Slope  <-    bruvs_protect_var(tab_betaslope, "Slope", 88) # Slbetaslope#make multiplot
+# prot_var_SST_sd  <-    bruvs_protect_var(tab_betaslope, "SST_sd", 88) # Slbetaslope#make multiplot
+# 
+# 
+# envar_multiplot_cat <- multi_envar_range_cat() 
 
 ###BETASLOPE MODEL -----
 
 #make correlogram of predictors
-cor <- make_correlogram_vars(tab_betaslope)
+#cor <- make_correlogram_vars(tab_betaslope)
 
 
 # fit saturated betaslope mode
 
 #betaslope fully saturated model with basic autocorrelation structure----
-mod_sat_betaslope <- fit_gls_sat_cor_betaslope(tab_betaslope)
+#mod_sat_betaslope <- fit_gls_sat_cor_betaslope(tab_betaslope)
 
 #variance inflation factor
-vif(mod_sat_betaslope) #suggest government effectiveness and SST_sd are problematic at VIF >10
+#vif(mod_sat_betaslope) #suggest government effectiveness and SST_sd are problematic at VIF >10
 
 #get model diagnostics
-get_gls_diagnostics(tab_betaslope, mod_sat_betaslope, "mod_sat_betaslope")
+#get_gls_diagnostics(tab_betaslope, mod_sat_betaslope, "mod_sat_betaslope")
 
 #model performance
-get_adj_r2(mod_sat_betaslope)
+#get_adj_r2(mod_sat_betaslope)
 
 #coef plot
-coef_plot(mod_sat_betaslope, "mod_sat_betaslope")
+#coef_plot(mod_sat_betaslope, "mod_sat_betaslope")
 
-coef_plot_signif_terms(mod_sat_betaslope, "mod_sat_betaslope ", 0.05)
+#coef_plot_signif_terms(mod_sat_betaslope, "mod_sat_betaslope ", 0.05)
 
 
 
 ##### stepAIC on saturated model CAREFULL takes a long time
-mod_sim_betaslope <- MASS::stepAIC(mod_sat_betaslope)
+#mod_sim_betaslope <- MASS::stepAIC(mod_sat_betaslope)
 
 #betaslope simplified model----
 ##faster, but needs updating if the saturated model form has changed
@@ -112,33 +109,33 @@ mod_sim_betaslope <- MASS::stepAIC(mod_sat_betaslope)
 mod_sim_betaslope <- fit_gls_sim_cor_betaslope(tab_betaslope)
 
 #model performance
-get_adj_r2(mod_sim_betaslope) 
+#get_adj_r2(mod_sim_betaslope) 
 
 #get model diagnostic
-get_gls_diagnostics(tab_betaslope, mod_sim_betaslope, "mod_sim_betaslope")
+#get_gls_diagnostics(tab_betaslope, mod_sim_betaslope, "mod_sim_betaslope")
 
 
 #standardized effect plot
-coef_plot(mod_sim_betaslope, "mod_sim_betaslope")
+#coef_plot(mod_sim_betaslope, "mod_sim_betaslope")
 
 #standardized effect plot with significant terms of interest
-coef_plot_signif_terms(mod_sim_betaslope, "GLS size spectra slope", 0.05)
+#coef_plot_signif_terms(mod_sim_betaslope, "GLS size spectra slope", 0.05)
 
  #Fig. S6 betaslope marginal plot of simplified model----
 #mod_sim_betaslope <- mod_sat_betaslope
 
 
 #bathy marg with zoom
-marg_plot_bathy(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logBathy [all]", var_name = "logBathy", group = "bruvs")
+#marg_plot_bathy(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logBathy [all]", var_name = "logBathy", group = "bruvs")
 
 #log marg
-marg_plot_log(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", condition =condition)
-marg_plot_log(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "GovernmentEffectiveness_mean [all]", var_name = "GovernmentEffectiveness_mean", group = "bruvs", condition = condition)
-marg_plot_log(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "SST_sd [all]", var_name = "SST_sd", group = "bruvs", condition =condition)
-marg_plot_log(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logSST [all]", var_name = "logSST", group = "bruvs", condition =condition)
-marg_plot_log(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "Slope [all]", var_name = "Slope", group = "bruvs", condition =condition)
-marg_plot_log(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logDistCR [all]", var_name = "logDistCR", group = "bruvs", condition =condition)
-marg_plot_log(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logDistP [all]", var_name = "logDistP", group = "bruvs", condition =condition)
+# marg_plot_log(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", condition =condition)
+# marg_plot_log(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "GovernmentEffectiveness_mean [all]", var_name = "GovernmentEffectiveness_mean", group = "bruvs", condition = condition)
+# marg_plot_log(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "SST_sd [all]", var_name = "SST_sd", group = "bruvs", condition =condition)
+# marg_plot_log(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logSST [all]", var_name = "logSST", group = "bruvs", condition =condition)
+# marg_plot_log(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "Slope [all]", var_name = "Slope", group = "bruvs", condition =condition)
+# marg_plot_log(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logDistCR [all]", var_name = "logDistCR", group = "bruvs", condition =condition)
+# marg_plot_log(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logDistP [all]", var_name = "logDistP", group = "bruvs", condition =condition)
 
 #nonlog marg (set as "not_protected")
 #marg_plot(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "SST_sd [all]", var_name = "SST_sd", group = "bruvs")
@@ -147,28 +144,25 @@ marg_plot_log(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab
 #marg_plot_cat_covar(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "protection_use [all]", var_name = "protection_use", group = "bruvs", group2 = "protection_use", condition =condition)
 
 #multiple categorical terms
-ProtBetaslope <- marg_plot_cat_catvar(response= "beta_slope", mod_name = "mod_sim_betaslope", tab_betaslope, mod_sim_betaslope, "protection_use [all]", "protection_use", "bruvs", condition = condition)
+#ProtBetaslope <- marg_plot_cat_catvar(response= "beta_slope", mod_name = "mod_sim_betaslope", tab_betaslope, mod_sim_betaslope, "protection_use [all]", "protection_use", "bruvs", condition = condition)
 
 #multiple interaction terms with - no extrapolation
 
 #bathy
-marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logBathy [all]", var_name = "logBathy", group = "bruvs", group2 = "protection_use", condition = condition)
-marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logDistC [all]", var_name = "logDistC", group = "bruvs", group2 = "protection_use", condition = condition)
-marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logDistCR [all]", var_name = "logDistCR", group = "bruvs", group2 = "protection_use", condition = condition)
-marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "Slope [all]", var_name = "Slope", group = "bruvs", group2 = "protection_use", condition = condition)
+# marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logBathy [all]", var_name = "logBathy", group = "bruvs", group2 = "protection_use", condition = condition)
+# marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logDistC [all]", var_name = "logDistC", group = "bruvs", group2 = "protection_use", condition = condition)
+# marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logDistCR [all]", var_name = "logDistCR", group = "bruvs", group2 = "protection_use", condition = condition)
+# marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "Slope [all]", var_name = "Slope", group = "bruvs", group2 = "protection_use", condition = condition)
 
 #envar
-marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logCHL [all]", var_name = "logCHL", group = "bruvs", group2 = "protection_use", condition = condition)
-SSTBetaslope <- marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logSST [all]", var_name = "logSST", group = "bruvs", group2 = "protection_use", condition = condition)
-SST_sdBetaslope <- marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "SST_sd [all]", var_name = "SST_sd", group = "bruvs", group2 = "protection_use", condition = condition)
+#marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logCHL [all]", var_name = "logCHL", group = "bruvs", group2 = "protection_use", condition = condition)
+#SSTBetaslope <- marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logSST [all]", var_name = "logSST", group = "bruvs", group2 = "protection_use", condition = condition)
+#SST_sdBetaslope <- marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "SST_sd [all]", var_name = "SST_sd", group = "bruvs", group2 = "protection_use", condition = condition)
 
 #social
-marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "GovernmentEffectiveness_mean [all]", var_name = "GovernmentEffectiveness_mean", group = "bruvs", group2 = "protection_use", condition = condition)
-TTMBetaslope <- marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition)
-distPBetaslope <- marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logDistP [all]", var_name = "logDistP", group = "bruvs", group2 = "protection_use", condition = condition)
-
-
-
+#marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "GovernmentEffectiveness_mean [all]", var_name = "GovernmentEffectiveness_mean", group = "bruvs", group2 = "protection_use", condition = condition)
+#TTMBetaslope <- marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition)
+#distPBetaslope <- marg_plot_cat_covar_noextra(response = "beta_slope", mod_name = "mod_sim_betaslope", dat = tab_betaslope, mod= mod_sim_betaslope, var = "logDistP [all]", var_name = "logDistP", group = "bruvs", group2 = "protection_use", condition = condition)
 
 
 ##### FIRST MODE MODEL -----
@@ -177,28 +171,28 @@ distPBetaslope <- marg_plot_cat_covar_noextra(response = "beta_slope", mod_name 
 
 #firstmode fully saturated model with basic autocorrelation structure----
 
-mod_sat_firstmode <- fit_gls_sat_cor_firstmode(tab_firstmode)
+#mod_sat_firstmode <- fit_gls_sat_cor_firstmode(tab_firstmode)
 
 #variance inflation factor
-vif(mod_sat_firstmode) #suggest government effectiveness and SST_sd are problematic at VIF >10
+#vif(mod_sat_firstmode) #suggest government effectiveness and SST_sd are problematic at VIF >10
 
 #model performance
 
-get_adj_r2(mod_sat_firstmode)
+#get_adj_r2(mod_sat_firstmode)
 
 #get model diagnostics
-get_gls_diagnostics(tab_firstmode, mod_sat_firstmode, "mod_sat_firstmode")
+#get_gls_diagnostics(tab_firstmode, mod_sat_firstmode, "mod_sat_firstmode")
 
-coef_plot_signif_terms(mod_sat_firstmode, "mod_sat_firstmode ", 0.05)
+#coef_plot_signif_terms(mod_sat_firstmode, "mod_sat_firstmode ", 0.05)
 
 
 #coef plot
-coef_plot(mod_sat_firstmode, "mod_sat_firstmode")
+#coef_plot(mod_sat_firstmode, "mod_sat_firstmode")
 
 #firstmode simplified model----
 
 ##### stepAIC on saturated model CAREFULL takes a long time
-mod_sim_firstmode <- MASS::stepAIC(mod_sat_firstmode)
+#mod_sim_firstmode <- MASS::stepAIC(mod_sat_firstmode)
 
 #or just fit directly
 
@@ -208,16 +202,16 @@ mod_sim_firstmode <- fit_gls_sim_cor_firstmode(tab_firstmode)
 
 #model performance
 
-get_adj_r2(mod_sim_firstmode)
+#get_adj_r2(mod_sim_firstmode)
 
 #get model diagnostics
-get_gls_diagnostics(tab_firstmode, mod_sim_firstmode, "mod_sim_firstmode")
+#get_gls_diagnostics(tab_firstmode, mod_sim_firstmode, "mod_sim_firstmode")
 
 #coef plot
-coef_plot(mod_sim_firstmode, "mod_sim_firstmode")
+#coef_plot(mod_sim_firstmode, "mod_sim_firstmode")
 
 #standardized effect plot with significant terms of interest
-coef_plot_signif_terms(mod_sim_firstmode, "GLS body size of relatively small fishes ", 0.05)
+#coef_plot_signif_terms(mod_sim_firstmode, "GLS body size of relatively small fishes ", 0.05)
 
 #Fig. S7 firstmode marginal plot of simplified model----
 #mod_sim_firstmode <- mod_sat_firstmode
@@ -226,26 +220,26 @@ coef_plot_signif_terms(mod_sim_firstmode, "GLS body size of relatively small fis
 #firstmode marginal plots of simplified model - need to update with name of actual variables
 
 #simple marginal plot
-marg_plot_log(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "logBathy [all]", var_name = "logBathy", group = "bruvs", condition =condition)
-marg_plot_log(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "logDistP [all]", var_name = "logDistP", group = "bruvs", condition =condition)
-marg_plot_log(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "GovernmentEffectiveness_mean [all]", var_name = "GovernmentEffectiveness_mean", group = "bruvs", condition =condition)
+#marg_plot_log(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "logBathy [all]", var_name = "logBathy", group = "bruvs", condition =condition)
+#marg_plot_log(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "logDistP [all]", var_name = "logDistP", group = "bruvs", condition =condition)
+#marg_plot_log(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "GovernmentEffectiveness_mean [all]", var_name = "GovernmentEffectiveness_mean", group = "bruvs", condition =condition)
 
 
 #interaction marginal plot 
-logBathyFirstmode <- marg_plot_cat_covar_noextra(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "logBathy [all]", var_name = "logBathy", group = "bruvs", group2 = "protection_use", condition = condition)
-distPFirstmode <- marg_plot_cat_covar_noextra(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "logDistP [all]", var_name = "logDistP", group = "bruvs", group2 = "protection_use", condition = condition)
-SSTFirstmode <- marg_plot_cat_covar_noextra(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "logSST [all]", var_name = "logSST", group = "bruvs", group2 = "protection_use", condition = condition)
-SST_sdFirstmode <- marg_plot_cat_covar_noextra(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "SST_sd [all]", var_name = "SST_sd", group = "bruvs", group2 = "protection_use", condition = condition)
-CHL_Firstmode <- marg_plot_cat_covar_noextra(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "logCHL [all]", var_name = "logCHL", group = "bruvs", group2 = "protection_use", condition = condition)
-Gov_Firstmode <- marg_plot_cat_covar_noextra(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "GovernmentEffectiveness_mean [all]", var_name = "GovernmentEffectiveness_mean", group = "bruvs", group2 = "protection_use", condition = condition)
+# logBathyFirstmode <- marg_plot_cat_covar_noextra(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "logBathy [all]", var_name = "logBathy", group = "bruvs", group2 = "protection_use", condition = condition)
+# distPFirstmode <- marg_plot_cat_covar_noextra(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "logDistP [all]", var_name = "logDistP", group = "bruvs", group2 = "protection_use", condition = condition)
+# SSTFirstmode <- marg_plot_cat_covar_noextra(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "logSST [all]", var_name = "logSST", group = "bruvs", group2 = "protection_use", condition = condition)
+# SST_sdFirstmode <- marg_plot_cat_covar_noextra(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "SST_sd [all]", var_name = "SST_sd", group = "bruvs", group2 = "protection_use", condition = condition)
+# CHL_Firstmode <- marg_plot_cat_covar_noextra(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "logCHL [all]", var_name = "logCHL", group = "bruvs", group2 = "protection_use", condition = condition)
+# Gov_Firstmode <- marg_plot_cat_covar_noextra(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "GovernmentEffectiveness_mean [all]", var_name = "GovernmentEffectiveness_mean", group = "bruvs", group2 = "protection_use", condition = condition)
 
 #TTMFirstmode_bruvs <- marg_plot_cat_covar_separate_bruvs(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition)
 
-TTMFirstmode <- marg_plot_cat_covar_noextra(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition)
+#TTMFirstmode <- marg_plot_cat_covar_noextra(response = "logFirstmode", mod_name = "mod_sim_firstmode", dat = tab_firstmode, mod= mod_sim_firstmode, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition)
 
 
 #multiple categorical terms
-ProtFirstmode <- marg_plot_cat_catvar(response= "logFirstmode", mod_name = "mod_sim_firstmode", tab_firstmode, mod_sim_firstmode, "protection_use [all]", "protection_use", "bruvs", condition = condition)
+#ProtFirstmode <- marg_plot_cat_catvar(response= "logFirstmode", mod_name = "mod_sim_firstmode", tab_firstmode, mod_sim_firstmode, "protection_use [all]", "protection_use", "bruvs", condition = condition)
 
 
 
@@ -254,31 +248,31 @@ ProtFirstmode <- marg_plot_cat_catvar(response= "logFirstmode", mod_name = "mod_
 
 #secondmode fully saturated model with basic autocorrelation structure----
 
-mod_sat_secondmode <- fit_gls_sat_cor_secondmode(tab_secondmode)
+#mod_sat_secondmode <- fit_gls_sat_cor_secondmode(tab_secondmode)
 
 
 #variance inflation factor
-vif(mod_sat_secondmode) #suggest government effectiveness and SST_sd are problematic at VIF >10
+#vif(mod_sat_secondmode) #suggest government effectiveness and SST_sd are problematic at VIF >10
 
 
 #model performance
 
-get_adj_r2(mod_sat_secondmode)
+#get_adj_r2(mod_sat_secondmode)
 
 #standardized effect plot
 
-coef_plot(mod_sat_secondmode, "mod_sat_secondmode")
+#coef_plot(mod_sat_secondmode, "mod_sat_secondmode")
 
 #get model diagnostics
-get_gls_diagnostics(tab_secondmode, mod_sat_secondmode, "mod_sat_secondmode")
+#get_gls_diagnostics(tab_secondmode, mod_sat_secondmode, "mod_sat_secondmode")
 
-coef_plot_signif_terms(mod_sat_secondmode, "mod_sat_secondmode ", 0.05)
+#coef_plot_signif_terms(mod_sat_secondmode, "mod_sat_secondmode ", 0.05)
 
 
 #secondmode simplified model----
 
 ##### stepAIC on saturated model CAREFULL takes a long time
-mod_sim_secondmode <- MASS::stepAIC(mod_sat_secondmode)
+#mod_sim_secondmode <- MASS::stepAIC(mod_sat_secondmode)
 
 
 
@@ -288,17 +282,17 @@ mod_sim_secondmode <- fit_gls_sim_cor_secondmode(tab_secondmode)
 
 #standardized effect plot
 
-coef_plot(mod_sim_secondmode, "mod_sim_secondmode")
+#coef_plot(mod_sim_secondmode, "mod_sim_secondmode")
 
 #standardized effect plot with significant terms of interest
-coef_plot_signif_terms(mod_sim_secondmode, "GLS body size of relatively large fishes", 0.05)
+#coef_plot_signif_terms(mod_sim_secondmode, "GLS body size of relatively large fishes", 0.05)
 
 # model diagnostics
-get_gls_diagnostics(tab_secondmode, mod_sim_secondmode, "mod_sim_secondmode")
+#get_gls_diagnostics(tab_secondmode, mod_sim_secondmode, "mod_sim_secondmode")
 
 
 #adjusted r2
-get_adj_r2(mod_sim_secondmode)
+#get_adj_r2(mod_sim_secondmode)
 
 #Fig. S8 secondmode marginal plot of simplified model----
 #mod_sim_secondmode <- mod_sat_secondmode
@@ -308,51 +302,45 @@ get_adj_r2(mod_sim_secondmode)
 #secondmode marginal plots of simplified model - need to update with name of actual variables
 
 #simple marginal plot
-marg_plot_log(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", condition =condition)
-marg_plot_log(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logCHL [all]", var_name = "logCHL", group = "bruvs", condition =condition)
-marg_plot_log(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logDistC [all]", var_name = "logDistC", group = "bruvs", condition =condition)
-marg_plot_log(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logBathy [all]", var_name = "logBathy", group = "bruvs", condition =condition)
-marg_plot_log(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logDistCR [all]", var_name = "logDistCR", group = "bruvs", condition =condition)
-marg_plot_log(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logDistP [all]", var_name = "logDistP", group = "bruvs", condition =condition)
-marg_plot_log(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logSST [all]", var_name = "logSST", group = "bruvs", condition =condition)
-marg_plot_log(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logDistSM [all]", var_name = "logDistSM", group = "bruvs", condition =condition)
+# marg_plot_log(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", condition =condition)
+# marg_plot_log(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logCHL [all]", var_name = "logCHL", group = "bruvs", condition =condition)
+# marg_plot_log(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logDistC [all]", var_name = "logDistC", group = "bruvs", condition =condition)
+# marg_plot_log(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logBathy [all]", var_name = "logBathy", group = "bruvs", condition =condition)
+# marg_plot_log(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logDistCR [all]", var_name = "logDistCR", group = "bruvs", condition =condition)
+# marg_plot_log(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logDistP [all]", var_name = "logDistP", group = "bruvs", condition =condition)
+# marg_plot_log(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logSST [all]", var_name = "logSST", group = "bruvs", condition =condition)
+# marg_plot_log(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logDistSM [all]", var_name = "logDistSM", group = "bruvs", condition =condition)
 
 
 #interaction marginal plot 
 
-marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logBathy [all]", var_name = "logBathy", group = "bruvs", group2 = "protection_use", condition = condition)
-distPSecondmode <- marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logDistP [all]", var_name = "logDistP", group = "bruvs", group2 = "protection_use", condition = condition)
-SSTSecondmode <- marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logSST [all]", var_name = "logSST", group = "bruvs", group2 = "protection_use", condition = condition)
-CHLSecondmode <- marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logCHL [all]", var_name = "logCHL", group = "bruvs", group2 = "protection_use", condition = condition)
-marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logDistC [all]", var_name = "logDistC", group = "bruvs", group2 = "protection_use", condition = condition)
-marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "GovernmentEffectiveness_mean [all]", var_name = "GovernmentEffectiveness_mean", group = "bruvs", group2 = "protection_use", condition = condition)
-marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "SST_sd [all]", var_name = "SST_sd", group = "bruvs", group2 = "protection_use", condition = condition)
-marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logDistSM [all]", var_name = "logDistSM", group = "bruvs", group2 = "protection_use", condition = condition)
+# marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logBathy [all]", var_name = "logBathy", group = "bruvs", group2 = "protection_use", condition = condition)
+# distPSecondmode <- marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logDistP [all]", var_name = "logDistP", group = "bruvs", group2 = "protection_use", condition = condition)
+# SSTSecondmode <- marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logSST [all]", var_name = "logSST", group = "bruvs", group2 = "protection_use", condition = condition)
+# CHLSecondmode <- marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logCHL [all]", var_name = "logCHL", group = "bruvs", group2 = "protection_use", condition = condition)
+# marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logDistC [all]", var_name = "logDistC", group = "bruvs", group2 = "protection_use", condition = condition)
+# marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "GovernmentEffectiveness_mean [all]", var_name = "GovernmentEffectiveness_mean", group = "bruvs", group2 = "protection_use", condition = condition)
+# marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "SST_sd [all]", var_name = "SST_sd", group = "bruvs", group2 = "protection_use", condition = condition)
+# marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logDistSM [all]", var_name = "logDistSM", group = "bruvs", group2 = "protection_use", condition = condition)
 
 
 
-TTMSecondmode <- marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition)
-
+# TTMSecondmode <- marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition)
 
 #TTMSecondmode_bruvs <- marg_plot_cat_covar_separate_bruvs(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition)
 
 
 #multiple categorical terms
-ProtSecondmode <- marg_plot_cat_catvar(response= "logSecondmode", mod_name = "mod_sim_secondmode", tab_secondmode, mod_sim_secondmode, "protection_use [all]", "protection_use", "bruvs", condition = condition)
+#ProtSecondmode <- marg_plot_cat_catvar(response= "logSecondmode", mod_name = "mod_sim_secondmode", tab_secondmode, mod_sim_secondmode, "protection_use [all]", "protection_use", "bruvs", condition = condition)
 
 ### Fig. 4  ALL MODEL COMBINED----
 #TTM
-multi_covariate_marg(TTMFirstmode, TTMSecondmode,TTMBetaslope, "TTM")
-multi_covariate_marg_bruvs(TTMFirstmode_bruvs, TTMSecondmode_bruvs,TTMBetaslope_bruvs, "TTM")
-
-#TTM with conceptual 
-#conceptual_marg_mod(TTMFirstmode, TTMSecondmode,TTMBetaslope, "TTM")
-#conceptual_marg_bruvs(TTMFirstmode_bruvs, TTMSecondmode_bruvs,TTMBetaslope_bruvs, "TTM")
+#multi_covariate_marg(TTMFirstmode, TTMSecondmode,TTMBetaslope, "TTM")
+#multi_covariate_marg_bruvs(TTMFirstmode_bruvs, TTMSecondmode_bruvs,TTMBetaslope_bruvs, "TTM")
 
 
 
 #extract prediction for each models and combine data at typical envar values for benthic and pelagic samples
-
 
 pel <- subset(tab_firstmode, bruvs=="pelagic")#&protection_use=="not_protected")
 ben <- subset(tab_firstmode, bruvs=="benthic")#&protection_use=="not_protected")
@@ -360,8 +348,7 @@ ben <- subset(tab_firstmode, bruvs=="benthic")#&protection_use=="not_protected")
 #pel = tab_firstmode
 #ben = tab_firstmode
 
-# with means specified 
-
+# specify explanatory variables means 
 condition_pel = c(logBathy = mean(pel$logBathy), logDistCR = mean(pel$logDistCR), logSST = mean(pel$logSST), logDistSM = mean(pel$logDistSM), logDistP =  1.2, logCHL= mean(pel$logCHL), logDistC = mean(pel$logDistC), Slope =mean(pel$Slope))
 condition_ben = c(logBathy = mean(ben$logBathy), logDistCR = mean(ben$logDistCR), logSST = mean(ben$logSST), logDistSM = mean(ben$logDistSM), logDistP =  1.2, logCHL= mean(ben$logCHL), logDistC = mean(ben$logDistC), Slope =mean(ben$Slope))
 
@@ -391,16 +378,12 @@ save_marg_pred_all(pred_all) # save marginal predictions
 ###plot marginal plot combined by protection level -
 
 pred_all <- read_marg_pred_all() # read marginal predictions - saves rerunning models
-marg_plot_bruvs_prot(pred=pred_all, var_name = "logTTM", rug_beta = tab_betaslope)
-
+marg_plot_bruvs_prot_rug(pred=pred_all, var_name = "logTTM", rug_beta = tab_betaslope)
 
 
 
 
     ## LINEAR REGRESSION RESPONSE-----
-
-
-
 
 #Moran's I
 

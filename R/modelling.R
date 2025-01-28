@@ -2629,11 +2629,11 @@ marg_data_bruvs_prot <- function(response, mod_name, dat, mod, var, var_name, gr
   #marg <- ggplot(transform(pred, facet=factor(facet, levels =c("not_protected","part_protected","protected"))), aes(x, predicted, fill=group, linetype =facet, alpha = facet)) +
   
   # Replicate data
-  levels(pred$group) <- c("Benthic", "Pelagic")
-  levels(pred$facet) <- c("Strictly protected", "Partly protected", "Not protected")
-  levels(pred$facet)[levels(pred$facet)=="Strictly protected"] <- "Highly protected"
-  response_type <- c(response)
-  pred['response_type'] <- response_type
+  #levels(pred$group) <- c("Benthic", "Pelagic")
+  #levels(pred$facet) <- c("Strictly protected", "Partly protected", "Not protected")
+  #levels(pred$facet)[levels(pred$facet)=="Strictly protected"] <- "Highly protected"
+  #response_type <- c(response)
+ # pred['response_type'] <- response_type
 
   
   return(pred)
@@ -2643,7 +2643,7 @@ marg_data_bruvs_prot <- function(response, mod_name, dat, mod, var, var_name, gr
 
 
 
-#' marginal plots for categorical co_variates with noextra but with bruvs as facet wrap
+#' marginal plots for categorical co_variates with noextra but with bruvs as facet wrap and rug
 #'
 #' @param pred data
 #' @param var_name variable name
@@ -2654,7 +2654,7 @@ marg_data_bruvs_prot <- function(response, mod_name, dat, mod, var, var_name, gr
 #' @export
 #'
 
-marg_plot_bruvs_prot <- function(pred, var_name, rug_beta){
+marg_plot_bruvs_prot_rug <- function(pred, var_name, rug_beta){
 
   
   pred<- pred_all
@@ -2662,10 +2662,10 @@ marg_plot_bruvs_prot <- function(pred, var_name, rug_beta){
   
   #levels(pred$response_type) <- c("Small fishes","Large fishes", "Size spectra slope")
   
-  pred <- transform(pred, group=factor(group, levels =c("Pelagic","Benthic")))
-  pred <- transform(pred, facet=factor(facet, levels =c("Not protected","Partly protected", "Strictly protected")))
-  levels(pred$facet)[levels(pred$facet)=="Strictly protected"] <- "Highly protected"
-  pred$response_type <- factor(pred$response, levels = c("logSecondmode", "logFirstmode", "beta_slope"))
+  #pred <- transform(pred, group=factor(group, levels =c("Pelagic","Benthic")))
+  pred <- transform(pred, facet=factor(facet, levels =c("Not protected","Partly protected", "Highly protected")))
+  #levels(pred$facet)[levels(pred$facet)=="Strictly protected"] <- "Highly protected"
+  #pred$response_type <- factor(pred$response, levels = c("logSecondmode", "logFirstmode", "beta_slope"))
  
   #split data into first/second mode and betaslope
   pred1 <- pred[ which(pred$response_type=='logSecondmode' | pred$response_type=='logFirstmode'), ]

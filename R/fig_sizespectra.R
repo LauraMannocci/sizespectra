@@ -523,6 +523,7 @@ fl_lengthweight <- function(data){
     geom_point(data = data, aes(x= Lengthcm, y=weight_kg, colour = Type, fill = Type), alpha = 0.01, size = 0.5)+
     scale_colour_manual(values = c("Pelagic" = '#077DAA', 'Benthic' = 'orange'))+
     scale_fill_manual(values = c("Pelagic" = '#077DAA', 'Benthic' = 'orange')) +
+    #scale_fill_discrete(labels=c('Pelagic', 'Benthic')) +
     scale_x_log10() + scale_y_log10(breaks= c(0.1, 1, 10))+ 
     xlab("Fork length (cm)")+ylab("Body size (kg)")+
     theme_light() +theme(legend.position = "bottom", axis.title=element_text(size=22),legend.title = element_blank(),
