@@ -2,13 +2,10 @@
 .Rhistory
 .RData
 .DS_Store
-/outputs
-outputs/
 /data/response
-data/response/
 /outputs/benthic 
-outputs/benthic/
 /outputs/pelagic
+/outputs
 
 
 
