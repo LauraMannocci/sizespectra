@@ -1,5 +1,24 @@
-# ignore all files except .gitignore :
-*
 !.gitignore
-!pelagic/*
-!benthic/*
+fig_1_bruvs_screengrab.jpg
+fig_2_sample.jpeg
+fig_3_lat_lcd.jpeg
+fig_S2_response_new.jpeg 
+ .png
+fig_ridges_lon.png
+fig_ridges.png
+globalmap_sum.png
+species_ord_marg.png
+Extended_data_envar_range.jpeg
+Extended_Data_Fig_lat_lcd_lon.jpeg
+Extended_data_length_weight.jpeg
+meta_benthic.csv
+meta_pelagic.csv
+All_model_bruvs_prot_logTTM.jpeg
+bin_global_lm_lon.jpeg
+bin_global_lm.jpeg
+corrPlot.jpeg
+#benthic/size_response_envar_benthic_clean.txt
+#benthic/map_meta_benthic.png
+#benthic/benthic_opcodes.csv
+#benthic/benthic_length_distributions.png
+
