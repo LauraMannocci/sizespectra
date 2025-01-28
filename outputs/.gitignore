@@ -1,5 +1,5 @@
 # ignore all files except .gitignore :
 *
 !.gitignore
-pelagic/*
-benthic/*
+!pelagic/*
+!benthic/*
