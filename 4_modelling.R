@@ -118,10 +118,10 @@ mod_sim_betaslope <- fit_gls_sim_cor_betaslope(tab_betaslope)
 #standardized effect plot
 #coef_plot(mod_sim_betaslope, "mod_sim_betaslope")
 
-#standardized effect plot with significant terms of interest
-#coef_plot_signif_terms(mod_sim_betaslope, "GLS size spectra slope", 0.05)
+#FIG S6 standardized effect plot with significant terms of interest
+coef_plot_signif_terms(mod_sim_betaslope, "GLS size spectra slope", 0.05)
 
- #Fig. S6 betaslope marginal plot of simplified model----
+ #Fig. S betaslope marginal plot of simplified model----
 #mod_sim_betaslope <- mod_sat_betaslope
 
 
@@ -210,10 +210,10 @@ mod_sim_firstmode <- fit_gls_sim_cor_firstmode(tab_firstmode)
 #coef plot
 #coef_plot(mod_sim_firstmode, "mod_sim_firstmode")
 
-#standardized effect plot with significant terms of interest
-#coef_plot_signif_terms(mod_sim_firstmode, "GLS body size of relatively small fishes ", 0.05)
+# FIG S4 standardized effect plot with significant terms of interest
+coef_plot_signif_terms(mod_sim_firstmode, "GLS body size of relatively small fishes ", 0.05)
 
-#Fig. S7 firstmode marginal plot of simplified model----
+#firstmode marginal plot of simplified model----
 #mod_sim_firstmode <- mod_sat_firstmode
 
 
@@ -284,8 +284,8 @@ mod_sim_secondmode <- fit_gls_sim_cor_secondmode(tab_secondmode)
 
 #coef_plot(mod_sim_secondmode, "mod_sim_secondmode")
 
-#standardized effect plot with significant terms of interest
-#coef_plot_signif_terms(mod_sim_secondmode, "GLS body size of relatively large fishes", 0.05)
+#FIG S5 standardized effect plot with significant terms of interest
+coef_plot_signif_terms(mod_sim_secondmode, "GLS body size of relatively large fishes", 0.05)
 
 # model diagnostics
 #get_gls_diagnostics(tab_secondmode, mod_sim_secondmode, "mod_sim_secondmode")
@@ -325,19 +325,13 @@ mod_sim_secondmode <- fit_gls_sim_cor_secondmode(tab_secondmode)
 
 
 
-# TTMSecondmode <- marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition)
+#TTMSecondmode <- marg_plot_cat_covar_noextra(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition)
 
 #TTMSecondmode_bruvs <- marg_plot_cat_covar_separate_bruvs(response = "logSecondmode", mod_name = "mod_sim_secondmode", dat = tab_secondmode, mod= mod_sim_secondmode, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition)
 
 
 #multiple categorical terms
 #ProtSecondmode <- marg_plot_cat_catvar(response= "logSecondmode", mod_name = "mod_sim_secondmode", tab_secondmode, mod_sim_secondmode, "protection_use [all]", "protection_use", "bruvs", condition = condition)
-
-### Fig. 4  ALL MODEL COMBINED----
-#TTM
-#multi_covariate_marg(TTMFirstmode, TTMSecondmode,TTMBetaslope, "TTM")
-#multi_covariate_marg_bruvs(TTMFirstmode_bruvs, TTMSecondmode_bruvs,TTMBetaslope_bruvs, "TTM")
-
 
 
 #extract prediction for each models and combine data at typical envar values for benthic and pelagic samples
@@ -375,7 +369,7 @@ pred_all <- rbind(pred_firstmode_pel,pred_firstmode_ben, pred_secondmode_pel,pre
 
 save_marg_pred_all(pred_all) # save marginal predictions
 
-###plot marginal plot combined by protection level -
+### FIG 4 plot marginal plot combined by protection level -
 
 pred_all <- read_marg_pred_all() # read marginal predictions - saves rerunning models
 marg_plot_bruvs_prot_rug(pred=pred_all, var_name = "logTTM", rug_beta = tab_betaslope)
@@ -383,16 +377,7 @@ marg_plot_bruvs_prot_rug(pred=pred_all, var_name = "logTTM", rug_beta = tab_beta
 
 
 
-    ## LINEAR REGRESSION RESPONSE-----
-
-#Moran's I
-
-moran_i_test(mod_sim_betaslope, tab_betaslope)
-moran_i_test(mod_sim_firstmode, tab_firstmode)
-moran_i_test(mod_sim_secondmode, tab_secondmode)
-
-
-## SENSIVITY ANALYSIS 90% sub-sampling data----
+## FIG S8 SENSIVITY ANALYSIS 90% sub-sampling data----
 
 
 #betaslope sensitivity analysis 90%  -------------------------------------
@@ -577,7 +562,6 @@ write.csv(mod_pred_sens_secondmode, here::here("outputs", "model_outputs", "sens
 
 
 
-################## Fig. S9 marginal plot sensitivity  90% -------
 
 #merge
 pred_all_sens <- rbind(mod_pred_sens_firstmode,mod_pred_sens_secondmode,mod_pred_sens_betaslope)
@@ -591,6 +575,8 @@ pred_all_sens <- read_marg_pred_all_sens() # read marginal predictions
 
 marg_plot_bruvs_prot_sens(pred=pred_all_sens, var_name = "logTTM")
 
+
+################## Fig. S9 marginal plot sensitivity drop ocean  -------
 
 ## SENSIVITY ANALYSIS drop ocean----
 
