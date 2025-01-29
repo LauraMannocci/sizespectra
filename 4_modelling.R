@@ -351,15 +351,17 @@ pred_firstmode_pel <- subset(pred_firstmode, group=="Pelagic")# subset pelagic p
 pred_firstmode <- marg_data_bruvs_prot(response = "logFirstmode", dat = tab_firstmode, mod=mod_sim_firstmode, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_ben)
 pred_firstmode_ben <- subset(pred_firstmode, group=="Benthic")# subset benthic predictions
 # 
-# pel <- subset(tab_secondmode, bruvs=="pelagic")
-# ben <- subset(tab_secondmode, bruvs=="benthic")
+#pel <- subset(tab_secondmode, bruvs=="pelagic")
+#ben <- subset(tab_secondmode, bruvs=="benthic")
+
 pred_secondmode <- marg_data_bruvs_prot(response = "logSecondmode", dat = tab_secondmode, mod=mod_sim_secondmode, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_pel)
 pred_secondmode_pel <- subset(pred_secondmode, group=="Pelagic")
 pred_secondmode <- marg_data_bruvs_prot(response = "logSecondmode", dat = tab_secondmode, mod=mod_sim_secondmode, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_ben)
 pred_secondmode_ben <- subset(pred_secondmode, group=="Benthic")
 # 
-# pel <- subset(tab_betaslope, bruvs=="pelagic")
-# ben <- subset(tab_betaslope, bruvs=="benthic")
+#pel <- subset(tab_betaslope, bruvs=="pelagic")
+#ben <- subset(tab_betaslope, bruvs=="benthic")
+
 pred_betaslope <- marg_data_bruvs_prot(response = "beta_slope", dat = tab_betaslope, mod=mod_sim_betaslope, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_pel)
 pred_betaslope_pel <- subset(pred_betaslope, group=="Pelagic")
 pred_betaslope <- marg_data_bruvs_prot(response = "beta_slope", dat = tab_betaslope, mod=mod_sim_betaslope, var = "logTTM [all]", var_name = "logTTM", group = "bruvs", group2 = "protection_use", condition = condition_ben)
@@ -369,9 +371,14 @@ pred_all <- rbind(pred_firstmode_pel,pred_firstmode_ben, pred_secondmode_pel,pre
 
 save_marg_pred_all(pred_all) # save marginal predictions
 
+#marg_data_bruvs_prot(pred=pred_all, var_name = "logTTM", rug_beta = tab_betaslope)
+
+
 ### FIG 4 plot marginal plot combined by protection level -
 
 pred_all <- read_marg_pred_all() # read marginal predictions - saves rerunning models
+
+
 marg_plot_bruvs_prot_rug(pred=pred_all, var_name = "logTTM", rug_beta = tab_betaslope)
 
 
