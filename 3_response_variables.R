@@ -24,7 +24,7 @@ data_to_export <- modes_pelagic(SpecLen, data_to_export)
 data_to_export <- beta_slope_pelagic(SpecLen, data_to_export)
 
 
-#dat3<- subset_betaslope(dat3, -6, 1)
+#data_to_export<- subset_betaslope(data_to_export, -6, 1)
 
 #cor.test(dat3$betaslope, dat3$alt_slope, method = c("pearson", "kendall", "spearman"))
 
@@ -86,7 +86,13 @@ envar_pelagic$key <- paste(envar_pelagic$Exped., envar_pelagic$Date, sep = "__")
 
 #read pelagic size response and merge with envar
 
+#response_pelagic_old <- read.table(here::here("data", "response", "size_response_pelagic_old.txt"), header = TRUE)
 response_pelagic <- read.table(here::here("data", "response", "size_response_pelagic.txt"), header = TRUE)
+
+#response_benthic_old <- read.table(here::here("data", "response", "size_response_benthic_old.txt"), header = TRUE)
+response_benthic <- read.table(here::here("data", "response", "size_response_benthic.txt"), header = TRUE)
+
+
 
 size_response_envar_pelagic <- merge(envar_pelagic, response_pelagic, by = "key", all = TRUE)
 colnames(size_response_envar_pelagic)
